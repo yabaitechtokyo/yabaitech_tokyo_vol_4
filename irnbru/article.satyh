@@ -1,0 +1,23 @@
+@import: ../book-class
+
+module IrnBru : sig
+
+  val article : block-text
+
+end = struct
+
+let bibliography = []
+
+let article = '<
+    +chapter ?:(`ib-article`)
+    (|
+        bibliography = bibliography;
+        title = {Pohe Article};
+        author = {irnbru};
+    |)
+    <
+        +p{Hello, world!}
+    >
+>
+
+end

@@ -1,0 +1,23 @@
+@import: ../book-class
+
+module Wasabiz : sig
+
+  val article : block-text
+
+end = struct
+
+let bibliography = []
+
+let article = '<
+    +chapter ?:(`wasabiz-article`)
+    (|
+        bibliography = bibliography;
+        title = {Pohe Article};
+        author = {wasabiz};
+    |)
+    <
+        +p{Hello, world!}
+    >
+>
+
+end

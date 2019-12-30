@@ -1,0 +1,23 @@
+@import: ../book-class
+
+module Mh : sig
+
+  val article : block-text
+
+end = struct
+
+let bibliography = []
+
+let article = '<
+    +chapter ?:(`mh-article`)
+    (|
+        bibliography = bibliography;
+        title = {Pohe Article};
+        author = {mh};
+    |)
+    <
+        +p{Hello, world!}
+    >
+>
+
+end

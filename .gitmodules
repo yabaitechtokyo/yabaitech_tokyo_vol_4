@@ -1,0 +1,7 @@
+[submodule "base"]
+	path = base
+	url = git@github.com:nyuichi/satysfi-base.git
+
+[submodule "dblp2satysfi"]
+	path = dblp2satysfi
+	url = https://gist.github.com/08bfc2e0d5a3e6b4e95ddd4998f5cf3b.git

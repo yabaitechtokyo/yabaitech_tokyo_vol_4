@@ -1,0 +1,23 @@
+@import: ../book-class
+
+module Censored : sig
+
+  val article : block-text
+
+end = struct
+
+let bibliography = []
+
+let article = '<
+    +chapter ?:(`censored-article`)
+    (|
+        bibliography = bibliography;
+        title = {Pohe Article};
+        author = {censored};
+    |)
+    <
+        +p{Hello, world!}
+    >
+>
+
+end

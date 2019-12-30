@@ -1,0 +1,25 @@
+@import: book-class
+
+module Postscript : sig
+  val article : block-text
+end = struct
+
+let-block ctx +right-align it =
+  line-break false false ctx (inline-fil ++ (read-inline ctx it))
+
+let-block ctx +clear-page =
+  clear-page
+
+let article = '<
+  +chapter ?:(`postscript-article`) (|
+    bibliography = [];
+    title = {あとがき};
+    author = {};
+  |) <
+    +p{Have a good night!}
+    +right-align{(文責 : zeptometer)}
+    +clear-page;
+  >
+>
+
+end

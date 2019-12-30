@@ -1,0 +1,23 @@
+@import: ../book-class
+
+module Gfn : sig
+
+  val article : block-text
+
+end = struct
+
+let bibliography = []
+
+let article = '<
+    +chapter ?:(`gfn-article`)
+    (|
+        bibliography = bibliography;
+        title = {Pohe Article};
+        author = {gfn};
+    |)
+    <
+        +p{Hello, world!}
+    >
+>
+
+end

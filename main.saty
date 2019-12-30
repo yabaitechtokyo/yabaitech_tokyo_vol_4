@@ -1,0 +1,42 @@
+% -*- coding: utf-8 -*-
+@import: book-class
+@import: censored/article
+@import: gfn/article
+@import: irnbru/article
+@import: MasWag/article
+@import: mh/article
+@import: pohe/article
+@import: wasabiz/article
+@import: postscript
+@import: base/debug
+
+let () = Debug.log ``
+=====================
+YABAITECH.TOKYO vol.4
+
+　 ∧,,∧
+　(；`・ω・）　　｡･ﾟ･⌒） pdf 作るよ！！
+　/　　 ｏ━ヽニニフ))
+　しー-Ｊ
+
+=====================
+`` in
+
+document (|
+  title = `yabaitech.tokyo vol.4`;
+  venue = `技術書典8`;
+  date = `2019.03.01`;
+  author = `yabaitech.tokyo`;
+  email = `admin@yabaitech.tokyo`;
+  website = `http://yabaitech.tokyo`;
+  publisher = `有限会社 ねこのしっぽ`
+  |) '<
+    #Censored.article;
+    #Gfn.article;
+    #IrnBru.article;
+    #MasWag.article;
+    #Mh.article;
+    #Pohe.article;
+    #Wasabiz.article;
+    #Postscript.article;
+>
