@@ -6,10 +6,12 @@ jobs: # job 定義
     runs-on: ubuntu-latest   # ubuntu 環境で実行
     steps:
       - uses: actions/checkout@v1   # ソースコードをチェックアウトしてくる
+        with:
+          submodules: recursive
       - uses: textbook/git-checkout-submodule-action@master # Submodule init/update
       # satysfi-docker を使ってビルド (この例くらいなら slim タグを使ったほうがいいですが簡単のため latest)
       - run: docker run --rm -v $(pwd):/satysfi amutake/satysfi satysfi main.saty
-      # - uses: actions/upload-artifact@master
-      #   with:
-      #     name: 01-simple-example          # 01-simple-example という名前で、
-      #     path: 01-simple-example/doc.pdf  # doc.pdf をアップロード
+      - uses: actions/upload-artifact
+        with:
+          name: main.pdf
+          path: main.pdf  # main.pdf をアップロード
