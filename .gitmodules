@@ -1,6 +1,6 @@
 [submodule "base"]
 	path = base
-	url = git@github.com:nyuichi/satysfi-base.git
+	url = https://github.com/nyuichi/satysfi-base.git
 
 [submodule "dblp2satysfi"]
 	path = dblp2satysfi
