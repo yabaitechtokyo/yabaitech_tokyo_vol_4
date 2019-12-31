@@ -1,0 +1,16 @@
+name: build   # ワークフローの名前は build (バッヂをつける際はこの名前で参照することになります)
+on: push      # push 毎にワークフローを実行
+
+jobs: # job 定義
+  build-simple-example:      # job 定義の名前
+    runs-on: ubuntu-latest   # ubuntu 環境で実行
+    steps:
+      - uses: actions/checkout@v1   # ソースコードをチェックアウトしてくる
+        with:
+          submodules: recursive # Submodule init/update
+      # satysfi-docker を使ってビルド (この例くらいなら slim タグを使ったほうがいいですが簡単のため latest)
+      - run: docker run --rm -v $(pwd):/satysfi amutake/satysfi satysfi main.saty
+      - uses: actions/upload-artifact@master
+        with:
+          name: yabai2020s
+          path: main.pdf  # main.pdf をアップロード

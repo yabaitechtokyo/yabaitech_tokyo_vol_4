@@ -1,3 +1,6 @@
+[![Actions Status](https://github.com/nyuichi/yabai2020S/workflows/build/badge.svg)](https://github.com/nyuichi/yabai2020s/actions)
+
+
 # Dependencies
 * satysfi
 
