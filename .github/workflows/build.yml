@@ -6,6 +6,7 @@ jobs: # job 定義
     runs-on: ubuntu-latest   # ubuntu 環境で実行
     steps:
       - uses: actions/checkout@v1   # ソースコードをチェックアウトしてくる
+      - uses: textbook/git-checkout-submodule-action@master # Submodule init/update
       # satysfi-docker を使ってビルド (この例くらいなら slim タグを使ったほうがいいですが簡単のため latest)
       - run: docker run --rm -v $(pwd):/satysfi amutake/satysfi satysfi main.saty
       # - uses: actions/upload-artifact@master
