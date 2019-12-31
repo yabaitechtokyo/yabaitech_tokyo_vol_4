@@ -12,5 +12,5 @@ jobs: # job 定義
       - run: docker run --rm -v $(pwd):/satysfi amutake/satysfi satysfi main.saty
       - uses: actions/upload-artifact@master
         with:
-          name: main.pdf
+          name: yabai2020s
           path: main.pdf  # main.pdf をアップロード
