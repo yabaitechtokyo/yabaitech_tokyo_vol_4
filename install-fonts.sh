@@ -22,6 +22,7 @@ installFont RobotoMono https://www.wfonts.com/download/data/2016/05/18/roboto-mo
 
 curl -L http://sourceforge.net/projects/dejavu/files/dejavu/2.37/dejavu-fonts-ttf-2.37.zip -o DeJaVu.zip
 unzip DeJaVu.zip -d DeJaVu
+mkdir .satysfi/local/fonts/DejaVu
 mv DeJaVu/dejavu-fonts-ttf-2.37/ttf .satysfi/local/fonts/DeJaVu
 rm DeJaVu.zip
 rm -rf DeJaVu
