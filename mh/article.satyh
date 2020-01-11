@@ -1,4 +1,4 @@
-@import: ../book-class
+@import: ../class/yabaitech
 
 module Mh : sig
 

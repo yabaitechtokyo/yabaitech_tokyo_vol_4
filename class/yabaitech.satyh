@@ -8,13 +8,13 @@
 @require: vdecoset
 @require: footnote-scheme
 @require: table
-@import: base/int
-@import: base/pager
-@import: base/block
-@import: base/fn
-@import: base/image
-@import: base/color-ext
-@import: base/typeset/font
+@import: ../base/int
+@import: ../base/pager
+@import: ../base/block
+@import: ../base/fn
+@import: ../base/image
+@import: ../base/color-ext
+@import: ../base/typeset/font
 
 type bib-in-proceedings =
   (|

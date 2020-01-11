@@ -1,4 +1,4 @@
-@import: ../book-class
+@import: ../class/yabaitech
 
 let-inline ctx \todo inner =
   let ctx-todo =
