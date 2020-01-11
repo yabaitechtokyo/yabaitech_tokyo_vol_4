@@ -9,7 +9,9 @@ jobs: # job 定義
         with:
           submodules: recursive # Submodule init/update
       # satysfi-docker を使ってビルド (この例くらいなら slim タグを使ったほうがいいですが簡単のため latest)
-      - run: docker run --rm -v $(pwd):/satysfi amutake/satysfi satysfi main.saty
+      - run: |
+          bash install-fonts.sh
+          docker run --rm -v $(pwd):/satysfi amutake/satysfi satysfi main.saty
       - uses: actions/upload-artifact@master
         with:
           name: yabai2020s
