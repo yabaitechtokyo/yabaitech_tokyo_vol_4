@@ -1,0 +1,43 @@
+digraph flowchart {
+        subgraph cluster_machine_setup {
+                label = "マシン構築";
+                labelloc = "t";
+                labeljust = "l";
+                shape = box;
+                create [label="マシンを作成・設定\n(手動)",shape=box];
+                configure_vmctl [label="vmctlの設定ファイルをjsonで書く\n(手動)",shape=box];
+        }
+        subgraph cluster_experiment_setup {
+                label = "実験環境設定";
+                labelloc = "t";
+                labeljust = "l";
+                width = 3000;
+                configure_ansible [label="実行したい実験に必要な環境を書く\n(ansible playbook)", shape=box];
+                write_experiment_script [label="実験スクリプトを書く", shape=box];
+        }
+        subgraph cluster_experiment_run {
+                label = "実験";
+                labelloc = "t";
+                labeljust = "l";
+                shape = box;
+                launch_instance [label="実験に必要なマシンを立てる\n(vmctl)", shape=box];
+                run_ansible [label="マシン上に実験環境を構築する\n(Ansible)", shape=box];
+                execute_experiments [label="実験スクリプトを回す", shape=box];
+        }
+        subgraph after_experiment {
+                notify_end_experiments [label="実験終了通知が飛ぶ\n(slack)", shape=box];
+                stop_instance [label="マシンが自動で停止する\n(aws-cli等)", shape=box];
+        }
+        analysis [label="解析パートへ…", shape=none];
+
+        create -> configure_vmctl;
+        configure_vmctl -> configure_ansible;
+        configure_ansible -> write_experiment_script;
+        write_experiment_script -> launch_instance;
+        launch_instance -> run_ansible;
+        run_ansible -> execute_experiments;
+        execute_experiments -> notify_end_experiments;
+        notify_end_experiments -> stop_instance;
+        stop_instance -> analysis;
+        stop_instance -> write_experiment_script;
+}

@@ -1,0 +1,25 @@
+@import: ../book-class
+@require: itemize
+@require: code
+
+module MasWag : sig
+
+  val article : block-text
+
+end = struct
+
+let bibliography = []
+
+let article = '<
+    +chapter ?:(`maswag-article`)
+    (|
+        bibliography = bibliography;
+        title = {$title$};
+        author = {$author$};
+    |)
+    <
+    $body$
+    >
+>
+
+end
