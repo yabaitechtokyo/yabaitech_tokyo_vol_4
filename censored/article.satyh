@@ -1,5 +1,11 @@
 @import: ../book-class
 
+let-inline ctx \todo inner =
+  let ctx-todo =
+    ctx |> set-text-color Color.red
+  in
+    read-inline ctx-todo {[TODO: #inner;]}
+
 module Censored : sig
 
   val article : block-text
@@ -8,15 +14,37 @@ end = struct
 
 let bibliography = []
 
+let-math \scrD = ${\mathcal{D}}
+let-math \scrX = ${\mathcal{X}}
+let-math \scrY = ${\mathcal{Y}}
+let-math \real = ${\mathbb{R}}
+
 let article = '<
     +chapter ?:(`censored-article`)
     (|
         bibliography = bibliography;
-        title = {Pohe Article};
+        title = {精度以外の指標に基づいた分類};
         author = {censored};
     |)
     <
-        +p{Hello, world!}
+      +p{
+        機械学習の基本的分野の1つに分類問題があります。通常、分類問題ではaccuracy(精度、正答率)を最大化するように分類器を学習しますが、
+        世の中にはaccuracy以外の分類器の性能の評価指標が存在します。本記事ではいくつかの代表的な指標について紹介していきます。
+      }
+      +section{2値分類問題} <
+      +p{
+        本記事ではスパムメール判定など、分類先が2クラスである分類問題、すなわち2値分類問題を考えます。
+        ${\scrX}を入力空間、${\scrY = \{\pm 1\}}を出力空間とし、${X\in\scrX}、${Y\in\scrY}を入力と出力の確率変数とします。
+        ${\scrD}を${\scrX\times\scrY}上の分布とし、${\scrD\scrX}は${\scrX}
+        分類器${f:\scrX\rightarrow\scrY}が、スコア関数${g:\scrX\rightarrow\real}、閾値${b\in\real}によって
+        ${f\paren{x}: \mathrm{sign}\paren{g\paren{x}+b}}のように表されるとします。
+      }
+      >
+      +section{Accuracy （精度）} <
+        +p {
+          分類問題において最も代表的な評価指標は精度です。
+        }
+      >
     >
 >
 
