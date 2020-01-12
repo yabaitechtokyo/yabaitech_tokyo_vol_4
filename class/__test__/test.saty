@@ -1,0 +1,26 @@
+% -*- coding: utf-8 -*-
+@import: ../yabaitech
+
+let () = Debug.log ``
+=====================
+YABAITECH.TOKYO vol.4
+
+　 ∧,,∧
+　(；`・ω・）　　｡･ﾟ･⌒） pdf 作るよ！！
+　/　　 ｏ━ヽニニフ))
+　しー-Ｊ
+
+=====================
+`` in
+
+document (|
+  title = `YABAITECH.TOKYO vol.4 class file`;
+  venue = `技術書典8`;
+  date = `2019.03.01`;
+  author = `yabaitech.tokyo`;
+  email = `admin@yabaitech.tokyo`;
+  website = `http://yabaitech.tokyo`;
+  publisher = `どこかの出版社`
+  |) '<
+    
+>
