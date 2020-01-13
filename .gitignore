@@ -3,5 +3,5 @@ main.pdf
 .satysfi/local/mathfonts/*
 *.satysfi-aux
 class/node_modules
-class/test.pdf
+class/__test__/test.pdf
 class/tmp/*
