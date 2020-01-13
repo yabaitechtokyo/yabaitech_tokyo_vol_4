@@ -6,7 +6,7 @@ expect.extend({ toMatchImageSnapshot });
 shell.cd('__test__');
 
 const compileSatyToPdf = (filename) => {
-  const code = shell.exec(`satysfi ${filename}.saty`, {silent: true}).code;
+  const code = shell.exec(`satysfi ${filename}.saty`, {silent: false}).code;
 
   expect(code).toBe(0);
 }
