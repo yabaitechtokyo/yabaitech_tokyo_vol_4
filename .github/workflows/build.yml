@@ -42,4 +42,11 @@ jobs: # job 定義
         run: |
           cd class
           yarn test
+      - name: Compress image diff
+        run: tar -zcvf diff.tar.gz class/__test__/__image_snapshots__/__diff_output__
+      - name: Upload artifact
+        uses: actions/upload-artifact@master
+        with:
+          name: regression_diff
+          path: diff.tar.gz
 
