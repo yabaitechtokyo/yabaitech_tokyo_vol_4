@@ -4,4 +4,5 @@ main.pdf
 *.satysfi-aux
 class/node_modules
 class/__test__/test.pdf
+class/__test__/__image_snapshots__/__diff_output__
 class/tmp/*

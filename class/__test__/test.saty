@@ -1,5 +1,7 @@
 % -*- coding: utf-8 -*-
 @import: ../yabaitech
+@import: bibliography
+@import: chapter
 
 let () = Debug.log ``
 =====================
@@ -22,5 +24,6 @@ document (|
   website = `http://yabaitech.tokyo`;
   publisher = `どこかの出版社`
   |) '<
-    
+    #ChapterTest.article;
+    #BibliographyTest.article;
 >

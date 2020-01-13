@@ -1,0 +1,30 @@
+@import: ../yabaitech
+
+module ChapterTest : sig
+
+    val article :  block-text
+
+end = struct
+
+    let article = '<
+        +chapter ?:(`chapter`)
+        (|
+            bibliography = [];
+            title = {chapterのテスト};
+            author = {著者名};
+        |)
+        <
+        +p {Hello, world!}
+        >
+
+        +chapter ?:(`chapter-with-substitle`) ?:({サブタイトル})
+        (|
+            bibliography = [];
+            title = {chapterのサブタイトルのテスト};
+            author = {著者名};
+        |)
+        <
+        +p {Hello, world!}
+        >
+    >
+end
