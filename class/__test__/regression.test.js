@@ -27,7 +27,8 @@ const getImagePaths = (filename) => {
   const command = `find . -regex '\./tmp/${filename}-[0-9][0-9]\\.png'`;
   return shell.exec(command, {silent: true}).stdout
     .split(/\n/)
-    .filter((path) => !!path);
+    .filter((path) => !!path)
+    .sort();
 }
 
 const compileSatyToImages = (filename) => {
