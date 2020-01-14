@@ -18,29 +18,35 @@ jobs: # job 定義
         with:
           name: yabai2020s
           path: main.pdf  # main.pdf をアップロード
-  # regression-test:
-  #   runs-on: ubuntu-latest
-  #   container:
-  #     image: amutake/satysfi:nightly
-  #     volumes:
-  #       - .:/satysfi
-  #   steps:
-  #     - uses: actions/checkout@v1
-  #       with:
-  #         submodules: recursive # Submodule init/update
-  #     - name: Install Apt dependencies
-  #       run: |
-  #         apt-get update && apt install -y curl gnupg
-  #         curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
-  #         echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
-  #         apt-get update && apt-get install -y yarn graphicsmagick
-  #     - name: Install Yarn dependencies
-  #       run: |
-  #         cd class
-  #         yarn install
-  #     - name: Run regression tests
-  #       run: |
-  #         cd class
-  #         yarn test
-
+  regression-test:
+    runs-on: ubuntu-latest
+    container:
+      image: amutake/satysfi:nightly
+      volumes:
+        - .:/satysfi
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          submodules: recursive # Submodule init/update
+      - name: Install Apt dependencies
+        run: |
+          apt-get update && apt install -y curl gnupg
+          curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
+          echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+          apt-get update && apt-get install -y yarn graphicsmagick
+      - name: Install Yarn dependencies
+        run: |
+          cd class
+          yarn install
+      - name: Run regression tests
+        run: |
+          cd class
+          yarn test
+      - name: Compress image diff
+        run: tar -zcvf diff.tar.gz class/__test__/__image_snapshots__/__diff_output__
+      - name: Upload artifact
+        uses: actions/upload-artifact@master
+        with:
+          name: regression_diff
+          path: diff.tar.gz
 
