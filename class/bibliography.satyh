@@ -1,3 +1,9 @@
+@require: pervasives
+@require: gr
+@require: list
+@require: vdecoset
+@import: ../base/inline
+
 type bib-in-proceedings =
   (|
     author    : inline-text list;
@@ -42,3 +48,144 @@ type bib-item =
   | Article       of bib-article
   | Book          of bib-book
   | WebSite       of bib-web-site
+
+module Bibliography : sig
+
+  val register-bibs : string list -> unit
+  val make-bb-bibs : context -> bib-item list -> block-boxes
+  val make-ib-cite : context -> string list -> inline-boxes
+
+end = struct
+
+  let register-bibs bib-labels =
+    bib-labels |> List.iteri (fun i label -> (
+      register-cross-reference (`bib:` ^ label) (arabic (i + 1))
+    ))
+
+  let make-ib-cite ctx labels =
+    let sacc =
+      labels |> List.fold-left-adjacent (fun sacc label _ opt -> (
+        let s-num =
+          match get-cross-reference (`bib:` ^ label) with
+          | None    -> `?`
+          | Some(s) -> s
+        in
+          match opt with
+          | None    -> sacc ^ s-num
+          | Some(_) -> sacc ^ s-num ^ `, `#
+      )) ` `
+    in
+      ctx |> Inline.read (embed-string (`[` ^ sacc ^ `]`))
+
+  % cannot be fully migrated
+  let font-ratio-latin = 1.
+  let font-ratio-cjk = 0.88
+
+  let font-latin-roman  = (`Junicode`   , font-ratio-latin, 0.)
+  let font-latin-italic = (`Junicode-it`, font-ratio-latin, 0.)
+  let font-latin-bold   = (`Junicode-b` , font-ratio-latin, 0.)
+  let font-latin-sans   = (`lmsans`    , font-ratio-latin, 0.)
+  let font-latin-mono   = (`lmmono`    , font-ratio-latin, 0.)
+  let font-cjk-mincho   = (`ipaexm`    , font-ratio-cjk  , 0.)
+  let font-cjk-gothic   = (`ipaexg`    , font-ratio-cjk  , 0.)
+  let font-otherscript-roman = (`cmunrm` , font-ratio-latin, 0.)
+
+  let set-latin-font font ctx =
+    ctx |> set-font Latin font
+
+  % can be migrated
+  let bib-left-padding = 20pt
+
+  let-inline ctx \url it =
+    ctx |> set-latin-font font-latin-mono
+        |> Inline.read it
+
+  let-inline ctx \book-title it =
+    ctx |> set-latin-font font-latin-italic
+        |> Inline.read it
+
+  let join-it-authors authors =
+    match List.reverse authors with
+    | []                 -> {}
+    | it :: []           -> it
+    | it2 :: it1 :: []   -> {#it1; and #it2;}
+
+    | it-last :: it-rest ->
+        let it =
+          it-rest |> List.reverse |> List.fold-left (fun itacc it -> (
+            {#itacc;#it;,\ }
+          )) {}
+        in
+          {#it;and #it-last;}
+
+  let make-it-volume-and-number optvol optnum optseries =
+    let it-series =
+      match optseries with
+      | None     -> {,\ }
+      | Some(it) -> {\ of \book-title{#it;},\ }
+    in
+      match (optvol, optnum) with
+      | (None, _)          -> {\ }
+      | (Some(v), None)    -> let it-volume = embed-string (arabic v)
+                              in {#it-volume;#it-series;}
+      | (Some(v), Some(n)) -> let it-volume = embed-string (arabic v) 
+                              in {#it-volume;(#n;)#it-series;}
+
+  let make-it-bib-pages (p1, p2) = embed-string ((arabic p1) ^ `–` ^ (arabic p2))
+
+  let make-ib-bib-item-content ctx bibitem =
+    ctx |> Inline.read (match bibitem with
+      | InProceedings(r) ->
+          let it-authors = join-it-authors r#author in
+          let it-title = r#title in
+          let it-book-title = r#booktitle in
+          let it-volnum = make-it-volume-and-number r#volume r#number r#series in
+          let it-pages = make-it-bib-pages r#pages in
+          let it-year = embed-string (arabic r#year) in
+            {#it-authors;. #it-title;.
+              In \book-title{#it-book-title;}, #it-volnum;pages #it-pages;, #it-year;.}
+
+      | Article(r) ->
+          let it-authors = join-it-authors r#author in
+          let it-title = r#title in
+          let it-journal = r#journal in
+          let it-volnum = make-it-volume-and-number r#volume r#number None in
+          let it-pages = make-it-bib-pages r#pages in
+          let it-year = embed-string (arabic r#year) in
+            {#it-authors;. #it-title;.
+              \book-title{#it-journal;}, #it-volnum;pages #it-pages;, #it-year;.}
+
+      | Book(r) ->
+          let it-authors = join-it-authors r#author in
+          let it-title = r#title in
+          let it-publisher = r#publisher in
+          let it-year = embed-string (arabic r#year) in
+            {#it-authors;. \book-title{#it-title;}. #it-publisher;, #it-year;.}
+
+      | WebSite(r) ->
+          let it-authors = join-it-authors r#author in
+          let it-title = r#title in
+          let it-url = embed-string r#url in
+          let it-year = embed-string (arabic r#year) in
+            {#it-authors;. \book-title{#it-title;}. \url{#it-url;}, #it-year;.}
+    )
+
+  let make-bb-bib-item ctx bibitem cite-num =
+    let ib-content = make-ib-bib-item-content ctx bibitem
+    in
+    let ib-num = ctx |> Inline.read (embed-string (`[` ^ arabic cite-num ^ `] `#))
+    in
+    let ib-bib-item =
+      inline-skip (0pt -' get-natural-width ib-num)
+      ++ ib-num ++ ib-content ++ inline-fil
+    in
+    let pads = (bib-left-padding, 0pt, 0pt, 0pt) in
+    block-frame-breakable ctx pads VDecoSet.empty (fun ctx -> line-break true true ctx ib-bib-item)
+
+  let make-bb-bibs ctx bibs =
+    bibs |> List.fold-lefti
+      (fun idx bbacc bibitem ->
+        bbacc +++ make-bb-bib-item ctx bibitem (idx + 1))
+      block-nil
+
+end
