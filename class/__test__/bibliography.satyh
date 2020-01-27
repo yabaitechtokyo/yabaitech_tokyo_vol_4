@@ -55,6 +55,8 @@ end = struct
         |))
     ]
 
+    let empty-bib = []
+
     let article = '<
         +chapter ?:(`bibliography`)
         (|
@@ -65,6 +67,16 @@ end = struct
             +p{
                 引用その1 \cite[`LogicVSI`];。
                 複数個の引用をするこもできます \cite[`Bochman98`;`conf/ijcai/BolligHKL09`;`multiboot1`];。
+            }
+        >
+        +chapter ?:(`bibliography-empty`)
+        (|
+            bibliography = empty-bib;
+            title = {bibliographyが空の場合のテスト};
+            author = {著者名};
+        |) <
+            +p{
+                bibliographyが空の場合には参考文献の節は表示されません。
             }
         >
     >

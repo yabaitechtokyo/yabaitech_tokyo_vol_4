@@ -2,7 +2,9 @@
 @require: gr
 @require: list
 @require: vdecoset
+@import: ../base/block
 @import: ../base/inline
+@import: ../base/tuple
 
 type bib-in-proceedings =
   (|
@@ -49,16 +51,20 @@ type bib-item =
   | Book          of bib-book
   | WebSite       of bib-web-site
 
+type bib-defs = (string * bib-item) list
+
 module Bibliography : sig
 
-  val register-bibs : string list -> unit
-  val make-bb-bibs : context -> bib-item list -> block-boxes
+  val register-bibs : bib-defs -> unit
+  val make-bb-bibs : context -> bib-defs -> block-boxes
   val make-ib-cite : context -> string list -> inline-boxes
 
 end = struct
 
-  let register-bibs bib-labels =
-    bib-labels |> List.iteri (fun i label -> (
+  let register-bibs bib-list =
+    bib-list 
+    |> List.map Pair.fst
+    |> List.iteri (fun i label -> (
       register-cross-reference (`bib:` ^ label) (arabic (i + 1))
     ))
 
@@ -182,10 +188,14 @@ end = struct
     let pads = (bib-left-padding, 0pt, 0pt, 0pt) in
     block-frame-breakable ctx pads VDecoSet.empty (fun ctx -> line-break true true ctx ib-bib-item)
 
-  let make-bb-bibs ctx bibs =
-    bibs |> List.fold-lefti
-      (fun idx bbacc bibitem ->
-        bbacc +++ make-bb-bib-item ctx bibitem (idx + 1))
-      block-nil
+  let make-bb-bibs ctx bib-defs =
+    bib-defs
+    |> List.map Pair.snd
+    |> List.fold-lefti
+      (fun idx bbacc bibitem -> (
+        let cite-num = idx + 1
+        in
+        bbacc +++ make-bb-bib-item ctx bibitem cite-num))
+      Block.nil
 
 end

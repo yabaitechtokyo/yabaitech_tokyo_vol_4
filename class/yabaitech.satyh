@@ -12,6 +12,7 @@
 @import: ../base/color-ext
 @import: ../base/fn
 @import: ../base/image
+@import: ../base/inline
 @import: ../base/int
 @import: ../base/pager
 @import: ../base/tuple
@@ -353,6 +354,23 @@ end = struct
   let footer-width = text-width
   let footnote-indent = 6mm
 
+  let make-bb-bib-section ctx-bib ctx-doc bibliography =
+    match bibliography with
+    | [] -> Block.nil
+    | bibliography -> 
+        let ib-bib-title =
+          ctx-doc
+          |> make-chapter-title
+          |> Inline.read {参考文献}
+        in
+        let bb-bib-title =
+          (ib-bib-title ++ inline-fil)
+          |> section-heading ctx-doc
+        in
+        let bb-bib-main = Bibliography.make-bb-bibs ctx-bib bibliography
+        in
+        bb-bib-title +++ bb-bib-main
+
   let chapter-scheme ctx label bibliography title subtitle author inner =
     let txtwid = text-width in
     let () = increment num-chapter in
@@ -385,25 +403,11 @@ end = struct
     let bb-title = chapter-heading-with-author ctx (Some(ib-num)) ib-title ib-subtitle ib-author in
     let bb-inner = read-block ctx inner in
 
-    % -- bibliography --
-    let bib-labels = bibliography |> List.map Pair.fst
+    let () = Bibliography.register-bibs bibliography
     in
-    let bib-items = bibliography |> List.map Pair.snd
+    let bb-bib-section = make-bb-bib-section ctx ctx-doc bibliography
     in
-    let () = Bibliography.register-bibs bib-labels
-    in
-    let bb-bib =
-      let bb-bib-title =
-        read-inline (make-chapter-title ctx-doc) {参考文献} ++ inline-fil
-        |> section-heading ctx-doc
-      in
-      let bb-bib-main = Bibliography.make-bb-bibs ctx bib-items
-      in
-      bb-bib-title +++ bb-bib-main
-      in
-        match bibliography with
-        | [] -> bb-title +++ bb-inner +++ clear-page
-        | bibliography -> bb-title +++ bb-inner +++ bb-bib +++ clear-page
+    bb-title +++ bb-inner +++ bb-bib-section +++ clear-page
 
 
   let section-scheme ctx label title inner =
