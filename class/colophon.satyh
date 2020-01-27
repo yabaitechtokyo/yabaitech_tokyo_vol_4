@@ -1,0 +1,79 @@
+@require: color
+@require: table
+@import: ../base/block
+@import: ../base/inline
+@import: ../base/pager
+
+type publication-info = (|
+  title     : string;
+  date      : string;
+  author    : string;
+  email     : string;
+  website   : string;
+  publisher : string;
+|)
+
+module Colophon : sig
+
+  val make-bb-colophon : publication-info -> context -> block-boxes
+
+end = struct
+
+  % TODO: Have common place for font-related config
+  let font-ratio-latin = 1.
+  let font-latin-bold   = (`Junicode-b` , font-ratio-latin, 0.)
+
+  let to-title-ctx ctx =  ctx
+    |> set-font Latin font-latin-bold
+    |> set-font-size 24pt
+    |> set-paragraph-margin 8pt 8pt
+    |> set-every-word-break inline-fil inline-fil
+
+  let to-table-ctx ctx = ctx
+    |> set-font-size 16pt
+    |> set-paragraph-margin 8pt 8pt
+    |> set-every-word-break inline-fil inline-fil
+
+  let make-bb-colophon info ctx =
+    let ctx-title = ctx |> to-title-ctx
+    in
+    let ctx-table = ctx |> to-table-ctx
+    in
+    let leftf ctx it =
+    line-break false false ctx
+        (read-inline ctx it ++ inline-fil)
+    in
+    let okutsuke = 
+        leftf ctx-table {
+          \tabular
+            (fun t -> (
+              let (c, l, r) = (t#c, t#l, t#r) in
+              let m = t#m in
+              let e = t#e in
+              [[l {発行日};    l (embed-string info#date)];
+               [l {サークル};  l (embed-string info#author)];
+               [l {Webサイト}; l (embed-string info#website)];
+               [l {連絡先};    l (embed-string info#email)];
+               [l {印刷所};    l (embed-string info#publisher)]]
+            ))
+            (fun xs ys -> (
+              let thick = stroke 1pt Color.black in
+                match (ys, List.reverse ys) with
+                | (y0 :: _, ylast :: _) ->
+                  (match (xs, List.reverse xs) with
+                  | (x0 :: _, xlast :: _) ->
+                      [thick (Gr.line (x0, y0) (xlast, y0));
+                       thick (Gr.line (x0, ylast) (xlast, ylast));]
+                  | _ -> []
+                )
+                | _ -> []
+            ));
+        }
+    in
+    Block.concat [
+      block-skip 15cm;
+      leftf ctx-title (embed-string info#title);
+      okutsuke;
+    ]
+
+end
