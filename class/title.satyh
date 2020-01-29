@@ -1,0 +1,54 @@
+@import: ../base/block
+@import: ../base/image
+
+type title-info = (|
+  title : string;
+  date  : string;
+  venue : string;
+|)
+
+module Title : sig
+
+  val make-bb : title-info -> context -> block-boxes
+
+end = struct
+    
+  % TODO: Have common place for font-related config
+  let font-ratio-latin = 1.
+  let font-latin-bold   = (`Junicode-b` , font-ratio-latin, 0.)
+  let font-latin-mono   = (`lmmono`    , font-ratio-latin, 0.)
+
+  let make-bb info ctx = 
+    let ctx-title =
+      ctx |> set-font Latin font-latin-bold
+          |> set-font-size 32pt
+          |> set-paragraph-margin 8pt 8pt
+          |> set-every-word-break inline-fil inline-fil
+    in
+    let ctx-date =
+      ctx |> set-font-size 20pt
+          |> set-paragraph-margin 8pt 8pt
+          |> set-every-word-break inline-fil inline-fil
+      in
+      let centerf ctx it =
+        line-break false false ctx
+          (inline-fil ++ read-inline ctx it ++ inline-fil)
+      in
+      [
+        Block.skip 54pt;
+        centerf ctx-title (embed-string info#title);
+        Block.skip 30pt;
+        centerf ctx-date (embed-string (info#date ^ ` @ ` ^ info#venue));
+        Block.skip 80pt;
+        Block.concat [
+          ctx |> Block.centering (Fn.const (Inline.of-image 10cm (Image.of-pdf `QR_DL.pdf` 1)));
+          Block.skip -50pt;
+          ctx |> set-font Latin font-latin-mono
+              |> Block.centering (Inline.read {https://bit.ly/ytt-2cu4p});
+          Block.skip -310pt;
+          ctx |> Block.centering (Inline.read {本誌のPDFとソースコードのダウンロードはこちらから});
+        ];
+        clear-page;
+      ] |> Block.concat
+
+end

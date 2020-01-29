@@ -17,9 +17,11 @@
 @import: ../base/pager
 @import: ../base/tuple
 @import: ../base/typeset/font
+
 @import: bibliography
 @import: colophon
 @import: table-of-contents
+@import: title
 
 module Book : sig
 
@@ -467,129 +469,82 @@ end = struct
     in
     bb-colophon +++ bb-disable-page-number
 
-  let document record inner =
-    % -- constants --
-    let title = record#title in
-    let venue = record#venue in
-    let date = record#date in
-    let page = paper-size in
-    let txtorg = text-origin in
-    let txtwid = text-width in
-    let txthgt = text-height in
-    let hdrorg = header-origin in
-    let ftrorg = footer-origin in
-    let hdrwid = header-width in
-    let ftrwid = footer-width in
-    let thickness = header-line-thickness in
+  let pagecontf pbinfo =
+    let () = FootnoteScheme.start-page () in
+    let hgtfb = height-of-float-boxes pbinfo#page-number in
+    let (text-origin-x, text-origin-y) = text-origin in
+    (|
+      text-origin = (text-origin-x, text-origin-y +' hgtfb);
+      text-height = text-height -' hgtfb;
+    |)
 
+  let pagepartsf pbinfo =
+    let pageno = pbinfo#page-number in
+    let header =
+      let ctx =
+        get-standard-context header-width
+          |> set-paragraph-margin 0pt 0pt
+      in
+      let (bb-float-boxes, acc) =
+        (!ref-float-boxes) |> List.fold-left (fun (bbacc, acc) elem -> (
+          let (pn, bb) = elem in
+            if pn < pageno then
+              let bbs =
+                line-break true true (ctx |> set-paragraph-margin 0pt 12pt)
+                  (inline-fil ++ embed-block-top ctx text-width (fun _ -> bb) ++ inline-fil)
+                    % 'ctx' is a dummy context
+              in
+                (bbacc +++ bbs, acc)
+            else
+              (bbacc, elem :: acc)
+        )) (block-nil, [])
+      in
+      let () = ref-float-boxes <- acc in
+        bb-float-boxes
+    in
+    let footer =
+      match !show-page-number-ref with
+      | Some(pagenolast) ->
+          let ctx = get-standard-context footer-width in
+          let it-pageno = embed-string (arabic (pageno - pagenolast + 1)) in
+            line-break true true ctx
+              (inline-fil ++ (read-inline ctx {— #it-pageno; —}) ++ inline-fil)
+
+      | None ->
+          block-nil
+    in
+      (|
+        header-origin  = header-origin;
+        header-content = header;
+        footer-origin  = footer-origin;
+        footer-content = footer;
+      |)
+
+  let document record inner =
     let ctx-doc =
-      get-standard-context txtwid
+      get-standard-context text-width
         |> set-font-size 12pt
         |> set-leading 18pt
         |> set-hyphen-penalty 1000
     in
-
-    % -- title --
-    let bb-title =
-      let ctx-title =
-        ctx-doc
-        |> set-font Latin font-latin-bold
-          |> set-font-size 32pt
-          |> set-paragraph-margin 8pt 8pt
-          |> set-every-word-break inline-fil inline-fil
-      in
-      let ctx-date =
-        ctx-doc
-          |> set-font-size 20pt
-          |> set-paragraph-margin 8pt 8pt
-          |> set-every-word-break inline-fil inline-fil
-      in
-      let centerf ctx it =
-        line-break false false ctx
-          (inline-fil ++ read-inline ctx it ++ inline-fil)
-      in
-      [
-        Block.skip 54pt;
-        centerf ctx-title (embed-string title);
-        Block.skip 30pt;
-        centerf ctx-date (embed-string (date ^ ` @ ` ^ venue));
-        Block.skip 80pt;
-        Block.concat [
-          ctx-doc |> Block.centering (Fn.const (Inline.of-image 10cm (Image.of-pdf `QR_DL.pdf` 1)));
-          Block.skip -50pt;
-          ctx-doc
-          |> set-latin-font font-latin-mono
-          |> Block.centering (Inline.read {https://bit.ly/ytt-2cu4p});
-          Block.skip -310pt;
-          ctx-doc |> Block.centering (Inline.read {本誌のPDFとソースコードのダウンロードはこちらから});
-        ];
-        clear-page;
-      ] |> Block.concat
+    let bb-title-pages = ctx-doc |> Title.make-bb (|
+      title = record#title;
+      date  = record#date;
+      venue = record#venue;
+    |)
     in
     let bb-main-pages = read-block ctx-doc inner
     in
-    let bb-toc-page = make-bb-toc-page ctx-doc
+    let bb-toc-pages = make-bb-toc-page ctx-doc
     in
-    let bb-colophon-page = make-bb-colophon-page record ctx-doc
+    let bb-colophon-pages = make-bb-colophon-page record ctx-doc
     in
-    % -- page settings --
-    let pagecontf pbinfo =
-      let () = FootnoteScheme.start-page () in
-      let hgtfb = height-of-float-boxes pbinfo#page-number in
-      let (txtorgx, txtorgy) = txtorg in
-      (|
-        text-origin = (txtorgx, txtorgy +' hgtfb);
-        text-height = txthgt -' hgtfb;
-      |)
-    in
-    let pagepartsf pbinfo =
-      let pageno = pbinfo#page-number in
-      let header =
-        let ctx =
-          get-standard-context hdrwid
-            |> set-paragraph-margin 0pt 0pt
-        in
-        let (bb-float-boxes, acc) =
-          (!ref-float-boxes) |> List.fold-left (fun (bbacc, acc) elem -> (
-            let (pn, bb) = elem in
-              if pn < pageno then
-                let bbs =
-                  line-break true true (ctx |> set-paragraph-margin 0pt 12pt)
-                    (inline-fil ++ embed-block-top ctx txtwid (fun _ -> bb) ++ inline-fil)
-                      % 'ctx' is a dummy context
-                in
-                  (bbacc +++ bbs, acc)
-              else
-                (bbacc, elem :: acc)
-          )) (block-nil, [])
-        in
-        let () = ref-float-boxes <- acc in
-          bb-float-boxes
-      in
-      let footer =
-        match !show-page-number-ref with
-        | Some(pagenolast) ->
-            let ctx = get-standard-context ftrwid in
-            let it-pageno = embed-string (arabic (pageno - pagenolast + 1)) in
-              line-break true true ctx
-                (inline-fil ++ (read-inline ctx {— #it-pageno; —}) ++ inline-fil)
-
-        | None ->
-            block-nil
-      in
-        (|
-          header-origin  = hdrorg;
-          header-content = header;
-          footer-origin  = ftrorg;
-          footer-content = footer;
-        |)
-    in
-    page-break page pagecontf pagepartsf
+    page-break paper-size pagecontf pagepartsf
       (Block.concat [
-        bb-title;
-        bb-toc-page;
+        bb-title-pages;
+        bb-toc-pages;
         bb-main-pages;
-        bb-colophon-page;
+        bb-colophon-pages;
       ])
 
 

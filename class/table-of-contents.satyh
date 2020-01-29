@@ -51,9 +51,6 @@ end = struct
   let font-cjk-gothic   = (`ipaexg`    , font-ratio-cjk  , 0.)
   let font-otherscript-roman = (`cmunrm` , font-ratio-latin, 0.)
 
-  let set-latin-font font ctx =
-    ctx |> set-font Latin font
-
   let set-cjk-font font ctx =
     ctx |> set-font HanIdeographic font
         |> set-font Kana           font
@@ -81,7 +78,7 @@ end = struct
         |> List.fold-left (fun bbacc tocelem -> (
              match tocelem with
              | TOCElementChapter(label, title, subtitle, author) ->
-                 let ctx = ctx |> set-latin-font font-latin-bold
+                 let ctx = ctx |> set-font Latin font-latin-bold
                  in
                  let ib-title = ctx |> Inline.read {#title;}
                  in
