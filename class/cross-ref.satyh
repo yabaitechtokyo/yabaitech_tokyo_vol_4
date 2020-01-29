@@ -1,0 +1,18 @@
+module CrossRef : sig
+  
+  val get-number : string -> string -> string option
+  val get-page : string -> string -> string option
+
+  val get-chapter-page : string -> string option
+
+end = struct
+
+  let get-number prefix label =
+    get-cross-reference (prefix ^ label ^ `:num`)
+
+  let get-page prefix label =
+    get-cross-reference (prefix ^ label ^ `:page`)
+
+  let get-chapter-page label = get-page `chapter:` label
+
+end
