@@ -26,5 +26,41 @@ end = struct
         <
         +p {Hello, world!}
         >
+
+        +chapter ?:(`section-and-subsection`)
+        (|
+            bibliography = [];
+            title = {sectionとsubsectionのテスト};
+            author = {著者名};
+        |)
+        <
+            +section {セクションの1} <
+                +subsection {サブセクションの1} <
+                    +p {Hello, world!}
+                >
+                +subsection {サブセクションの2} <
+                    +p {Hello, world!}
+                >
+            >
+            +section ?:(`section-2`) {セクションの2} <
+                +subsection {サブセクションの3} <
+                    +p {Hello, world!}
+                >
+                +subsection ?:(`subsection-4`) {サブセクションの4} <
+                    +p {Hello, world!}
+                >
+            >
+        >
+
+        +chapter ?:(`reference-to-chapter-ish`)
+        (|
+            bibliography = [];
+            title = {chapter系の参照のテスト};
+            author = {著者名};
+        |) <
+            +p {\ref-chapter(`chapter`);は「chapterのテスト」です}
+            +p {\ref-chapter(`section-and-subsection`);の\ref-section(`section-2`);は「セクションの2」です}
+            +p {\ref-chapter(`section-and-subsection`);の\ref-subsection(`subsection-4`);は「サブセクションの4」です}
+        >
     >
 end
