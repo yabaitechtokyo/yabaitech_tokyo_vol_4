@@ -1,6 +1,8 @@
 @import: ../base/block
 @import: ../base/image
 
+@import: font-config
+
 type title-info = (|
   title : string;
   date  : string;
@@ -12,11 +14,8 @@ module Title : sig
   val make-bb : title-info -> context -> block-boxes
 
 end = struct
-    
-  % TODO: Have common place for font-related config
-  let font-ratio-latin = 1.
-  let font-latin-bold   = (`Junicode-b` , font-ratio-latin, 0.)
-  let font-latin-mono   = (`lmmono`    , font-ratio-latin, 0.)
+
+  open FontConfig
 
   let make-bb info ctx = 
     let ctx-title =

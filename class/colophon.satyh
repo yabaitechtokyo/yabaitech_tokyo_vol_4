@@ -4,6 +4,8 @@
 @import: ../base/inline
 @import: ../base/pager
 
+@import: font-config
+
 type publication-info = (|
   title     : string;
   date      : string;
@@ -19,12 +21,10 @@ module Colophon : sig
 
 end = struct
 
-  % TODO: Have common place for font-related config
-  let font-ratio-latin = 1.
-  let font-latin-bold   = (`Junicode-b` , font-ratio-latin, 0.)
+  open FontConfig
 
-  let to-title-ctx ctx =  ctx
-    |> set-font Latin font-latin-bold
+  let to-title-ctx ctx = ctx
+    |> set-latin-font font-latin-bold
     |> set-font-size 24pt
     |> set-paragraph-margin 8pt 8pt
     |> set-every-word-break inline-fil inline-fil

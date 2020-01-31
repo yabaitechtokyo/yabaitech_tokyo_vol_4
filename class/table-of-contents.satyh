@@ -3,7 +3,9 @@
 @import: ../base/int
 @import: ../base/option-ext
 @import: ../base/ref
+
 @import: cross-ref
+@import: font-config
 
 type toc-element =
 | TOCElementChapter    of string * inline-text * inline-text option * inline-text
@@ -16,44 +18,7 @@ module TableOfContents : sig
 
 end = struct
 
-  % TODO: make common file for font config
-  let font-size-normal  = 11pt
-  let font-size-title   = 32pt
-  let font-size-author  = 16pt
-  let font-size-chapter = 24pt
-  let font-size-chapter-subtitle = 16pt
-  let font-size-chapter-author = 18pt
-  let font-size-section = 18pt
-  let font-size-subsection = 16pt
-
-  let section-top-margin = 20pt
-  let section-bottom-margin = 12pt
-  let section-top-padding = 6pt
-  let section-bottom-padding = 7pt
-  let title-line-margin = 4pt
-  let title-line-thickness = 1pt
-  let header-line-thickness = 0.5pt
-  let header-line-margin-top = 2pt
-  let header-line-margin-bottom = 6pt
-
-  let toc-section-indent = 20pt
-  let toc-subsection-indent = 40pt
-
-  let font-ratio-latin = 1.
-  let font-ratio-cjk = 0.88
-
-  let font-latin-roman  = (`Junicode`   , font-ratio-latin, 0.)
-  let font-latin-italic = (`Junicode-it`, font-ratio-latin, 0.)
-  let font-latin-bold   = (`Junicode-b` , font-ratio-latin, 0.)
-  let font-latin-sans   = (`lmsans`    , font-ratio-latin, 0.)
-  let font-latin-mono   = (`lmmono`    , font-ratio-latin, 0.)
-  let font-cjk-mincho   = (`ipaexm`    , font-ratio-cjk  , 0.)
-  let font-cjk-gothic   = (`ipaexg`    , font-ratio-cjk  , 0.)
-  let font-otherscript-roman = (`cmunrm` , font-ratio-latin, 0.)
-
-  let set-cjk-font font ctx =
-    ctx |> set-font HanIdeographic font
-        |> set-font Kana           font
+  open FontConfig
 
   let make-chapter-title ctx =
     ctx |> set-font-size font-size-chapter

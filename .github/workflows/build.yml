@@ -20,6 +20,9 @@ jobs: # job 定義
           path: main.pdf  # main.pdf をアップロード
   regression-test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version: [0.0.4]
     container:
       image: amutake/satysfi:nightly
       volumes:

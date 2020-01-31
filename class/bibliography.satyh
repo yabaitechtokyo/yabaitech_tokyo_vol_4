@@ -6,6 +6,8 @@
 @import: ../base/inline
 @import: ../base/tuple
 
+@import: font-config
+
 type bib-in-proceedings =
   (|
     author    : inline-text list;
@@ -61,6 +63,8 @@ module Bibliography : sig
 
 end = struct
 
+  open FontConfig
+
   let register-bibs bib-list =
     bib-list 
     |> List.map Pair.fst
@@ -83,13 +87,6 @@ end = struct
     in
       ctx |> Inline.read (embed-string (`[` ^ sacc ^ `]`))
 
-  % cannot be fully migrated
-  let font-ratio-latin = 1.
-
-  let font-latin-italic = (`Junicode-it`, font-ratio-latin, 0.)
-  let font-latin-mono   = (`lmmono`    , font-ratio-latin, 0.)
-
-  % can be migrated
   let bib-left-padding = 20pt
 
   let-inline ctx \url it =
