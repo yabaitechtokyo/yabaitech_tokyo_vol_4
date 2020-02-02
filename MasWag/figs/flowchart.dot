@@ -4,7 +4,7 @@ digraph flowchart {
                 labelloc = "t";
                 labeljust = "l";
                 shape = box;
-                create [label="マシンを作成・設定\n(手動)",shape=box];
+                create [label="マシンを作成・設定\n(手動 or 自動生成)",shape=box];
                 configure_vmctl [label="vmctlの設定ファイルをjsonで書く\n(手動)",shape=box];
         }
         subgraph cluster_experiment_setup {
