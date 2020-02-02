@@ -1,4 +1,4 @@
-@import: ../class/yabaitech
+@import: ../book-class
 @require: itemize
 @require: code
 
@@ -14,7 +14,7 @@ let article = '<
     +chapter ?:(`maswag-article`)
     (|
         bibliography = bibliography;
-        title = {複数マシンでの実験を Ansible とかでシュっとした話 —— 実験編};
+        title = {複数マシンでの実験を Ansible とかでシュっとした話 — 実験編};
         author = {MasWag};
     |)
     <
@@ -71,33 +71,124 @@ let article = '<
     }
     >
     >
-    +section{イカれたメンバーを紹介するぜ} <
+    +section{イカれたメンバーを紹介するぜ!!} <
     +listing{
-    * \emph{マシンの作成} 手動
-    * \emph{マシンの起動} vmctl
-    * \emph{構成管理} Ansible
-    * \emph{実験スクリプト、実験結果の管理} Git
-    * \emph{対話的な諸々の自動化} expect
-    * \emph{実験開始・終了のお知らせ} slack
+    * \emph{マシンの作成} 手動!!
+    * \emph{マシンの起動} vmctl!!
+    * \emph{構成管理} Ansible!!
+    * \emph{実験スクリプト、実験結果の管理} Git!!
+    * \emph{対話的な諸々の自動化} expect!!
+    * \emph{実験開始・終了のお知らせ} slack!!
     }
-    +subsection{マシンの作成: 手動} <
-    +subsection{今回は MATLABを使いたかったので、 MATLAB installまで手動でやった} <
-    >
-    +subsection{ライセンスの問題があるソフトウェアを使わないなら Packer で予め必要なマシンイメージを作っておいて必要な時に必要なだけ Terraform とかでマシンを作って、不要になったらすぐ壊す方が良いかも。} <
-    >
-    +subsection{今回もマシンを立てるだけなら Terraform でやっても良かった} <
-    >
-    >
-    +subsection{マシンの起動 by vmctl} <
-    +subsection{手製のshell script} <
-    >
-    +subsection{ec2, Virtual boxの両方に対して 起動、 停止などを同じインターフェースでできる} <
+    +p {
+      以上!!
+    }
+    +p {
+      ここから各登場ツールについて説明をしていきます。なお、最終的なワークフローは 図 hoge の様になります。
+    }
+    +p {
+      file:./figs/flowchart.pdf
+    }
+    +subsection{vmctl} <
+    +p {
+      \emph{vmctl} (https://github.com/MasWag/vmctl) は様々な仮想マシンに対して同様のインターフェースで起動、停止などの基本的な操作を行なえる様にした、手製のshell scriptです。「様々な仮想マシン」と言いつつ現状Amazon AWSの ec2 と Virtual boxにしか対応していないのですが、原理的にはコマンドラインインターフェースが用意されている仮想マシンであればそれなりの工数で追加できることになっています。
+    }
+    +subsection{vagrant使えば良くないか?} <
     >
     +subsection{今回は単にインスタンスのidを毎回打ちたくないというだけの理由で使った} <
     >
     +subsection{Machine名を連番にすることで shellの連番展開が使えて便利} <
     >
+    +subsection{<span class="todo TODO">TODO</span> 代替品} <
     >
+    >
+    +subsection{Ansible} <
+    +subsection{https://www.ansible.com/} <
+    >
+    +subsection{<span class="todo TODO">TODO</span> 代替品} <
+    <ol>
+    <li>+p {
+      構成管理ツールは色々なものがあるので、好きなものを使えば良いと思う
+    }</li>
+    <li>+p {
+      itamae
+    }</li>
+    <li>+p {
+      Chef
+    }</li>
+    <li>+p {
+      Puppet
+    }</li>
+    </ol>
+    >
+    >
+    +subsection{Git} <
+    +subsection{https://git-scm.com/} <
+    >
+    +subsection{有名分散バージョン管理システム} <
+    >
+    +subsection{マージが簡単にできるという点が並列実験システムにおいて重要} <
+    >
+    +subsection{複数マシンで同時に実験した結果を上手い具合にマージできる} <
+    >
+    +subsection{2019年現在でGitがほぼデファクトスタンダードなので使っている} <
+    >
+    +subsection{代替品} <
+    <ol>
+    <li>+p {
+      他のバージョン管理システムでも良いが…
+    }</li>
+    <li>+p {
+      ローカルで完結しているものはだめ。例えばRCSとかは良くない
+    }</li>
+    <li>+p {
+      変更の情報をちゃんと追えない (例えば過去の版に戻れない)ものはだめ。例えばDropboxとかrsyncとか。
+    }</li>
+    <li>+p {
+      マージが簡単にできないのは良くない。例えばsubversionは良くない
+    }</li>
+    </ol>
+    >
+    >
+    +subsection{expect} <
+    +subsection{https://core.tcl-lang.org/expect/index} <
+    >
+    +subsection{Tclで 書かれている、対話的なCUIプログラムの自動化ツール} <
+    <ol>
+    <li>+p {
+      例えばsshとかftpとかだとどうしても対話的な操作が必要なので、シェルスクリプトで自動化ができない
+    }</li>
+    <li>+p {
+      Expectはターミナルの入力を自動化できるので、こういったものも自動化てきる
+    }</li>
+    </ol>
+    >
+    +subsection{代替品} <
+    <ol>
+    <li>+p {
+      今時はTclじゃなくてpythonとかrubyとかで類似のものが出ている
+    }</li>
+    <li>+p {
+      sshに特化したFabricとかでも良い
+    }</li>
+    </ol>
+    >
+    >
+    +subsection{slack} <
+    +subsection{https://slack.com/intl/ja-jp/} <
+    >
+    >
+    >
+    +section{マシン構成パート} <
+    +subsection{マシンの作成・初期設定: 手動} <
+    +p {
+      まず始めに実験に使うマシンを作成して、ユーザ設定や最低限必要な設定などを行ないます。今回はメインの実験で MATLABが必要で、ライセンス管理の自動化が厄介なので、 MATLABのインストールまでを手動でやりました。必要なソフトウェアにライセンス等の問題が全くないのであればこの工程は自動化しても良いと思います。例えば、 Packer で予め必要なマシンイメージを作っておいて、必要な時に必要なだけ Terraform とかでマシンを作って、不要になったらすぐ壊す、ということが可能です。
+    }
+    >
+    +subsection{<span class="todo TODO">TODO</span> vmctl の設定ファイルをjsonで書く} <
+    >
+    >
+    +section{実験環境設定パート} <
     +subsection{構成管理 by ansible} <
     +subsection{言わずと知れた超有名構成管理ツール} <
     >
@@ -118,6 +209,8 @@ let article = '<
     +subsection{これは趣味} <
     >
     >
+    >
+    +section{実験パート} <
     +subsection{対話的な諸々の自動化 expect} <
     +subsection{sshが絡むと色々対話的に実行したくなることがある} <
     >
@@ -130,6 +223,8 @@ let article = '<
     >
     +subsection{解析 Makefile} <
     >
+    >
+    +section{実験後} <
     +subsection{実験開始・終了のお知らせ slack} <
     +subsection{実験がいつ終わるのか、待つのは精神衛生上よろしくない} <
     >
@@ -162,16 +257,20 @@ let article = '<
     **  実験結果をgit commitする
     **  実験の終了後に自動でインスタンスを停止する
     *  (ここから実験パート。スクリプトを回す) インスタンスを立てる
+    +listing{
     **  vmctl を使う
     **  Bashの brace expansionを使うと便利 (POSIX標準ではないので、例えばdashでは使えないらしい)
+    +listing{
     ***  例えば machine1, machine2, machine3, machine4, machine5 を立てるなら \code(`vmctl start machine{1..5}`); で良い
     ***  詳しくは Bashマニュアル(i.e., \code(`man bash`);)のBrace Expansionを参照
+    }
+    }
     *  インスタンス上に実験環境を構築する
     **  要するにansibleを叩く
     **  ansibleのhostファイルを生成する必要がある
     **  リモートでsshを使う場合はssh-agentのforward agentが必要な場合がある
     ***  https://qiita.com/isaoshimizu/items/84ac5a0b1d42b9d355cf
-    **  known_hosts問題
+    **  known<sub>hosts問題</sub>
     ***  \code(`export ANSIBLE_HOST_KEY_CHECKING=False`);
     *  実験スクリプトを回す
     **  expect + sshで各インスタンスで実験スクリプトを回す
@@ -181,14 +280,6 @@ let article = '<
     *  Gitで実験結果をsyncさせる
     *  解析スクリプトを回す
     }
-    >
-    +section{マシン構成パート} <
-    >
-    +section{実験環境設定パート} <
-    >
-    +section{実験パート} <
-    >
-    +section{実験後} <
     >
     +section{今後の課題} <
     +subsection{スクリプトのポータビリティを上げる (POSIX shell で動く)} <
