@@ -6,6 +6,8 @@
 @import: mutables
 
 module Chapterish : sig
+
+  val chapter-heading : context -> inline-boxes option -> inline-boxes -> block-boxes
   
   val chapter-scheme : context -> string -> bib-defs -> inline-text ->
                        inline-text option -> inline-text -> block-text ->
@@ -14,6 +16,8 @@ module Chapterish : sig
   val section-scheme : context -> string -> inline-text -> block-text -> block-boxes
 
   val subsection-scheme : context -> string -> inline-text -> block-text -> block-boxes
+
+  val subsubsection-scheme : context -> string -> inline-text -> block-text -> block-boxes
 
 end = struct
 
@@ -24,6 +28,15 @@ end = struct
   let-mutable num-chapter <- 0
   let-mutable num-section <- 0
   let-mutable num-subsection <- 0
+
+  let chapter-heading ctx ib-num-opt ib-title =
+    let bb =
+      match ib-num-opt with
+      | None         -> block-nil
+      | Some(ib-num) -> line-break false false ctx (ib-num ++ inline-fil)
+    in
+      bb +++ line-break false false ctx (ib-title ++ inline-fil) +++ block-skip 36pt
+
 
   let section-heading ctx ib-heading =
     line-break true false (ctx |> set-paragraph-margin section-top-margin section-bottom-margin) ib-heading
@@ -130,5 +143,16 @@ end = struct
     in
     let bb-inner = read-block ctx inner in
       bb-title +++ bb-inner
+
+  let subsubsection-scheme ctx label title inner =
+    let ib-title =
+      let ctx-title = make-subsubsection-title ctx
+      in
+      read-inline ctx-title title
+    in
+    let bb-title = line-break true false ctx (ib-title ++ inline-fil)
+    in
+    let bb-main = read-block ctx inner in
+    bb-title +++ bb-main
 
 end

@@ -34,19 +34,21 @@ end = struct
             author = {著者名};
         |)
         <
-            +section {セクションの1} <
-                +subsection {サブセクションの1} <
-                    +p {Hello, world!}
+            +section {節の1} <
+                +subsection {小節の1} <
+                    +subsubsection {少々節の1} <
+                        +p {Hello, world!}
+                    >
                 >
-                +subsection {サブセクションの2} <
+                +subsection {小節の2} <
                     +p {Hello, world!}
                 >
             >
-            +section ?:(`section-2`) {セクションの2} <
-                +subsection {サブセクションの3} <
+            +section ?:(`section-2`) {節の2} <
+                +subsection {小節の3} <
                     +p {Hello, world!}
                 >
-                +subsection ?:(`subsection-4`) {サブセクションの4} <
+                +subsection ?:(`subsection-4`) {小節の4} <
                     +p {Hello, world!}
                 >
             >

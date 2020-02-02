@@ -49,7 +49,7 @@ module Book : sig
   direct \ref-theorem : [string] inline-cmd
   direct \ref-lemma : [string] inline-cmd
   direct \ref-corollary : [string] inline-cmd
-  direct \ref-hypothesis : [string] inline-cmd
+  direct \ref-assumption : [string] inline-cmd
   direct \ref-example : [string] inline-cmd
   direct \ref-figure : [string] inline-cmd
   direct \ref-table : [string] inline-cmd
@@ -81,8 +81,8 @@ module Book : sig
   direct \lemma : [inline-text?; string?; inline-text] inline-cmd
   direct +corollary : [inline-text?; string?; inline-text] block-cmd
   direct \corollary : [inline-text?; string?; inline-text] inline-cmd
-  direct +hypothesis : [inline-text?; string?; inline-text] block-cmd
-  direct \hypothesis : [inline-text?; string?; inline-text] inline-cmd
+  direct +assumption : [inline-text?; string?; inline-text] block-cmd
+  direct \assumption : [inline-text?; string?; inline-text] inline-cmd
 
   direct +proof : [inline-text?; inline-text] block-cmd
   direct \proof : [inline-text?; inline-text] inline-cmd
@@ -105,47 +105,21 @@ end = struct
       ))
 
 
-  let-inline ctx \ref key =
-    let opt = get-cross-reference (key ^ `:num`) in
-    let it = embed-string (Option.from `?` opt) in
-      read-inline ctx it
+  let-inline ctx \ref key = ctx |> CrossRef.make-ib-ref key
+  let-inline ctx \ref-page key = ctx |> CrossRef.make-ib-ref-page key
+  let-inline ctx \ref-chapter key = ctx |> CrossRef.make-ib-ref-chapter key
+  let-inline ctx \ref-section key = ctx |> CrossRef.make-ib-ref-section key
+  let-inline ctx \ref-subsection key = ctx |> CrossRef.make-ib-ref-subsection key
 
+  let-inline ctx \ref-definition key = ctx |> CrossRef.make-ib-ref-definition key
+  let-inline ctx \ref-theorem key = ctx |> CrossRef.make-ib-ref-theorem key
+  let-inline ctx \ref-lemma key = ctx |> CrossRef.make-ib-ref-lemma key
+  let-inline ctx \ref-corollary key = ctx |> CrossRef.make-ib-ref-corollary key
+  let-inline ctx \ref-assumption key = ctx |> CrossRef.make-ib-ref-assumption key
+  let-inline ctx \ref-example key = ctx |> CrossRef.make-ib-ref-example key
 
-  let-inline ctx \ref-page key =
-    let opt = get-cross-reference (key ^ `:page`) in
-    let it = embed-string (Option.from `?` opt) in
-      read-inline ctx it
-
-
-  let-inline ctx \ref-chapter key =
-    let opt = get-cross-reference (`chapter:` ^ key ^ `:num`) in
-    let it = embed-string (Option.from `?` opt) in
-      read-inline ctx {第#it;章}
-
-
-  let-inline ctx \ref-section key =
-    let opt = get-cross-reference (`section:` ^ key ^ `:num`) in
-    let it = embed-string (Option.from `?` opt) in
-      read-inline ctx {#it;節}
-
-
-  let-inline ctx \ref-subsection key =
-    let opt = get-cross-reference (`subsection:` ^ key ^ `:num`) in
-    let it = embed-string (Option.from `?` opt) in
-      read-inline ctx {#it;節}
-
-
-  let-inline ctx \ref-figure key =
-    let opt = get-cross-reference (`figure:` ^ key ^ `:num`) in
-    let it = embed-string (Option.from `?` opt) in
-      read-inline ctx {図#it;}
-
-
-  let-inline ctx \ref-table key =
-    let opt = get-cross-reference (`table:` ^ key ^ `:num`) in
-    let it = embed-string (Option.from `?` opt) in
-      read-inline ctx {表#it;}
-
+  let-inline ctx \ref-figure key = ctx |> CrossRef.make-ib-ref-figure key
+  let-inline ctx \ref-table key = ctx |> CrossRef.make-ib-ref-table key
 
   let-mutable index-list <- []
 
@@ -192,16 +166,6 @@ end = struct
     | None    -> `?`
     | Some(s) -> s
 
-
-  let chapter-heading ctx ib-num-opt ib-title =
-    let bb =
-      match ib-num-opt with
-      | None         -> block-nil
-      | Some(ib-num) -> line-break false false ctx (ib-num ++ inline-fil)
-    in
-      bb +++ line-break false false ctx (ib-title ++ inline-fil) +++ block-skip 36pt
-
-
   let-inline ctx \dummy it =
     let ib = read-inline (ctx |> set-text-color Color.white) it in
     let w = get-natural-width ib in
@@ -221,7 +185,7 @@ end = struct
       |> Inline.read {目次}
       |> align-ib-left
     in
-    let bb-toc-title = (chapter-heading ctx None ib-toc-title)
+    let bb-toc-title = Chapterish.chapter-heading ctx None ib-toc-title
     in
     let bb-toc-main = TableOfContents.make-bb toc-acc-ref ctx
     in
@@ -393,15 +357,8 @@ end = struct
     in
     Chapterish.subsection-scheme ctx label title inner
 
-  let-block ctx +subsubsection it bt =
-    let ib-title =
-      let ctx-title = make-subsubsection-title ctx in
-      read-inline ctx-title it
-    in
-    let bb-title = line-break true false ctx (ib-title ++ inline-fil) in
-    let bb-main = read-block ctx bt in
-    bb-title +++ bb-main
-
+  let-block ctx +subsubsection title inner =
+    Chapterish.subsubsection-scheme ctx ` ` title inner
 
   let-inline ctx \emph inner =
     let ctx-emph =
@@ -466,10 +423,9 @@ end = struct
 
 
 
-let-block ctx +hypothesis ?:wordopt ?:labelopt inner =
-    let label = make-label `hypothesis:` labelopt in
+let-block ctx +assumption ?:wordopt ?:labelopt inner =
+    let label = make-label `assumption:` labelopt in
       theorem-scheme ctx (set-latin-font font-latin-italic) {仮定} wordopt label inner
-
 
 
   let-block ctx +example ?:wordopt ?:labelopt inner =
@@ -530,13 +486,13 @@ let-block ctx +hypothesis ?:wordopt ?:labelopt inner =
                        | (Some(word), Some(label)) -> '<+corollary?:(word)?:(label)(inner);>
                        ))
 
-  let-inline ctx \hypothesis ?:wordopt ?:labelopt inner =
+  let-inline ctx \assumption ?:wordopt ?:labelopt inner =
     inline-fil ++ embed-block-breakable ctx
       (read-block ctx (match (wordopt, labelopt) with
-                       | (None, None) -> '<+hypothesis(inner);>
-                       | (Some(word), None) -> '<+hypothesis?:(word)(inner);>
-                       | (None, Some(label)) -> '<+hypothesis?*?:(label)(inner);>
-                       | (Some(word), Some(label)) -> '<+hypothesis?:(word)?:(label)(inner);>
+                       | (None, None) -> '<+assumption(inner);>
+                       | (Some(word), None) -> '<+assumption?:(word)(inner);>
+                       | (None, Some(label)) -> '<+assumption?*?:(label)(inner);>
+                       | (Some(word), Some(label)) -> '<+assumption?:(word)?:(label)(inner);>
                        ))
 
   let-inline ctx \example ?:wordopt ?:labelopt inner =
@@ -563,40 +519,6 @@ let-block ctx +hypothesis ?:wordopt ?:labelopt inner =
                        | None -> '<+proof(inner);>
                        | Some(word) -> '<+proof?:(word)(inner);>
                        ))
-
-  let get-number prefix label =
-      match get-cross-reference (prefix ^ label ^ `:num`) with
-      | None    -> {?}
-      | Some(s) -> embed-string s
-
-
-  let-inline ctx \ref-definition label =
-    let it-num = get-number `definition:` label in
-      read-inline ctx {定義 #it-num;}
-
-
-  let-inline ctx \ref-theorem label =
-    let it-num = get-number `theorem:` label in
-      read-inline ctx {定理 #it-num;}
-
-
-  let-inline ctx \ref-lemma label =
-    let it-num = get-number `lemma:` label in
-      read-inline ctx {補題 #it-num;}
-
-
-  let-inline ctx \ref-corollary label =
-    let it-num = get-number `corollary:` label in
-      read-inline ctx {系 #it-num;}
-
-  let-inline ctx \ref-hypothesis label =
-    let it-num = get-number `hypothesis:` label in
-      read-inline ctx {系 #it-num;}
-
-  let-inline ctx \ref-example label =
-    let it-num = get-number `example:` label in
-      read-inline ctx {例 #it-num;}
-
 
   let generate-footnote-label n =
     `footnote:` ^ (arabic n)
