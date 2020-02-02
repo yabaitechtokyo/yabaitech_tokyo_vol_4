@@ -46,8 +46,6 @@ jobs: # job 定義
           export HOME=/root
           eval $(opam env)
           opam update
-          opam install satysfi-fonts-dejavu
-          satyrographos install
           bash install-fonts.sh
       - name: Run regression tests
         run: |
