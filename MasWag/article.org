@@ -131,21 +131,96 @@ Gitはかなり大きなレポジトリを扱えますが、実験ログが膨�
 
 また、初期設定に手動部分がどうしても必要な場合でも、自動設定の部分と手動設定の部分を分離することで、Packerなどを部分的に用いるワークフローにすることも良いと思います。
 
-** TODO vmctl の設定ファイルをjsonで書く
+** vmctl の設定ファイルを書く
 
-*** vmctl の設定ファイル とは
+次にvmctlを設定します。vmctlの設定はjsonで書かれた設定ファイル (=~/.vmctl.json=) で行ないます。基本的には 1) インスタンス名、 2) インスタンスの種類 (ec2等)、 3) インスタンス ID、 が書かれたjsonファイルで、例えば以下の様になります。
 
-*** jsonの例
+#+BEGIN_EXAMPLE
+[
+    {
+        "name": "marisa",
+        "type": "ec2",
+        "instance_id": "i-0fsdfd13c7bf3d6b6",
+        "profile": "sample"
+    },
+    {
+        "name": "reimu",
+        "type": "virtual_box",
+        "instance_id": "95a2dsfdb-0dfbf-40bb-bf15-92df8d07c7dc"
+    }
+]
+#+END_EXAMPLE
 
-*** これを書いたらできること
+インスタンス数が少ない場合は手書きしても大丈夫ですが、多数のインスタンスを扱う場合は設定ファイルを自動で生成したくなると思います。Amazon EC2については 例えば次のコマンドで生成することができます。
 
-* TODO 実験環境設定パート
+#+BEGIN_SRC shell
+aws ec2 describe-instances --query 'Reservations[*].Instances[*].[InstanceId,Tags[?Key==`Name`].Value|[0]]|[]' |
+    jq --arg profile "$PROFILE" 'map({"type": "ec2", "instance_id": .[0], "name": .[1]})' > ~/.vmctl.json
+#+END_SRC
 
-** TODO 実行したい実験に必要な環境を書く
+* COMMENT TODO 実験環境設定パート
+
+次は実験環境設定パートについて説明していきます。
+
+** 実験環境構築用の Ansible playbook を書く
+
+まず始めに実験環境構築用の Ansible playbook を書きます。ここでは、実験対象のプログラムのコンパイルや実験用Gitレポジトリの準備等に加えて、後で必要となるaws-cliやslackに通知を送るためのスクリプトの設定等も行ないます。
+
+#+BEGIN_SRC yaml
+  - hosts: aws
+    user: ubuntu
+    tasks:
+      - name: Install required packages
+        apt:
+          pkg:
+            - awscli
+            - unzip
+            - ...
+        become: yes
+      
+      - name: configure aws-cli
+        file:
+          dest: ~/.aws/
+          state: directory
+
+      - name: configure aws-cli
+        copy:
+          src: ~/.aws/config
+          dest: ~/.aws/config
+
+      - name: configure aws-cli
+        copy:
+          src: ~/.aws/credentials
+          dest: ~/.aws/credentials
+
+      - name: Download and extract the dataset
+        unarchive:
+          dest: /tmp
+          src: http://example.com/dataset.zip
+          remote_src: yes
+
+      - name: clone bar-experiments
+        git:
+          repo: "git@example.com:foo/bar-experiments.git"
+          dest: /home/ubuntu/bar-experiments
+
+      - name: setup notif_my_slack
+        file:
+          dest: ~/bin/
+          state: directory
+
+      - name: setup notif_my_slack
+        shell: m4 -DHOST=$(/usr/bin/aws ec2 describe-instances --instance-ids  "$(cat /var/lib/cloud/data/instance-id)" --query 'Reservations[*].Instances[*].Tags[?Key==`Name`].Value' | tr -d [] | xargs) /home/ubuntu/bar-experiments/utils/notif_my_slack.m4 > ~/bin/notif_my_slack
+
+      - name: setup notif_my_slack
+        file:
+          path: ~/bin/notif_my_slack
+          mode: '0755'
+#+END_SRC
 
 ** TODO 実験スクリプトを書く
 
-* 実験パート
+* COMMENT 実験パート
 
 ** 実験に必要なマシンを立てる
 
@@ -153,7 +228,7 @@ Gitはかなり大きなレポジトリを扱えますが、実験ログが膨�
 
 ** 実験スクリプトを回す
 
-* 実験後
+* COMMENT 実験後
 
 ** 実験終了通知が飛ぶ
 
@@ -165,7 +240,7 @@ Gitはかなり大きなレポジトリを扱えますが、実験ログが膨�
 
 ** 解析 Makefile
 
-* 全体のワークフロー (フローチャートを書く)
+* COMMENT 全体のワークフロー (フローチャートを書く)
 
 - (ここからマシン構築パート) マシンを作成・設定する (起動させっぱなしだとお金が勿体ないので停止させておく)
    - 今回ここは完全に手動なので特に言うことなし
@@ -209,7 +284,7 @@ Gitはかなり大きなレポジトリを扱えますが、実験ログが膨�
 ** Gitでbranchを活用してmergeをlocalでやるようにすると、syncを並列化できる (はず)
 ** スクリプトのポータビリティを上げる (POSIX shell で動く)
 *** 今のスクリプトはdashとかでは動かない
-* 次回予告
+* ◇ (Eventually) 回予告
 
 ** いかがだったでしょうか
 

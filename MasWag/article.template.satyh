@@ -1,4 +1,4 @@
-@import: ../class/book-class
+@import: ../class/yabaitech
 @require: itemize
 @require: code
 
