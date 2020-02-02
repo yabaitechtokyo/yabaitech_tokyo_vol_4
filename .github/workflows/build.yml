@@ -1,19 +1,30 @@
 name: build   # ワークフローの名前は build (バッヂをつける際はこの名前で参照することになります)
 on: push      # push 毎にワークフローを実行
 
-jobs: # job 定義
-  publish:      # job 定義の名前
+jobs:
+  publish:
     name: Publish pdf
-    runs-on: ubuntu-latest   # ubuntu 環境で実行
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version: [0.0.4]
+    container:
+      image: amutake/satysfi:latest
     steps:
-      - uses: actions/checkout@v1   # ソースコードをチェックアウトしてくる
+      - uses: actions/checkout@v1
         with:
-          submodules: recursive # Submodule init/update
-      # satysfi-docker を使ってビルド (この例くらいなら slim タグを使ったほうがいいですが簡単のため latest)
-      - name: Install fonts
-        run: bash install-fonts.sh
+          submodules: recursive
+      - name: Install Satyrographos dependencies and fonts
+        run: |
+          export HOME=/root
+          eval $(opam env)
+          opam update
+          bash install-fonts.sh
       - name: Build with SATySFi
-        run: docker run --rm -v $(pwd):/satysfi amutake/satysfi satysfi main.saty
+        run: |
+          export HOME=/root
+          eval $(opam env)
+          satysfi main.saty
       - name: Upload artifact
         uses: actions/upload-artifact@master
         with:
