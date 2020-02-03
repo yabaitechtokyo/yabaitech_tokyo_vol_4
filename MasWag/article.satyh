@@ -201,6 +201,69 @@ let article = '<
     ``);
     >
     >
+    +section{実験環境設定パート} <
+    +p {
+      次は実験環境設定パートについて説明していきます。
+    }
+    +subsection{実験環境構築用の Ansible playbook を書く} <
+    +p {
+      まず始めに実験環境構築用の Ansible playbook を書きます。ここでは、データセットの準備や実験対象のプログラムのコンパイルや、験用Gitレポジトリの準備等に加えて、後で必要となるaws-cliやslackに通知を送るためのスクリプトの設定等も行ないます。細かい内容についてはさておき、例えば以下の様な YAMLファイル で設定を行なうことができます。
+    }
+    +subsubsection{例} <
+    +code(``
+    - hosts: aws
+      user: ubuntu
+      tasks:
+        - name: Install required packages
+          apt:
+            pkg:
+              - awscli
+              - unzip
+              - ...
+          become: yes
+
+        - name: configure aws-cli
+          file:
+            dest: ~/.aws/
+            state: directory
+
+        - name: configure aws-cli
+          copy:
+            src: ~/.aws/config
+            dest: ~/.aws/config
+
+        - name: configure aws-cli
+          copy:
+            src: ~/.aws/credentials
+            dest: ~/.aws/credentials
+
+        - name: Download and extract the dataset
+          unarchive:
+            dest: /tmp
+            src: http://example.com/dataset.zip
+            remote_src: yes
+
+        - name: clone bar-experiments
+          git:
+            repo: "git@example.com:foo/bar-experiments.git"
+            dest: /home/ubuntu/bar-experiments
+
+        - name: setup notif_my_slack
+          file:
+            dest: ~/bin/
+            state: directory
+
+        - name: setup notif_my_slack
+          shell: m4 -DHOST=$(/usr/bin/aws ec2 describe-instances --instance-ids  "$(cat /var/lib/cloud/data/instance-id)" --query 'Reservations[\*].Instances[\*].Tags[?Key==`Name`].Value' | tr -d [] | xargs) /home/ubuntu/bar-experiments/utils/notif_my_slack.m4 > ~/bin/notif_my_slack
+
+        - name: setup notif_my_slack
+          file:
+            path: ~/bin/notif_my_slack
+            mode: '0755'
+    ``);
+    >
+    >
+    >
     +section{今後の課題} <
     +subsection{Gitでbranchを活用してmergeをlocalでやるようにすると、syncを並列化できる (はず)} <
     >

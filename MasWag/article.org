@@ -158,13 +158,15 @@ aws ec2 describe-instances --query 'Reservations[*].Instances[*].[InstanceId,Tag
     jq --arg profile "$PROFILE" 'map({"type": "ec2", "instance_id": .[0], "name": .[1]})' > ~/.vmctl.json
 #+END_SRC
 
-* COMMENT TODO 実験環境設定パート
+* 実験環境設定パート
 
 次は実験環境設定パートについて説明していきます。
 
 ** 実験環境構築用の Ansible playbook を書く
 
-まず始めに実験環境構築用の Ansible playbook を書きます。ここでは、実験対象のプログラムのコンパイルや実験用Gitレポジトリの準備等に加えて、後で必要となるaws-cliやslackに通知を送るためのスクリプトの設定等も行ないます。
+まず始めに実験環境構築用の Ansible playbook を書きます。ここでは、データセットの準備や実験対象のプログラムのコンパイルや、験用Gitレポジトリの準備等に加えて、後で必要となるaws-cliやslackに通知を送るためのスクリプトの設定等も行ないます。細かい内容についてはさておき、例えば以下の様な YAMLファイル で設定を行なうことができます。
+
+*** 例
 
 #+BEGIN_SRC yaml
   - hosts: aws
@@ -218,7 +220,67 @@ aws ec2 describe-instances --query 'Reservations[*].Instances[*].[InstanceId,Tag
           mode: '0755'
 #+END_SRC
 
-** TODO 実験スクリプトを書く
+** TODO COMMENT 実験スクリプトを書く
+
+「実験スクリプトを書く」というとただ一言で終わってしまうので、個人的に採用している実験用Gitレポジトリの構成についても説明します。実験用にGitレポジトリを作っている理由は前述の様に複数マシンで同時に実験した結果を上手い具合にマージできるからですが、できるだけマージ時に衝突しないように以下の様なディレクトリ構成を採用しています。ざっくり言うと気をつけている点は以下の点です。
+
+- 各実験に個別のスクリプト等は各実験用のディレクトリに入れる。逆に共通のスクリプト等は =/utils= 以下に格納する
+- 各実験にtimestamp付きのIDを割り振って衝突しない様にする
+- 実験用スクリプト名は常に =run.sh=
+- 各ディレクトリには実験の説明を書いた =README.md= を書く
+
+*** Tree
+
+#+BEGIN_EXAMPLE
+├── <20200102-1234-experiment1>
+│   ├── README.md
+│   ├── run.sh
+│   ...
+├── <20200203-2345-experiment2>
+│   ├── README.md
+│   ├── run.sh
+│   ...
+├── README.md
+└── utils
+    ├── README.md
+    ├── git_sync_remote.yaml
+    ├── setup.sh
+    ├── teardown.sh
+    ├── notif_my_slack.m4
+    ...
+#+END_EXAMPLE
+
+*** run.sh
+
+*** setup.sh
+
+#+BEGIN_SRC sh
+git --git-dir ~/<Program>/.git rev-parse HEAD > git-hash
+
+readonly experiment=$(pwd | sed 's:.*/::')
+
+notif_my_slack <<EOF
+experiment ${experiment} started.
+The arguments: $@
+EOF
+mkdir -p results
+#+END_SRC
+
+*** teardown.sh
+
+#+BEGIN_SRC sh
+readonly experiment=$(pwd | sed 's:.*/::')
+
+# Synchronize the filesystem and wait for 60 sec.
+sync
+sleep 60
+git add .
+git commit -m "experiment ${experiment} $* finished"
+notif_my_slack "experiment_${experiment}_finished"
+/usr/bin/aws ec2 stop-instances --instance-ids  "$(cat /var/lib/cloud/data/instance-id)"
+#+END_SRC
+
+*** TODO notif_my_slack.m4
 
 * COMMENT 実験パート
 
