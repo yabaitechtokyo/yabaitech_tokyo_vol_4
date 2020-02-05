@@ -18,6 +18,7 @@ module CrossRef : sig
     val make-ib-ref-corollary : string -> context -> inline-boxes
     val make-ib-ref-assumption : string -> context -> inline-boxes
     val make-ib-ref-example : string -> context -> inline-boxes
+    val make-ib-ref-notation : string -> context -> inline-boxes
     val make-ib-ref-figure : string -> context -> inline-boxes
     val make-ib-ref-table : string -> context -> inline-boxes
 
@@ -96,6 +97,11 @@ end = struct
         gen-make-ib-ref
             (fun key -> `example:` ^ key ^ `:num`)
             (fun label -> {例 #label;})
+
+    let make-ib-ref-notation =
+        gen-make-ib-ref
+            (fun key -> `notation:` ^ key ^ `:num`)
+            (fun label -> {記法 #label;})
 
     let make-ib-ref-figure =
         gen-make-ib-ref

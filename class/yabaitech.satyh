@@ -51,6 +51,7 @@ module Book : sig
   direct \ref-corollary : [string] inline-cmd
   direct \ref-assumption : [string] inline-cmd
   direct \ref-example : [string] inline-cmd
+  direct \ref-notation : [string] inline-cmd
   direct \ref-figure : [string] inline-cmd
   direct \ref-table : [string] inline-cmd
   direct \index : [string; inline-text?; inline-text] inline-cmd
@@ -73,14 +74,14 @@ module Book : sig
   direct \definition : [inline-text?; string?; inline-text] inline-cmd
   direct +theorem : [inline-text?; string?; inline-text] block-cmd
   direct \theorem : [inline-text?; string?; inline-text] inline-cmd
-  direct +example : [inline-text?; string?; inline-text] block-cmd
-  direct \example : [inline-text?; string?; inline-text] inline-cmd
-  direct +notation : [inline-text?; string?; inline-text] block-cmd
-  direct \notation : [inline-text?; string?; inline-text] inline-cmd
   direct +lemma : [inline-text?; string?; inline-text] block-cmd
   direct \lemma : [inline-text?; string?; inline-text] inline-cmd
   direct +corollary : [inline-text?; string?; inline-text] block-cmd
   direct \corollary : [inline-text?; string?; inline-text] inline-cmd
+  direct +example : [inline-text?; string?; inline-text] block-cmd
+  direct \example : [inline-text?; string?; inline-text] inline-cmd
+  direct +notation : [inline-text?; string?; inline-text] block-cmd
+  direct \notation : [inline-text?; string?; inline-text] inline-cmd
   direct +assumption : [inline-text?; string?; inline-text] block-cmd
   direct \assumption : [inline-text?; string?; inline-text] inline-cmd
 
@@ -117,6 +118,7 @@ end = struct
   let-inline ctx \ref-corollary key = ctx |> CrossRef.make-ib-ref-corollary key
   let-inline ctx \ref-assumption key = ctx |> CrossRef.make-ib-ref-assumption key
   let-inline ctx \ref-example key = ctx |> CrossRef.make-ib-ref-example key
+  let-inline ctx \ref-notation key = ctx |> CrossRef.make-ib-ref-notation key
 
   let-inline ctx \ref-figure key = ctx |> CrossRef.make-ib-ref-figure key
   let-inline ctx \ref-table key = ctx |> CrossRef.make-ib-ref-table key
@@ -433,7 +435,7 @@ let-block ctx +assumption ?:wordopt ?:labelopt inner =
       theorem-scheme ctx (fun x -> x) {例} wordopt label inner
 
   let-block ctx +notation ?:wordopt ?:labelopt inner =
-    let label = make-label `example:` labelopt in
+    let label = make-label `notation:` labelopt in
       theorem-scheme ctx (fun x -> x) {記法} wordopt label inner
 
   let-math \QED = math-char MathOrd `∎`
