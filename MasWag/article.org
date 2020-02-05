@@ -220,39 +220,59 @@ aws ec2 describe-instances --query 'Reservations[*].Instances[*].[InstanceId,Tag
           mode: '0755'
 #+END_SRC
 
-** TODO COMMENT 実験スクリプトを書く
+*** =notif_my_slack.m4=
 
-「実験スクリプトを書く」というとただ一言で終わってしまうので、個人的に採用している実験用Gitレポジトリの構成についても説明します。実験用にGitレポジトリを作っている理由は前述の様に複数マシンで同時に実験した結果を上手い具合にマージできるからですが、できるだけマージ時に衝突しないように以下の様なディレクトリ構成を採用しています。ざっくり言うと気をつけている点は以下の点です。
+環境設定用のAnsible notebookの中で =notif_my_slack.m4= が出てきたので説明をします。 =notif_my_slack.m4= はm4のコードです。今回m4は =notif_my_slack= というシェルスクリプトを生成するためのプリプロセッサとして使っています。m4自体もチューリング完全なプログラミング言語ですが、今回は単に文字列 =HOST= をEC2でのインスタンス名に置換するためだけに使っています。なお最後の =https://hooks.slack.com/services/<The given ID>= はslackで外部から通知を飛ばす用のURL (Incoming Webhooksのエンドポイント) です。取得法などについては slack, Incoming Webhooks, 等で検索すると詳しい説明が出てくるので省略します。
+
+#+BEGIN_SRC m4
+#!/bin/sh
+
+if [ $# -gt 0 ]; then
+  curl -X POST -H 'Content-type: application/json' --data '{"text":"'"$*"' from HOST"}' https://hooks.slack.com/services/<The given ID>
+else
+  curl -X POST -H 'Content-type: application/json'  --data  `"{\"text\":\"###From' HOST###\n$(cat)\"}" https://hooks.slack.com/services/<The given ID>
+fi
+#+END_SRC
+
+** 実験スクリプトを書く
+
+「実験スクリプトを書く」というとただ一言で終わってしまうので、個人的に採用している実験用Gitレポジトリの構成についても説明します。実験用にGitレポジトリを作っている理由は前述の様に複数マシンで同時に実験した結果を上手い具合にマージできるからですが、できるだけマージ時に衝突しないように図の様なディレクトリ構成を採用しています。ざっくり言うと気をつけている点は以下の点です。
 
 - 各実験に個別のスクリプト等は各実験用のディレクトリに入れる。逆に共通のスクリプト等は =/utils= 以下に格納する
 - 各実験にtimestamp付きのIDを割り振って衝突しない様にする
 - 実験用スクリプト名は常に =run.sh=
 - 各ディレクトリには実験の説明を書いた =README.md= を書く
 
-*** Tree
-
 #+BEGIN_EXAMPLE
 ├── <20200102-1234-experiment1>
-│   ├── README.md
 │   ├── run.sh
 │   ...
 ├── <20200203-2345-experiment2>
-│   ├── README.md
 │   ├── run.sh
 │   ...
-├── README.md
 └── utils
-    ├── README.md
-    ├── git_sync_remote.yaml
     ├── setup.sh
     ├── teardown.sh
     ├── notif_my_slack.m4
     ...
 #+END_EXAMPLE
 
+それではそれぞれのファイルについて説明していきます。なお、 =notif_my_slack.m4= の説明はSection ???を参照してください。
+
 *** run.sh
 
+=run.sh= は実験用のメインになるスクリプトです。ファイル名を =run.sh= にするのは自動化を容易にするためです。 =run.sh= での処理はざっくり書くと以下の様になります。
+
+- 準備用のスクリプトである =setup.sh= (後述) を呼ぶ
+- 実験本体の処理
+- 終了処理用のスクリプトである =teardown.sh= (後述) を呼ぶ
+
 *** setup.sh
+
+さて、 =setup.sh= は準備用のスクリプトです。とはいえやっている内容は以下の二つだけになります。
+
+- 実験対象のプログラム等、外部で使っているgitレポジトリののバージョンをファイルに保存
+- slackに実験開始のお知らせをする
 
 #+BEGIN_SRC sh
 git --git-dir ~/<Program>/.git rev-parse HEAD > git-hash
@@ -268,6 +288,12 @@ mkdir -p results
 
 *** teardown.sh
 
+次に実験終了時のスクリプト、 =teardown.sh= です。ざっくり言うとやっている内容は以下の三点になります。
+
+- 実験内容を =git commit= する
+- slackに実験終了のお知らせをする
+- 実験に使ったインスタンスを停止する
+
 #+BEGIN_SRC sh
 readonly experiment=$(pwd | sed 's:.*/::')
 
@@ -280,9 +306,8 @@ notif_my_slack "experiment_${experiment}_finished"
 /usr/bin/aws ec2 stop-instances --instance-ids  "$(cat /var/lib/cloud/data/instance-id)"
 #+END_SRC
 
-*** TODO notif_my_slack.m4
 
-* COMMENT 実験パート
+* TODO COMMENT 実験パート
 
 ** 実験に必要なマシンを立てる
 
@@ -290,7 +315,7 @@ notif_my_slack "experiment_${experiment}_finished"
 
 ** 実験スクリプトを回す
 
-* COMMENT 実験後
+* TODO COMMENT 実験後
 
 ** 実験終了通知が飛ぶ
 
@@ -299,6 +324,24 @@ notif_my_slack "experiment_${experiment}_finished"
 * COMMENT 実験解析パート
 
 ** 解析対象のファイル名指定 YAML
+
+** sync
+
+#+BEGIN_SRC yaml
+- hosts: aws
+  tasks:
+    - name: Install required packages
+      apt:
+        pkg:
+          - git
+      become: yes
+
+    - name: push to the remote
+      command: 
+        cmd: git push origin master:tmp_{{ ansible_hostname }}
+        chdir: /home/ubuntu/bar-experiments
+#+END_SRC
+
 
 ** 解析 Makefile
 
@@ -342,11 +385,11 @@ notif_my_slack "experiment_${experiment}_finished"
 - Gitで実験結果をsyncさせる
 - 解析スクリプトを回す
 
-* 今後の課題
+* TODO 今後の課題
 ** Gitでbranchを活用してmergeをlocalでやるようにすると、syncを並列化できる (はず)
 ** スクリプトのポータビリティを上げる (POSIX shell で動く)
 *** 今のスクリプトはdashとかでは動かない
-* ◇ (Eventually) 回予告
+* TODO ◇ (Eventually) 回予告
 
 ** いかがだったでしょうか
 
