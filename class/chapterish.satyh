@@ -3,21 +3,16 @@
 @import: bibliography
 @import: document-config
 @import: font-config
+@import: label
 @import: mutables
 
 module Chapterish : sig
 
   val chapter-heading : context -> inline-boxes option -> inline-boxes -> block-boxes
-  
-  val chapter-scheme : context -> string -> bib-defs -> inline-text ->
-                       inline-text option -> inline-text -> block-text ->
-                       block-boxes
-
-  val section-scheme : context -> string -> inline-text -> block-text -> block-boxes
-
-  val subsection-scheme : context -> string -> inline-text -> block-text -> block-boxes
-
-  val subsubsection-scheme : context -> string -> inline-text -> block-text -> block-boxes
+  val chapter-scheme : context -> string option -> bib-defs -> inline-text -> inline-text option -> inline-text -> block-text -> block-boxes
+  val section-scheme : context -> string option -> inline-text -> block-text -> block-boxes
+  val subsection-scheme : context -> string option -> inline-text -> block-text -> block-boxes
+  val subsubsection-scheme : context -> string option -> inline-text -> block-text -> block-boxes
 
 end = struct
 
@@ -70,7 +65,7 @@ end = struct
     let bb-author = line-break false false ctx (inline-fil ++ ib-author) in
       bb-num-opt +++ bb-title +++ bb-subtitle +++ bb-author +++ block-skip 18pt
 
-  let chapter-scheme ctx label bibliography title subtitle author inner =
+  let chapter-scheme ctx labelopt bibliography title subtitle author inner =
     let txtwid = text-width in
     let () = increment num-chapter in
     let () = num-section <- 0 in
@@ -78,6 +73,7 @@ end = struct
     let () = num-figure <- 0 in
     let () = num-theorems <- 0 in
     let s-num = arabic (!num-chapter) in
+    let label = Label.or-fresh labelopt in
     let () = register-cross-reference (`chapter:` ^ label ^ `:num`) s-num in
     let () = toc-acc-ref <- (TOCElementChapter(label, title, subtitle, author)) :: !toc-acc-ref in
     let ctx-title = make-chapter-title ctx in
@@ -108,11 +104,12 @@ end = struct
     in
     bb-title +++ bb-inner +++ bb-bib-section +++ clear-page
 
-  let section-scheme ctx label title inner =
+  let section-scheme ctx label-opt title inner =
     let ctx-title = make-section-title ctx in
     let () = increment num-section in
     let () = num-subsection <- 0 in
     let s-num = arabic (!num-section) in
+    let label = Label.or-fresh label-opt in
     let () = register-cross-reference (`section:` ^ label ^ `:num`) s-num in
 %    let () = toc-acc-ref <- (TOCElementSection(label, title)) :: !toc-acc-ref in
     let ib-num =
@@ -125,9 +122,10 @@ end = struct
     let bb-inner = read-block ctx inner in
       bb-title +++ bb-inner
 
-  let subsection-scheme ctx label title inner =
+  let subsection-scheme ctx label-opt title inner =
     let () = num-subsection <- !num-subsection + 1 in
     let s-num = arabic (!num-section) ^ `.` ^ arabic (!num-subsection) in
+    let label = Label.or-fresh label-opt in
     let () = register-cross-reference (`subsection:` ^ label ^ `:num`) s-num in
 %    let () = toc-acc-ref <- (TOCElementSubsection(label, title)) :: !toc-acc-ref in
     let ctx-title = make-subsection-title ctx in
@@ -144,7 +142,7 @@ end = struct
     let bb-inner = read-block ctx inner in
       bb-title +++ bb-inner
 
-  let subsubsection-scheme ctx label title inner =
+  let subsubsection-scheme ctx label-opt title inner =
     let ib-title =
       let ctx-title = make-subsubsection-title ctx
       in

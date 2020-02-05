@@ -25,6 +25,7 @@
 @import: font-config
 @import: mutables
 @import: table-of-contents
+@import: theoremish
 @import: title
 
 module Book : sig
@@ -40,6 +41,7 @@ module Book : sig
       publisher: string;
     |)
 
+  % from CrossRef
   direct \ref : [string] inline-cmd
   direct \ref-page : [string] inline-cmd
   direct \ref-chapter : [string] inline-cmd
@@ -54,12 +56,11 @@ module Book : sig
   direct \ref-notation : [string] inline-cmd
   direct \ref-figure : [string] inline-cmd
   direct \ref-table : [string] inline-cmd
-  direct \index : [string; inline-text?; inline-text] inline-cmd
+
+  % from Bibliography
   direct \cite : [string list] inline-cmd
-  direct \figure : [string?; inline-text; block-text] inline-cmd
-  direct \table : [string?; inline-text; block-text] inline-cmd
-  direct +p : [inline-text] block-cmd
-  direct +topic : [inline-text; inline-text] block-cmd
+
+  % from Chapterish
   direct +chapter : [string?; inline-text?; 'a; block-text] block-cmd
     constraint 'a :: (|
       title : inline-text;
@@ -70,23 +71,25 @@ module Book : sig
   direct +section : [string?; inline-text; block-text] block-cmd
   direct +subsection : [string?; inline-text; block-text] block-cmd
   direct +subsubsection : [inline-text; block-text] block-cmd
+
+  % from Theoremish
   direct +definition : [inline-text?; string?; inline-text] block-cmd
-  direct \definition : [inline-text?; string?; inline-text] inline-cmd
   direct +theorem : [inline-text?; string?; inline-text] block-cmd
-  direct \theorem : [inline-text?; string?; inline-text] inline-cmd
   direct +lemma : [inline-text?; string?; inline-text] block-cmd
-  direct \lemma : [inline-text?; string?; inline-text] inline-cmd
   direct +corollary : [inline-text?; string?; inline-text] block-cmd
-  direct \corollary : [inline-text?; string?; inline-text] inline-cmd
   direct +example : [inline-text?; string?; inline-text] block-cmd
-  direct \example : [inline-text?; string?; inline-text] inline-cmd
   direct +notation : [inline-text?; string?; inline-text] block-cmd
-  direct \notation : [inline-text?; string?; inline-text] inline-cmd
   direct +assumption : [inline-text?; string?; inline-text] block-cmd
-  direct \assumption : [inline-text?; string?; inline-text] inline-cmd
+
+
+  direct \index : [string; inline-text?; inline-text] inline-cmd
+  direct \figure : [string?; inline-text; block-text] inline-cmd
+  direct \table : [string?; inline-text; block-text] inline-cmd
+  direct +p : [inline-text] block-cmd
+  direct +topic : [inline-text; inline-text] block-cmd
 
   direct +proof : [inline-text?; inline-text] block-cmd
-  direct \proof : [inline-text?; inline-text] inline-cmd
+
   direct \emph : [inline-text] inline-cmd
   direct \dfn : [inline-text] inline-cmd
   direct \roman : [inline-text] inline-cmd
@@ -97,14 +100,6 @@ end = struct
   open FontConfig
   open DocumentConfig
   open Mutables
-
-  let generate-fresh-label =
-    let-mutable count <- 0 in
-      (fun () -> (
-        let () = count <- !count + 1 in
-          `generated:` ^ (arabic (!count))
-      ))
-
 
   let-inline ctx \ref key = ctx |> CrossRef.make-ib-ref key
   let-inline ctx \ref-page key = ctx |> CrossRef.make-ib-ref-page key
@@ -345,22 +340,16 @@ end = struct
 
 
   let-block ctx +chapter ?:labelopt ?:subtitle record inner =
-    let label = labelopt |> Option.unwrap-or (generate-fresh-label ())
-    in
-    Chapterish.chapter-scheme ctx label record#bibliography record#title subtitle record#author inner
+    Chapterish.chapter-scheme ctx labelopt record#bibliography record#title subtitle record#author inner
 
   let-block ctx +section ?:labelopt title inner =
-    let label = labelopt |> Option.unwrap-or (generate-fresh-label ())
-    in
-    Chapterish.section-scheme ctx label title inner
+    Chapterish.section-scheme ctx labelopt title inner
 
   let-block ctx +subsection ?:labelopt title inner =
-    let label = labelopt |> Option.unwrap-or (generate-fresh-label ())
-    in
-    Chapterish.subsection-scheme ctx label title inner
+    Chapterish.subsection-scheme ctx labelopt title inner
 
   let-block ctx +subsubsection title inner =
-    Chapterish.subsubsection-scheme ctx ` ` title inner
+    Chapterish.subsubsection-scheme ctx (Option.none) title inner
 
   let-inline ctx \emph inner =
     let ctx-emph =
@@ -372,71 +361,26 @@ end = struct
   let-inline \dfn inner = {\emph{#inner;}}
 
 
-  let theorem-scheme ctx ctxf category wordopt label inner =
-    let () = increment num-theorems in
-    let s-num =
-      arabic (!num-theorems)
-    in
-    let () = register-cross-reference (label ^ `:num`) s-num in
-    let it-num = embed-string s-num in
-    let ib-dfn =
-      let ctx =
-        ctx |> set-latin-font font-latin-sans
-            |> set-cjk-font font-cjk-gothic
-      in
-        read-inline ctx {#category; #it-num;}
-    in
-    let ib-word =
-      match wordopt with
-      | None       -> inline-nil
-      | Some(word) -> read-inline ctx {\ (#word;)}
-    in
-    let ib-inner = read-inline (ctxf ctx) inner in
-    let ib-diamond = read-inline (ctxf ctx) {\force-font(`ipaexg`){◇}} in
-    let ib-glue = discretionary 0 inline-fil inline-nil inline-nil in
-    line-break true true ctx
-      (ib-dfn ++ ib-word ++ inline-skip (get-font-size ctx) ++ ib-inner ++ inline-fil
-      ++ ib-glue ++ ib-diamond)
-
-  let make-label prefix labelopt =
-    match labelopt with
-    | None    -> generate-fresh-label ()
-    | Some(s) -> prefix ^ s
-
-
   let-block ctx +definition ?:wordopt ?:labelopt inner =
-    let label = make-label `definition:` labelopt in
-      theorem-scheme ctx (fun x -> x) {定義} wordopt label inner
-
+    ctx |> Theoremish.make-bb-definition labelopt wordopt inner
 
   let-block ctx +theorem ?:wordopt ?:labelopt inner =
-    let label = make-label `theorem:` labelopt in
-      theorem-scheme ctx (set-latin-font font-latin-italic) {定理} wordopt label inner
-
+    ctx |> Theoremish.make-bb-theorem labelopt wordopt inner
 
   let-block ctx +lemma ?:wordopt ?:labelopt inner =
-    let label = make-label `lemma:` labelopt in
-      theorem-scheme ctx (set-latin-font font-latin-italic) {補題} wordopt label inner
-
+    ctx |> Theoremish.make-bb-lemma labelopt wordopt inner
 
   let-block ctx +corollary ?:wordopt ?:labelopt inner =
-    let label = make-label `corollary:` labelopt in
-      theorem-scheme ctx (set-latin-font font-latin-italic) {系} wordopt label inner
+    ctx |> Theoremish.make-bb-corollary labelopt wordopt inner
 
-
-
-let-block ctx +assumption ?:wordopt ?:labelopt inner =
-    let label = make-label `assumption:` labelopt in
-      theorem-scheme ctx (set-latin-font font-latin-italic) {仮定} wordopt label inner
-
+  let-block ctx +assumption ?:wordopt ?:labelopt inner =
+    ctx |> Theoremish.make-bb-assumption labelopt wordopt inner
 
   let-block ctx +example ?:wordopt ?:labelopt inner =
-    let label = make-label `example:` labelopt in
-      theorem-scheme ctx (fun x -> x) {例} wordopt label inner
+    ctx |> Theoremish.make-bb-example labelopt wordopt inner
 
   let-block ctx +notation ?:wordopt ?:labelopt inner =
-    let label = make-label `notation:` labelopt in
-      theorem-scheme ctx (fun x -> x) {記法} wordopt label inner
+    ctx |> Theoremish.make-bb-notation labelopt wordopt inner
 
   let-math \QED = math-char MathOrd `∎`
 
@@ -451,76 +395,6 @@ let-block ctx +assumption ?:wordopt ?:labelopt inner =
     let ib-box = read-inline ctx {${\QED}} in
       line-break true true ctx
         (ib-heading ++ inline-skip (get-font-size ctx) ++ read-inline ctx inner ++ inline-fil ++ ib-box)
-
-  let-inline ctx \definition ?:wordopt ?:labelopt inner =
-    inline-fil ++ embed-block-breakable ctx
-      (read-block ctx (match (wordopt, labelopt) with
-                       | (None, None) -> '<+definition(inner);>
-                       | (Some(word), None) -> '<+definition?:(word)(inner);>
-                       | (None, Some(label)) -> '<+definition?*?:(label)(inner);>
-                       | (Some(word), Some(label)) -> '<+definition?:(word)?:(label)(inner);>
-                       ))
-
-  let-inline ctx \theorem ?:wordopt ?:labelopt inner =
-    inline-fil ++ embed-block-breakable ctx
-      (read-block ctx (match (wordopt, labelopt) with
-                       | (None, None) -> '<+theorem(inner);>
-                       | (Some(word), None) -> '<+theorem?:(word)(inner);>
-                       | (None, Some(label)) -> '<+theorem?*?:(label)(inner);>
-                       | (Some(word), Some(label)) -> '<+theorem?:(word)?:(label)(inner);>
-                       ))
-
-  let-inline ctx \lemma ?:wordopt ?:labelopt inner =
-    inline-fil ++ embed-block-breakable ctx
-      (read-block ctx (match (wordopt, labelopt) with
-                       | (None, None) -> '<+lemma(inner);>
-                       | (Some(word), None) -> '<+lemma?:(word)(inner);>
-                       | (None, Some(label)) -> '<+lemma?*?:(label)(inner);>
-                       | (Some(word), Some(label)) -> '<+lemma?:(word)?:(label)(inner);>
-                       ))
-
-  let-inline ctx \corollary ?:wordopt ?:labelopt inner =
-    inline-fil ++ embed-block-breakable ctx
-      (read-block ctx (match (wordopt, labelopt) with
-                       | (None, None) -> '<+corollary(inner);>
-                       | (Some(word), None) -> '<+corollary?:(word)(inner);>
-                       | (None, Some(label)) -> '<+corollary?*?:(label)(inner);>
-                       | (Some(word), Some(label)) -> '<+corollary?:(word)?:(label)(inner);>
-                       ))
-
-  let-inline ctx \assumption ?:wordopt ?:labelopt inner =
-    inline-fil ++ embed-block-breakable ctx
-      (read-block ctx (match (wordopt, labelopt) with
-                       | (None, None) -> '<+assumption(inner);>
-                       | (Some(word), None) -> '<+assumption?:(word)(inner);>
-                       | (None, Some(label)) -> '<+assumption?*?:(label)(inner);>
-                       | (Some(word), Some(label)) -> '<+assumption?:(word)?:(label)(inner);>
-                       ))
-
-  let-inline ctx \example ?:wordopt ?:labelopt inner =
-    inline-fil ++ embed-block-breakable ctx
-      (read-block ctx (match (wordopt, labelopt) with
-                       | (None, None) -> '<+example(inner);>
-                       | (Some(word), None) -> '<+example?:(word)(inner);>
-                       | (None, Some(label)) -> '<+example?*?:(label)(inner);>
-                       | (Some(word), Some(label)) -> '<+example?:(word)?:(label)(inner);>
-                       ))
-
-  let-inline ctx \notation ?:wordopt ?:labelopt inner =
-    inline-fil ++ embed-block-breakable ctx
-      (read-block ctx (match (wordopt, labelopt) with
-                       | (None, None) -> '<+notation(inner);>
-                       | (Some(word), None) -> '<+notation?:(word)(inner);>
-                       | (None, Some(label)) -> '<+notation?*?:(label)(inner);>
-                       | (Some(word), Some(label)) -> '<+notation?:(word)?:(label)(inner);>
-                       ))
-
-  let-inline ctx \proof ?:wordopt inner =
-    inline-fil ++ embed-block-breakable ctx
-      (read-block ctx (match wordopt with
-                       | None -> '<+proof(inner);>
-                       | Some(word) -> '<+proof?:(word)(inner);>
-                       ))
 
   let generate-footnote-label n =
     `footnote:` ^ (arabic n)

@@ -1,0 +1,87 @@
+@import: ../base/typeset/font
+@import: ../base/option-ext
+
+@import: font-config
+@import: mutables
+
+module Theoremish : sig
+
+    val make-bb-definition : string option -> inline-text option -> inline-text -> context -> block-boxes
+    val make-bb-theorem : string option -> inline-text option -> inline-text -> context -> block-boxes
+    val make-bb-lemma : string option -> inline-text option -> inline-text -> context -> block-boxes
+    val make-bb-corollary : string option -> inline-text option -> inline-text -> context -> block-boxes
+    val make-bb-assumption : string option -> inline-text option -> inline-text -> context -> block-boxes
+    val make-bb-example : string option -> inline-text option -> inline-text -> context -> block-boxes
+    val make-bb-notation : string option -> inline-text option -> inline-text -> context -> block-boxes
+
+end = struct
+
+    open FontConfig
+    open Mutables
+
+    let get-num-and-register-cross-ref prefix label-opt = 
+        let () = increment num-theorems in
+        let s-num = arabic (!num-theorems)
+        in
+        let _ = label-opt
+                |> Option.map (fun label -> register-cross-reference (prefix ^ `:` ^ label ^ `:num`) s-num)
+        in
+        s-num
+
+    let theorem-scheme ctx ctxf s-num category wordopt inner =
+        let it-num = embed-string s-num in
+        let ib-dfn =
+        let ctx =
+            ctx |> set-latin-font font-latin-sans
+                |> set-cjk-font font-cjk-gothic
+        in
+            read-inline ctx {#category; #it-num;}
+        in
+        let ib-word =
+        match wordopt with
+        | None       -> inline-nil
+        | Some(word) -> read-inline ctx {\ (#word;)}
+        in
+        let ib-inner = read-inline (ctxf ctx) inner in
+        let ib-diamond = read-inline (ctxf ctx) {\force-font(`ipaexg`){◇}} in
+        let ib-glue = discretionary 0 inline-fil inline-nil inline-nil in
+        line-break true true ctx
+        (ib-dfn ++ ib-word ++ inline-skip (get-font-size ctx) ++ ib-inner ++ inline-fil
+        ++ ib-glue ++ ib-diamond)
+
+    let make-bb-definition label-opt name-opt content ctx =
+        let num = get-num-and-register-cross-ref `definition` label-opt
+        in
+        theorem-scheme ctx (fun x -> x) num {定義} name-opt content
+    
+    let make-bb-theorem label-opt name-opt content ctx =
+        let num = get-num-and-register-cross-ref `theorem` label-opt
+        in
+        theorem-scheme ctx (set-latin-font font-latin-italic) num {定理} name-opt content
+
+    let make-bb-lemma label-opt name-opt content ctx =
+        let num = get-num-and-register-cross-ref `lemma` label-opt
+        in
+        theorem-scheme ctx (set-latin-font font-latin-italic) num {補題} name-opt content
+
+    let make-bb-corollary label-opt name-opt content ctx =
+        let num = get-num-and-register-cross-ref `corollary` label-opt
+        in
+        theorem-scheme ctx (set-latin-font font-latin-italic) num {系} name-opt content
+
+    let make-bb-assumption label-opt name-opt content ctx =
+        let num = get-num-and-register-cross-ref `assumption` label-opt
+        in
+        theorem-scheme ctx (set-latin-font font-latin-italic) num {仮定} name-opt content
+
+    let make-bb-example label-opt name-opt content ctx =
+        let num = get-num-and-register-cross-ref `example` label-opt
+        in
+        theorem-scheme ctx (fun x -> x) num {例} name-opt content
+
+    let make-bb-notation label-opt name-opt content ctx =
+        let num = get-num-and-register-cross-ref `notation` label-opt
+        in
+        theorem-scheme ctx (fun x -> x) num {記法} name-opt content
+
+end

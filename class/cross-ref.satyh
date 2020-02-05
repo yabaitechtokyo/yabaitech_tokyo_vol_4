@@ -1,7 +1,9 @@
 @import: ../base/option-ext
 
 module CrossRef : sig
-  
+
+    val register-number-if-present : string -> string -> string option -> unit
+
     val get-number : string -> string -> string option
     val get-page : string -> string -> string option
 
@@ -23,6 +25,11 @@ module CrossRef : sig
     val make-ib-ref-table : string -> context -> inline-boxes
 
 end = struct
+
+    let register-number-if-present prefix num label-opt =
+        match label-opt with
+        | None -> ()
+        | Some(label) -> register-cross-reference (prefix ^ `:` ^ label ^ `num`) num
 
     let get-number prefix label =
       get-cross-reference (prefix ^ label ^ `:num`)
