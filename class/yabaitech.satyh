@@ -82,7 +82,6 @@ module Book : sig
   direct +assumption : [inline-text?; string?; inline-text] block-cmd
 
 
-  direct \index : [string; inline-text?; inline-text] inline-cmd
   direct \figure : [string?; inline-text; block-text] inline-cmd
   direct \table : [string?; inline-text; block-text] inline-cmd
   direct +p : [inline-text] block-cmd
@@ -92,7 +91,7 @@ module Book : sig
 
   direct \emph : [inline-text] inline-cmd
   direct \dfn : [inline-text] inline-cmd
-  direct \roman : [inline-text] inline-cmd
+
   direct \footnote : [inline-text] inline-cmd
 
 end = struct
@@ -118,27 +117,9 @@ end = struct
   let-inline ctx \ref-figure key = ctx |> CrossRef.make-ib-ref-figure key
   let-inline ctx \ref-table key = ctx |> CrossRef.make-ib-ref-table key
 
-  let-mutable index-list <- []
-
-
-  let-inline ctx \index s ?:itopt it =
-    let it-index =
-      match itopt with
-      | None           -> it
-      | Some(it-index) -> it-index
-    in
-      hook-page-break (fun pginfo _ -> (
-        let pageno = pginfo#page-number in
-        index-list <- (s, it-index, pageno) :: !index-list
-      )) ++ read-inline ctx it
-
-
 
   let toc-section-indent = 20pt
   let toc-subsection-indent = 40pt
-
-  let-inline ctx \roman inner =
-    read-inline (ctx |> set-latin-font font-latin-roman) inner
 
   let-mutable ref-float-boxes <- []
 

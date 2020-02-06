@@ -2,6 +2,7 @@
 @import: ../yabaitech
 @import: bibliography
 @import: chapter
+@import: misc-commands
 @import: theorem
 
 let () = Debug.log ``
@@ -28,4 +29,5 @@ document (|
     #ChapterTest.article;
     #BibliographyTest.article;
     #TheoremTest.article;
+    #MiscCommandsTest.article;
 >

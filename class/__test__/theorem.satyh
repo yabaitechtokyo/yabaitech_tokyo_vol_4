@@ -54,7 +54,6 @@ end = struct
             +p {例は\ref-example(`example-label`);です}
             +p {記法は\ref-notation(`notation-label`);です}
             +p {仮定は\ref-assumption(`assumption-label`);です}
-
          >
     >
 

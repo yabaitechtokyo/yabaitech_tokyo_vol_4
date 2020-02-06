@@ -87,7 +87,7 @@ end = struct
             |> set-font HanIdeographic font-cjk-mincho
             |> set-font Latin          font-latin-roman
             |> set-font OtherScript    font-otherscript-roman
-            |> set-math-font `Asana-Math`
+            |> set-math-font `fonts-asana-math:AsanaMath`
             |> set-hyphen-penalty 1000
             |> set-space-ratio 0.275 0.08 0.12
     
