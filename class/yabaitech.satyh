@@ -23,6 +23,7 @@
 @import: colophon
 @import: document-config
 @import: font-config
+@import: misc-commands
 @import: mutables
 @import: table-of-contents
 @import: theoremish
@@ -81,16 +82,15 @@ module Book : sig
   direct +notation : [inline-text?; string?; inline-text] block-cmd
   direct +assumption : [inline-text?; string?; inline-text] block-cmd
 
+  % from MiscCommands
+  direct +p : [inline-text] block-cmd
+  direct +topic : [inline-text; inline-text] block-cmd
+  direct +proof : [inline-text?; inline-text] block-cmd
+  direct \emph : [inline-text] inline-cmd
+  direct \dfn : [inline-text] inline-cmd
 
   direct \figure : [string?; inline-text; block-text] inline-cmd
   direct \table : [string?; inline-text; block-text] inline-cmd
-  direct +p : [inline-text] block-cmd
-  direct +topic : [inline-text; inline-text] block-cmd
-
-  direct +proof : [inline-text?; inline-text] block-cmd
-
-  direct \emph : [inline-text] inline-cmd
-  direct \dfn : [inline-text] inline-cmd
 
   direct \footnote : [inline-text] inline-cmd
 
@@ -268,20 +268,6 @@ end = struct
       ])
 
 
-  let-block ctx +p inner =
-    let len = get-font-size ctx *' font-ratio-cjk in
-    let ib-inner = inline-skip len ++ read-inline ctx inner ++ inline-fil in
-      form-paragraph ctx ib-inner
-
-  let-block ctx +topic topic inner =
-    let ctx-emph = ctx
-      |> set-font Latin font-latin-sans
-      |> set-cjk-font font-cjk-gothic in
-    let ib-topic = read-inline ctx-emph topic in
-    let len = get-font-size ctx *' font-ratio-cjk in
-    let ib-inner = ib-topic ++ inline-skip len ++ read-inline ctx inner ++ inline-fil in
-      form-paragraph ctx ib-inner
-
   let figure-scheme ctx labelopt prefix category caption inner =
     let () = num-figure <- !num-figure + 1 in
     let s-num = arabic !num-figure in
@@ -332,15 +318,6 @@ end = struct
   let-block ctx +subsubsection title inner =
     Chapterish.subsubsection-scheme ctx (Option.none) title inner
 
-  let-inline ctx \emph inner =
-    let ctx-emph =
-      ctx |> set-font Latin font-latin-sans
-          |> set-cjk-font font-cjk-gothic
-    in
-      read-inline ctx-emph inner
-
-  let-inline \dfn inner = {\emph{#inner;}}
-
 
   let-block ctx +definition ?:wordopt ?:labelopt inner =
     ctx |> Theoremish.make-bb-definition labelopt wordopt inner
@@ -363,26 +340,17 @@ end = struct
   let-block ctx +notation ?:wordopt ?:labelopt inner =
     ctx |> Theoremish.make-bb-notation labelopt wordopt inner
 
-  let-math \QED = math-char MathOrd `∎`
+
+  let-block ctx +p inner = ctx |> MiscCommands.make-bb-paragraph inner
+
+  let-block ctx +topic topic inner =
+    ctx |> MiscCommands.make-bb-topic topic inner
 
   let-block ctx +proof ?:wordopt inner =
-    let ib-heading =
-      let ctx = ctx |> set-font Latin font-latin-sans
-                    |> set-cjk-font font-cjk-gothic in
-        match wordopt with
-        | None    -> read-inline ctx {証明}
-        | Some(w) -> read-inline ctx {#w; の証明}
-    in
-    let ib-box = read-inline ctx {${\QED}} in
-      line-break true true ctx
-        (ib-heading ++ inline-skip (get-font-size ctx) ++ read-inline ctx inner ++ inline-fil ++ ib-box)
+    ctx |> MiscCommands.make-bb-proof wordopt inner
 
-  let generate-footnote-label n =
-    `footnote:` ^ (arabic n)
-
-
-  let promote-another-trial () =
-    register-cross-reference `changed` `T`
+  let-inline ctx \emph inner = ctx |> MiscCommands.make-ib-emph inner
+  let-inline ctx \dfn inner = ctx |> MiscCommands.make-ib-dfn inner
 
 
   let-inline ctx \footnote it =
