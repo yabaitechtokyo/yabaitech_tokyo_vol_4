@@ -1,6 +1,7 @@
 @import: ../class/yabaitech
 @require: itemize
 @require: code
+@require: annot
 
 module MasWag : sig
 

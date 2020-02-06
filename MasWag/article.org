@@ -307,13 +307,117 @@ notif_my_slack "experiment_${experiment}_finished"
 #+END_SRC
 
 
-* TODO COMMENT 実験パート
+* 実験パート
+
+次は実験パートについて説明していきます。ここが実験のメインパートですが、これまでにしっかりと準備しているので、やっていることは極々シンプルです。
 
 ** 実験に必要なマシンを立てる
 
+まず始めに実験に必要なマシンを立てます。今回既に実験に必要なマシンは構築されているので、 =vmctl= を使ってマシンを立ち上げるだけです。例えば以下の様なコマンドでマシンを立ち上げられます。なお、マシン名が連番だったり共通部分がある場合はシェルのブレース展開 (Brace Expansion) を使うと便利です。
+
+#+BEGIN_SRC sh
+vmctl start マシン1 マシン2 ...
+#+END_SRC
+
 ** マシン上に実験環境を構築する
 
+次にマシン上に実験環境を構築します。具体的には実験用レポジトリやデータセットの準備などを行ないます。とはいえ既にこれらの準備をする Ansible playbook を準備していると思うので、単に Ansible playbookを実行するだけになります。
+
+Ansible を使っていく上で問題になるのがインベントリの管理です。というのも少なくともAmazon EC2のインスタンスは起動する度にグローバルIPアドレスが変わるのでインベントリファイルを事前に作っておく訳には行きません。こんなときのために (?) Dynamic Inventoryという仕組みが Ansible にはありますが、今回は難しいことは考えずに静的なインベントリファイルのIPアドレスの部分を実行前に生成することにしてみます。 例えば次のシェルスクリプトとm4のコードを元にするとインベントリを作れます。やっていることは単に下のm4ファイルの"IP"と書かれた部分を =vmctl= で得られたIPアドレスに置き換えているだけです。
+
+#+BEGIN_SRC sh
+  m4 -DIP="$(vmctl ip "$@")" aws_host.m4 > aws_host
+#+END_SRC
+
+#+BEGIN_SRC m4
+[aws]
+IP
+
+[aws:vars]
+ansible_ssh_user=ubuntu
+ansible_ssh_private_key_file=~/.ssh/id_ecdsa
+
+[all:vars]
+ansible_ssh_port=22
+#+END_SRC
+
+インベントリが生成されたら Ansible playbookを実行しましょう。
+
+#+BEGIN_SRC sh
+ansible-playbook -i aws_host setup.yaml
+#+END_SRC
+
 ** 実験スクリプトを回す
+
+次に実験スクリプトを回します。前述の様に今回はexpectを使って、SSH越しにリモートインスタンスで実験スクリプトを動かしていきます。実験スクリプトをリモートで動かす際は =nohup= を使っても良いのですが、後で実験スクリプトの様子を確認したくなる場合もあるので、個人的には[[https://www.gnu.org/software/screen/][GNU screen]]を愛用しています。
+
+#+BEGIN_SRC tcl
+#!/usr/bin/expect
+#****h* utils/run_remote
+# NAME
+#  run_remote
+# DESCRIPTION
+#  execute run.sh in a remote machine
+#
+# USAGE
+#  ./run_remote.tcl <ssh arguments> <experiment_id> <run.sh arguments>
+#
+# EXAMPLE
+#  ./run_remote.tcl 127.0.0.1 20190102-1234-test_experiment TEST_ARG
+# PORTABILITY
+#  We need expect <https://core.tcl-lang.org/expect/index> at /usr/bin/expect.
+#******
+
+#****h* run_remote/lshift
+# NAME
+#  lshift
+# DESCRIPTION
+#  An implementation of the shift of perl. This implementation is taken from Tcler's Wiki <https://wiki.tcl-lang.org/page/lshift>
+#
+# USAGE
+#  lshift listVar
+#
+# EXAMPLE
+#  lshift argv
+#******
+proc lshift listVar {
+    upvar 1 $listVar l
+    set r [lindex $l 0]
+    set l [lreplace $l [set l 0] 0]
+    return $r
+}
+
+if {[llength $argv] < 2} then {
+    puts "Error: <ssh arguments> and <experiment_id> are not given"
+    puts "Usage: ./run_remote.tcl <ssh arguments> <experiment_id> <arguments>"
+    exit 1
+}
+
+set host [lshift argv]
+set experiment_id [lshift argv]
+
+set timeout 30
+
+eval spawn ssh $host
+expect {
+    "(yes/no*)?" {
+        send "yes\n"
+        exp_continue
+    }
+    "*\\\$" {
+        send "screen\n\n"
+        expect { 
+            "*\\\$" {
+                send "cd ./foo-experiments/${experiment_id}\n"
+                expect "*\\\$"
+                send "./run.sh [join $argv]\n"
+                expect "ok*"
+            }
+        }
+    }
+}
+exit 0
+#+END_SRC
 
 * TODO COMMENT 実験後
 
@@ -385,11 +489,11 @@ notif_my_slack "experiment_${experiment}_finished"
 - Gitで実験結果をsyncさせる
 - 解析スクリプトを回す
 
-* TODO 今後の課題
+* TODO COMMENT 今後の課題
 ** Gitでbranchを活用してmergeをlocalでやるようにすると、syncを並列化できる (はず)
 ** スクリプトのポータビリティを上げる (POSIX shell で動く)
 *** 今のスクリプトはdashとかでは動かない
-* TODO ◇ (Eventually) 回予告
+* TODO COMMENT ◇ (Eventually) 回予告
 
 ** いかがだったでしょうか
 

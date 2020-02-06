@@ -1,6 +1,7 @@
 @import: ../class/yabaitech
 @require: itemize
 @require: code
+@require: annot
 
 module MasWag : sig
 
@@ -87,11 +88,11 @@ let article = '<
       ここから各登場ツールについて説明をしていきます。なお、最終的なワークフローは 図 hoge の様になります。
     }
     +p {
-      file:./figs/flowchart.pdf
+      \href(`file:./figs/flowchart.pdf`){file:./figs/flowchart.pdf}
     }
     +subsection{vmctl} <
     +p {
-      \emph{vmctl} (https://github.com/MasWag/vmctl) は様々な仮想マシンに対して同様のインターフェースで起動、停止などの基本的な操作を行なえる様にした、手製のshell scriptです。「様々な仮想マシン」と言いつつ現状Amazon AWSの EC2 と VirtualBox にしか対応していないですが、原理的にはコマンドラインインターフェースが用意されている仮想マシンであればそれなりの工数で追加できることになっています。
+      \emph{vmctl} (\href(`https://github.com/MasWag/vmctl`){https://github.com/MasWag/vmctl}) は様々な仮想マシンに対して同様のインターフェースで起動、停止などの基本的な操作を行なえる様にした、手製のshell scriptです。「様々な仮想マシン」と言いつつ現状Amazon AWSの EC2 と VirtualBox にしか対応していないですが、原理的にはコマンドラインインターフェースが用意されている仮想マシンであればそれなりの工数で追加できることになっています。
     }
     +p {
       今回は特に複数種類の仮想マシンを扱うこともないと思いますが、単にマシンのidを毎回打ちたくないというだけの理由で使いました。例えばec2だと各マシン (インタンス) に対して \code(`i-1234567890abcdef0`); の様なidが割り振られます。率直に言うとこれは人間が覚えて直接扱うべきものではありません。できるものなら各マシンに役割のわかり安い名前を付けたり、例えば \code(`my_instance1 my_instance2 my_instance3 ...`); の様に連番のマシン名を付けたりしたいです。今回のvmctlの用途は正にこの名前付けです。例えばマシン名が \code(`my_great_instance`); のマシンを起動するのであれば、 \code(`vmctl start my_great_instance`); で起動できますし。特にMachine名が連番である場合は bashの連番展開を使って、例えば \code(`vmctl stop my_instance{1..10}`); の様に使うこともできます。
@@ -104,7 +105,7 @@ let article = '<
     >
     +subsection{Ansible} <
     +p {
-      \emph{Ansible} (https://www.ansible.com/) は言わずと知れた超有名構成管理ツールで、YAMLでマシンの設定を記述することで、自動で環境構築やデプロイを行えるツールです。今回は必要なソフトウェアのインストールの他に、実験スクリプトや実験用のコードの入っているgitレポジトリの clone/pullとかに使っています。実験対象のプログラムのコンパイル等の定型処理を忘れない、というのも一つの利点ですが、Ansible は複数マシンに対して実行することができるので、特に多くのマシンを扱いたい場合には便利になります。
+      \emph{Ansible} (\href(`https://www.ansible.com/`){https://www.ansible.com/}) は言わずと知れた超有名構成管理ツールで、YAMLでマシンの設定を記述することで、自動で環境構築やデプロイを行えるツールです。今回は必要なソフトウェアのインストールの他に、実験スクリプトや実験用のコードの入っているgitレポジトリの clone/pullとかに使っています。実験対象のプログラムのコンパイル等の定型処理を忘れない、というのも一つの利点ですが、Ansible は複数マシンに対して実行することができるので、特に多くのマシンを扱いたい場合には便利になります。
     }
     +subsubsection{代替品 – 構成管理ツール} <
     +p {
@@ -119,7 +120,7 @@ let article = '<
     >
     +subsection{Git} <
     +p {
-      \emph{Git} (https://git-scm.com/) は有名、というか2020年現在ほぼデファクトスタンダードとなっている分散バージョン管理システムです。今回はGitを実験内容を記述したスクリプトの管理だけではなく、実験結果のテキストファイルの管理にも使っています。実験スクリプトはソフトウェアなので当然Gitでの版管理は便利ですが、実験結果もGitで管理しているのは、複数マシンで実験を行なった結果、生成されたファイルが衝突したときにちゃんとマージできるからです。この、「複数マシンで同時に実験した結果を上手い具合にマージできる」という点が並列実験システムにおいてかなり重要であると考えています。
+      \emph{Git} (\href(`https://git-scm.com/`){https://git-scm.com/}) は有名、というか2020年現在ほぼデファクトスタンダードとなっている分散バージョン管理システムです。今回はGitを実験内容を記述したスクリプトの管理だけではなく、実験結果のテキストファイルの管理にも使っています。実験スクリプトはソフトウェアなので当然Gitでの版管理は便利ですが、実験結果もGitで管理しているのは、複数マシンで実験を行なった結果、生成されたファイルが衝突したときにちゃんとマージできるからです。この、「複数マシンで同時に実験した結果を上手い具合にマージできる」という点が並列実験システムにおいてかなり重要であると考えています。
     }
     +subsubsection{代替品 – バージョン管理システム} <
     +p {
@@ -137,7 +138,7 @@ let article = '<
     >
     +subsection{expect} <
     +p {
-      \emph{expect} (https://core.tcl-lang.org/expect/index) はTcl製の対話的なCUIプログラムの自動化ツールです。普通のCUIの処理の自動化なら例えばシェルスクリプトで行なえますが、例えばsshやftp等で必要となる対話的な操作の自動化をシェルスクリプトで行なうのは至難の技ですが、expectを使うことで比較的用意に自動化することができます。今回は実験スクリプトをリモートで実行する際にexpectを使いました。ansible でも似たことができるかもしれないですが、知らないうちにオーバーヘッドが載って実験結果に影響があると良くないので、できるだけ簡素な方法ということでexpectを使いました。
+      \emph{expect} (\href(`https://core.tcl-lang.org/expect/index`){https://core.tcl-lang.org/expect/index}) はTcl製の対話的なCUIプログラムの自動化ツールです。普通のCUIの処理の自動化なら例えばシェルスクリプトで行なえますが、例えばsshやftp等で必要となる対話的な操作の自動化をシェルスクリプトで行なうのは至難の技ですが、expectを使うことで比較的用意に自動化することができます。今回は実験スクリプトをリモートで実行する際にexpectを使いました。ansible でも似たことができるかもしれないですが、知らないうちにオーバーヘッドが載って実験結果に影響があると良くないので、できるだけ簡素な方法ということでexpectを使いました。
     }
     +subsubsection{代替品} <
     +p {
@@ -147,7 +148,7 @@ let article = '<
     >
     +subsection{slack} <
     +p {
-      \emph{slack} (https://slack.com) は有名チャットツールで、http経由で簡単に外部から通知を送ることができます。今回は実験終了の通知を送るために使いました。実験の進め方とは関係ないですが、実験が終わるのかを逐一見に行くのは精神衛生上よろしくないですし、今回のワークフローの中では重要だと考えます。
+      \emph{slack} (\href(`https://slack.com`){https://slack.com}) は有名チャットツールで、http経由で簡単に外部から通知を送ることができます。今回は実験終了の通知を送るために使いました。実験の進め方とは関係ないですが、実験が終わるのかを逐一見に行くのは精神衛生上よろしくないですし、今回のワークフローの中では重要だと考えます。
     }
     +subsubsection{代替品} <
     +p {
@@ -196,7 +197,7 @@ let article = '<
       インスタンス数が少ない場合は手書きしても大丈夫ですが、多数のインスタンスを扱う場合は設定ファイルを自動で生成したくなると思います。Amazon EC2については 例えば次のコマンドで生成することができます。
     }
     +code(``
-    aws ec2 describe-instances --query 'Reservations[\*].Instances[\*].[InstanceId,Tags[?Key==`Name`].Value|[0]]|[]' |
+    aws ec2 describe-instances --query 'Reservations[*].Instances[*].[InstanceId,Tags[?Key==`Name`].Value|[0]]|[]' |
         jq --arg profile "$PROFILE" 'map({"type": "ec2", "instance_id": .[0], "name": .[1]})' > ~/.vmctl.json
     ``);
     >
@@ -254,7 +255,7 @@ let article = '<
             state: directory
 
         - name: setup notif_my_slack
-          shell: m4 -DHOST=$(/usr/bin/aws ec2 describe-instances --instance-ids  "$(cat /var/lib/cloud/data/instance-id)" --query 'Reservations[\*].Instances[\*].Tags[?Key==`Name`].Value' | tr -d [] | xargs) /home/ubuntu/bar-experiments/utils/notif_my_slack.m4 > ~/bin/notif_my_slack
+          shell: m4 -DHOST=$(/usr/bin/aws ec2 describe-instances --instance-ids  "$(cat /var/lib/cloud/data/instance-id)" --query 'Reservations[*].Instances[*].Tags[?Key==`Name`].Value' | tr -d [] | xargs) /home/ubuntu/bar-experiments/utils/notif_my_slack.m4 > ~/bin/notif_my_slack
 
         - name: setup notif_my_slack
           file:
@@ -270,7 +271,7 @@ let article = '<
     #!/bin/sh
 
     if [ $# -gt 0 ]; then
-      curl -X POST -H 'Content-type: application/json' --data '{"text":"'"$\*"' from HOST"}' https://hooks.slack.com/services/<The given ID>
+      curl -X POST -H 'Content-type: application/json' --data '{"text":"'"$*"' from HOST"}' https://hooks.slack.com/services/<The given ID>
     else
       curl -X POST -H 'Content-type: application/json'  --data  `"{\"text\":\"###From' HOST###\n$(cat)\"}" https://hooks.slack.com/services/<The given ID>
     fi
@@ -324,7 +325,7 @@ let article = '<
     +code(`
     git --git-dir ~/<Program>/.git rev-parse HEAD > git-hash
 
-    readonly experiment=$(pwd | sed 's:.\*/::')
+    readonly experiment=$(pwd | sed 's:.*/::')
 
     notif_my_slack <<EOF
     experiment ${experiment} started.
@@ -343,41 +344,130 @@ let article = '<
     *  実験に使ったインスタンスを停止する
     }
     +code(`
-    readonly experiment=$(pwd | sed 's:.\*/::')
+    readonly experiment=$(pwd | sed 's:.*/::')
 
     # Synchronize the filesystem and wait for 60 sec.
     sync
     sleep 60
     git add .
-    git commit -m "experiment ${experiment} $\* finished"
+    git commit -m "experiment ${experiment} $* finished"
     notif_my_slack "experiment_${experiment}_finished"
     /usr/bin/aws ec2 stop-instances --instance-ids  "$(cat /var/lib/cloud/data/instance-id)"
     `);
     >
     >
     >
-    +section{今後の課題} <
-    +subsection{Gitでbranchを活用してmergeをlocalでやるようにすると、syncを並列化できる (はず)} <
+    +section{実験パート} <
+    +p {
+      次は実験パートについて説明していきます。ここが実験のメインパートですが、これまでにしっかりと準備しているので、やっていることは極々シンプルです。
+    }
+    +subsection{実験に必要なマシンを立てる} <
+    +p {
+      まず始めに実験に必要なマシンを立てます。今回既に実験に必要なマシンは構築されているので、 \code(`vmctl`); を使ってマシンを立ち上げるだけです。例えば以下の様なコマンドでマシンを立ち上げられます。なお、マシン名が連番だったり共通部分がある場合はシェルのブレース展開 (Brace Expansion) を使うと便利です。
+    }
+    +code(`
+    vmctl start マシン1 マシン2 ...
+    `);
     >
-    +subsection{スクリプトのポータビリティを上げる (POSIX shell で動く)} <
-    +subsubsection{今のスクリプトはdashとかでは動かない} <
+    +subsection{マシン上に実験環境を構築する} <
+    +p {
+      次にマシン上に実験環境を構築します。具体的には実験用レポジトリやデータセットの準備などを行ないます。とはいえ既にこれらの準備をする Ansible playbook を準備していると思うので、単に Ansible playbookを実行するだけになります。
+    }
+    +p {
+      Ansible を使っていく上で問題になるのがインベントリの管理です。というのも少なくともAmazon EC2のインスタンスは起動する度にグローバルIPアドレスが変わるのでインベントリファイルを事前に作っておく訳には行きません。こんなときのために (?) Dynamic Inventoryという仕組みが Ansible にはありますが、今回は難しいことは考えずに静的なインベントリファイルのIPアドレスの部分を実行前に生成することにしてみます。 例えば次のシェルスクリプトとm4のコードを元にするとインベントリを作れます。やっていることは単に下のm4ファイルの"IP"と書かれた部分を \code(`vmctl`); で得られたIPアドレスに置き換えているだけです。
+    }
+    +code(`
+    m4 -DIP="$(vmctl ip "$@")" aws_host.m4 > aws_host
+    `);
+    +code(`
+    [aws]
+    IP
+
+    [aws:vars]
+    ansible_ssh_user=ubuntu
+    ansible_ssh_private_key_file=~/.ssh/id_ecdsa
+
+    [all:vars]
+    ansible_ssh_port=22
+    `);
+    +p {
+      インベントリが生成されたら Ansible playbookを実行しましょう。
+    }
+    +code(`
+    ansible-playbook -i aws_host setup.yaml
+    `);
     >
-    >
-    >
-    +section{◇ (Eventually) 回予告} <
-    +subsection{いかがだったでしょうか} <
-    >
-    +subsection{今回は実験を回すところまでやった} <
-    >
-    +subsection{実験を回したら結果を回収して解析する必要がある} <
-    >
-    +subsection{自動解析も結構工夫のしがいがある} <
-    >
-    +subsection{どの実験結果を最終的に比較するか、はベタ書きしない} <
-    +subsubsection{例えば表にして比較する実験設定をスクリプトにベタ書きしない。できるだけDRYにする。} <
-    >
-    >
-    +subsection{◇ (Eventually) 回 は解析パート} <
+    +subsection{実験スクリプトを回す} <
+    +p {
+      次に実験スクリプトを回します。前述の様に今回はexpectを使って、SSH越しにリモートインスタンスで実験スクリプトを動かしていきます。実験スクリプトをリモートで動かす際は \code(`nohup`); を使っても良いのですが、後で実験スクリプトの様子を確認したくなる場合もあるので、個人的には\href(`https://www.gnu.org/software/screen/`){GNU screen}を愛用しています。
+    }
+    +code(`
+    #!/usr/bin/expect
+    #****h* utils/run_remote
+    # NAME
+    #  run_remote
+    # DESCRIPTION
+    #  execute run.sh in a remote machine
+    #
+    # USAGE
+    #  ./run_remote.tcl <ssh arguments> <experiment_id> <run.sh arguments>
+    #
+    # EXAMPLE
+    #  ./run_remote.tcl 127.0.0.1 20190102-1234-test_experiment TEST_ARG
+    # PORTABILITY
+    #  We need expect <https://core.tcl-lang.org/expect/index> at /usr/bin/expect.
+    #******
+
+    #****h* run_remote/lshift
+    # NAME
+    #  lshift
+    # DESCRIPTION
+    #  An implementation of the shift of perl. This implementation is taken from Tcler's Wiki <https://wiki.tcl-lang.org/page/lshift>
+    #
+    # USAGE
+    #  lshift listVar
+    #
+    # EXAMPLE
+    #  lshift argv
+    #******
+    proc lshift listVar {
+        upvar 1 $listVar l
+        set r [lindex $l 0]
+        set l [lreplace $l [set l 0] 0]
+        return $r
+    }
+
+    if {[llength $argv] < 2} then {
+        puts "Error: <ssh arguments> and <experiment_id> are not given"
+        puts "Usage: ./run_remote.tcl <ssh arguments> <experiment_id> <arguments>"
+        exit 1
+    }
+
+    set host [lshift argv]
+    set experiment_id [lshift argv]
+
+    set timeout 30
+
+    eval spawn ssh $host
+    expect {
+        "(yes/no*)?" {
+            send "yes\n"
+            exp_continue
+        }
+        "*\\\$" {
+            send "screen\n\n"
+            expect { 
+                "*\\\$" {
+                    send "cd ./foo-experiments/${experiment_id}\n"
+                    expect "*\\\$"
+                    send "./run.sh [join $argv]\n"
+                    expect "ok*"
+                }
+            }
+        }
+    }
+    exit 0
+    `);
     >
     >
     >
