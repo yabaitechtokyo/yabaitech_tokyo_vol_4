@@ -23,4 +23,5 @@ installFont RobotoMono https://www.wfonts.com/download/data/2016/05/18/roboto-mo
 curl -L http://mirrors.ctan.org/fonts/Asana-Math/Asana-Math.otf -o .satysfi/local/mathfonts/Asana-Math.otf
 
 opam install satysfi-fonts-dejavu
+opam install satysfi-fonts-asana-math
 satyrographos  install
