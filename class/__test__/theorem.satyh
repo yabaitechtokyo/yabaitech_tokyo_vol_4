@@ -7,7 +7,7 @@ module TheoremTest : sig
 end = struct
 
     let article = '<
-        +chapter ?:(`chapter`)
+        +chapter ?:(`theorem`)
         (|
             bibliography = [];
             title = {Theoremのテスト};

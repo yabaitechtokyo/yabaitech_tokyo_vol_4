@@ -118,9 +118,6 @@ end = struct
   let-inline ctx \ref-table key = ctx |> CrossRef.make-ib-ref-table key
 
 
-  let toc-section-indent = 20pt
-  let toc-subsection-indent = 40pt
-
   let-mutable ref-float-boxes <- []
 
 
@@ -132,22 +129,6 @@ end = struct
   
   let align-ib-left ib = ib ++ inline-fil
 
-
-  let get-cross-reference-number prefix label =
-    match get-cross-reference (prefix ^ label ^ `:num`) with
-    | None    -> `?`
-    | Some(s) -> s
-
-
-  let get-cross-reference-page prefix label =
-    match get-cross-reference (prefix ^ label ^ `:page`) with
-    | None    -> `?`
-    | Some(s) -> s
-
-  let-inline ctx \dummy it =
-    let ib = read-inline (ctx |> set-text-color Color.white) it in
-    let w = get-natural-width ib in
-      ib ++ inline-skip (0pt -' w)
 
   let-mutable show-page-number-ref <- None
   let make-bb-disable-page-number ctx = ctx
