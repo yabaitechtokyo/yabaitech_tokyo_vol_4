@@ -2,6 +2,7 @@
 @import: ../yabaitech
 @import: bibliography
 @import: chapter
+@import: figure
 @import: footnote
 @import: misc-commands
 @import: theorem
@@ -31,5 +32,6 @@ document (|
     #BibliographyTest.article;
     #TheoremTest.article;
     #MiscCommandsTest.article;
+    #FigureTest.article;
     #FootnoteTest.article;
 >
