@@ -6,7 +6,9 @@
 
 # How to Build
 ```shell
-$ ./install-fonts.sh
+$ opam install satysfi-fonts-dejavu
+$ opam install satysfi-fonts-asana-math
+$ satyrographos install
 $ git submodule init
 $ git submodule update
 $ satysfi main.saty
