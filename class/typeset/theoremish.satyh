@@ -1,9 +1,9 @@
-@require: base/typeset/font
-@require: base/option-ext
+@import: ../../base/typeset/font
+@import: ../../base/option-ext
 
-@import: lib/cross-ref
-@import: font-config
-@import: mutables
+@import: ../lib/cross-ref
+@import: ../font-config
+@import: ../mutables
 
 module Theoremish : sig
 

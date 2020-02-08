@@ -1,7 +1,7 @@
-@require: base/block
-@require: base/image
+@import: ../../base/block
+@import: ../../base/image
 
-@import: font-config
+@import: ../font-config
 
 type title-info = (|
   title : string;

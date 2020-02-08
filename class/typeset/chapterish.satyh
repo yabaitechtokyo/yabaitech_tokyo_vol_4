@@ -1,12 +1,13 @@
 @require: pervasives
 
-@import: lib/cross-ref
-@import: lib/label
-@import: lib/table-of-contents
-@import: bibliography
-@import: document-config
-@import: font-config
-@import: mutables
+@import: ../lib/cross-ref
+@import: ../lib/label
+@import: ../lib/table-of-contents
+@import: ../lib/bibliography
+@import: ../typeset/bibliography-section
+@import: ../document-config
+@import: ../font-config
+@import: ../mutables
 
 module Chapterish : sig
 
@@ -16,7 +17,9 @@ module Chapterish : sig
     val subsection-scheme : context -> string option -> inline-text -> block-text -> block-boxes
     val subsubsection-scheme : context -> string option -> inline-text -> block-text -> block-boxes
 
+    % FIXME: should be in lib
     val get-chapter-page : string -> string option
+
     val render-inline-ref-chapter : string -> context -> inline-boxes
     val render-inline-ref-section : string -> context -> inline-boxes
     val render-inline-ref-subsection : string -> context -> inline-boxes
@@ -53,7 +56,7 @@ end = struct
           (ib-bib-title ++ inline-fil)
           |> section-heading ctx-doc
         in
-        let bb-bib-main = Bibliography.render-block-bibs ctx-bib bibliography
+        let bb-bib-main = BibliographySection.render-block ctx-bib bibliography
         in
         bb-bib-title +++ bb-bib-main
 
@@ -101,7 +104,7 @@ end = struct
     let bb-title = chapter-heading-with-author ctx (Some(ib-num)) ib-title ib-subtitle ib-author in
     let bb-inner = read-block ctx inner in
 
-    let () = Bibliography.register-bibs bibliography
+    let () = Bibliography.register bibliography
     in
     let bb-bib-section = make-bb-bib-section ctx ctx-doc bibliography
     in

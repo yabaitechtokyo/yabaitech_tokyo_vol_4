@@ -1,8 +1,8 @@
-@import: ../base/inline
-@import: ../base/block
-@import: lib/label
-@import: font-config
-@import: mutables
+@import: ../../base/inline
+@import: ../../base/block
+@import: ../lib/label
+@import: ../font-config
+@import: ../mutables
 
 module Figure : sig
 

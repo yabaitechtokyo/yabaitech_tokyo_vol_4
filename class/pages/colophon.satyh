@@ -1,10 +1,10 @@
 @require: color
 @require: table
-@require: base/block
-@require: base/inline
-@require: base/pager
 
-@import: font-config
+@import: ../../base/block
+@import: ../../base/inline
+@import: ../../base/pager
+@import: ../font-config
 
 type publication-info = (|
   title     : string;

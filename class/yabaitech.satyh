@@ -1,17 +1,14 @@
 % -*- coding: utf-8 -*-
-@import: bibliography
-@import: chapterish
-@import: colophon
+@import: typeset/chapterish
+@import: typeset/cite
+@import: typeset/figure
+@import: typeset/footnote
+@import: typeset/misc-commands
+@import: typeset/theoremish
 @import: document
 @import: document-config
-@import: figure
 @import: font-config
-@import: footnote
-@import: misc-commands
 @import: mutables
-@import: table-of-contents
-@import: theoremish
-@import: title
 
 module Book : sig
 
@@ -82,7 +79,7 @@ end = struct
 
   let document record inner = Document.render record inner
 
-  let-inline ctx \cite labels = Bibliography.render-inline-cite ctx labels
+  let-inline ctx \cite labels = Cite.render-inline ctx labels
 
   let-inline ctx \figure ?:labelopt caption inner =
     ctx |> Figure.render-inline-figure labelopt caption inner

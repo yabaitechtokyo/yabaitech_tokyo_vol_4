@@ -1,7 +1,7 @@
 @require: footnote-scheme
 
-@import: font-config
-@import: document-config
+@import: ../font-config
+@import: ../document-config
 
 module Footnote : sig
 

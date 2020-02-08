@@ -1,12 +1,12 @@
-@require: base/block
-@require: base/inline
-@require: base/int
-@require: base/option-ext
-@require: base/ref
+@import: ../../base/block
+@import: ../../base/inline
+@import: ../../base/int
+@import: ../../base/option-ext
+@import: ../../base/ref
 
-@import: lib/table-of-contents
-@import: chapterish
-@import: font-config
+@import: ../lib/table-of-contents
+@import: ../typeset/chapterish
+@import: ../font-config
 
 module TableOfContents : sig
   
