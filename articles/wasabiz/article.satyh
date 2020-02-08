@@ -1,11 +1,21 @@
 @import: ../../class/yabaitech
 @require: itemize
+@require: base/image
+@require: base/block
+@require: base/format
+@require: base/typeset/base
 
 module Wasabiz : sig
 
   val article : block-text
 
 end = struct
+
+let-block ctx +pdf filename =
+    ctx |> Block.read '<+p{\eval-const(Image.of-pdf (Format.format `articles/wasabiz/pictures/{}` [filename]) 1 |> Inline.of-image 13.5cm);}>
+
+let-inline ctx \todo it =
+    ctx |> Inline.read it
 
 let bibliography = []
 
@@ -68,6 +78,7 @@ let article = '<
     Why3の方がさまざまなプラグインを持っており機能自体は多いのですが，Simpl(+c-parser)の思想とseL4の証明に使われたという実績を考慮してこちらを採用することにしました．
 }
 >
+
 +section{Isabelleとかの概要} <
 +p{
     Isabelle/HOLは高階論理に基づく定理証明支援系です．
@@ -91,8 +102,106 @@ let article = '<
     Isarの拡張もバンドルされておりこのツールだけでも十分使えはするのですが，基本的には次に説明するAutoCorresと組み合わせて使います．
 }
 +p{
-    AutoCorres
+    AutoCorresはStrictCで書かれたプログラムを意味を壊さずにIsabelle/HOL向けに変換するソフトウェアです．
+    こういうとc-parserとの違いがよくわからないと思うのでもう少し解説すると，実はc-parserは実際に使ってみると出力結果のSimplコードが結構キビしい感じのものになりがちです（まあ実はというかありがちな話ですが）．
+    そこでAutoCorresはc-parserの出力結果をさらに抽象化して人間に読みやすく検証しやすいプログラムに変換してくれます．
+    さらにその際にもとのキビしい感じのSimplのプログラムと出力後のキレイなプログラムの間で正しく対応が取れていること（i.e. 意味が壊れていないこと）の証明も出力してくれます（これがAutoCorresという名前の由来です）．
+    この仕組みのおかげで人間にとっての読みやすさ・検証しやすさと信頼性を両立しています．
 }
++p{
+    さて先立つ節でこの記事ではc-parserを使いますと宣言したところですが，実際にはAutoCorresを使って間接的にc-parserを呼び出します．
+    また，内容的にはAutoCorresのチュートリアルに大まかに従ったものになります．
+}
+>
++section{はじめてのAutoCorres} <
++p{
+    まずは一番簡単な例としてピュアなCプログラムの証明を行ってみたいと思います．
+    実際に証明するコード\code(`minmax.c`);はこちら：
+}
++code(```
+unsigned min(unsigned a, unsigned b) {
+    if (a <= b) {
+        return a;
+    } else {
+        return b;
+    }
+}
+
+#define UINT_MAX (-1u)
+
+unsigned max(unsigned a, unsigned b) {
+    return UINT_MAX - min(UINT_MAX - a, UINT_MAX - b);
+}
+```);
++p{
+    みて分かる通り\code(`min`);は\code(`unsigned int`);を二つ受け取って小さい方を返すだけの関数です．
+    一方\code(`max`);は名前から類推される通り\code(`unsigned int`);を二つ受け取って大きい方を返す関数なのですが，実装がトリッキーです．
+    そこで，さしあたってこの変な実装の\code(`max`);が期待する動作を行うかどうかを証明することを目標にします．
+}
++p{
+    まずはこれらをIsabelleに読み込んでみます．
+    一旦AutoCorresのことを忘れてc-parserだけを使ってみます．
+    c-parserをインポートすると\code(`install_C_file`);というキーワードが有効になります．
+    このキーワードを使うことでCのプログラムをSimplのプログラムとしてIsabelleに読み込むことができます．
+    この際\code(`min`);という名前のCの関数（の中身）はSimplプログラムに変換された後に\code(`min_body`);という名前で定義されます．
+    （\code(`max`);も同様です．)
+    \code(`min_body`);の中身がなんなのかは\code(`min_body_def`);をみるとわかります（これはIsabelleの機能です）．
+}
++pdf(`min_body_def.pdf`);
++p{
+    スクリーンショットをみると分かる通り変換後のプログラムは
+}
++code(```
+min_body ≡
+TRY
+  IF ´a ≤ ´b THEN
+    creturn global_exn_var_'_update ret__unsigned_'_update a_'
+  ELSE
+    creturn global_exn_var_'_update ret__unsigned_'_update b_'
+  FI;;
+  Guard DontReach {} SKIP
+CATCH SKIP
+END
+```);
++p{
+    という感じで本質的ではないコードが所々に挿入されています．
+    例えば関数の最後の方に\code(`Guard DontReach {} SKIP`);という文がありますが，これはC言語の仕様上「戻り値がvoid型でない関数は必ず値を返さなければならない」ことになっているために挿入されています．
+}
++p{
+    次にAutoCorresを使って先ほど得たプログラムの抽象化を行います．
+    AutoCorresを使うにはずばり\code(`autocorres`);というキーワードを使います．
+    \code(`autocorres`);を行うと抽象化されたプログラムと抽象化の前後でのプログラムの対応の証明が得られます．
+    たとえば\code(`min`);の場合前者には\code(`min'`);，後者には\code(`min'_ac_corres`);という名前がつけられます．
+}
++pdf(`min'_def.pdf`);
++p{
+    AutoCorresを通した結果複雑だった\code(`min_body`);から
+}
++code(```
+min' ?a ?b ≡ if ?a ≤ ?b then ?a else ?b
+```);
++p{
+    という，とても直接的な定義が得られました．
+}
++p{
+    ちなみにIsabelleの標準で定義されている\code(`min`);関数の定義はこれと全く同じものです．
+    よって以下のようにreflexivityを一回使うだけでCの\code(`min`);の正しさが証明できたことになります（Isabelleの\code(`min`);は信頼でき，かつそれと同じ動作をするという意味で）．
+}
++code(```
+lemma min'_is_min: "min' a b = min a b"
+  unfolding min'_def min_def
+  by (rule refl)
+```);
++p{
+    ところで，先ほどちらっと紹介した変換前後の対応の証明は以下のような命題に対するものです．
+    \todo{そのうち拡充}
+}
++code(```
+ac_corres (lift_global_heap ∘ globals) True Γ ret__unsigned_'
+ ((λs. a_' s = ?a') and (λs. b_' s = ?b') and
+  (λx. abs_var ?a id ?a' ∧ abs_var ?b id ?b') ∘ lift_global_heap ∘ globals)
+ (L2_gets (λ_. min' ?a ?b) [''ret'']) (Call min_'proc)
+```);
 >
 >
 >
