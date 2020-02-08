@@ -26,11 +26,6 @@ module Book : sig
       publisher: string;
     |)
 
-  % from CrossRef
-  direct \ref : [string] inline-cmd
-  direct \ref-page : [string] inline-cmd
-  direct \ref-definition : [string] inline-cmd
-
   % from Bibliography
   direct \cite : [string list] inline-cmd
 
@@ -59,6 +54,7 @@ module Book : sig
   direct +notation : [inline-text?; string?; inline-text] block-cmd
   direct +assumption : [inline-text?; string?; inline-text] block-cmd
 
+  direct \ref-definition : [string] inline-cmd
   direct \ref-theorem : [string] inline-cmd
   direct \ref-lemma : [string] inline-cmd
   direct \ref-corollary : [string] inline-cmd
@@ -85,9 +81,6 @@ module Book : sig
 end = struct
 
   let document record inner = Document.render record inner
-
-  let-inline ctx \ref key = ctx |> CrossRef2.make-ib-ref key
-  let-inline ctx \ref-page key = ctx |> CrossRef2.make-ib-ref-page key
 
   let-inline ctx \cite labels = Bibliography.render-inline-cite ctx labels
 

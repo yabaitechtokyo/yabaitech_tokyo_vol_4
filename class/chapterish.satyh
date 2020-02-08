@@ -2,6 +2,7 @@
 
 @import: lib/cross-ref
 @import: lib/label
+@import: lib/table-of-contents
 @import: bibliography
 @import: document-config
 @import: font-config
@@ -15,6 +16,7 @@ module Chapterish : sig
     val subsection-scheme : context -> string option -> inline-text -> block-text -> block-boxes
     val subsubsection-scheme : context -> string option -> inline-text -> block-text -> block-boxes
 
+    val get-chapter-page : string -> string option
     val render-inline-ref-chapter : string -> context -> inline-boxes
     val render-inline-ref-section : string -> context -> inline-boxes
     val render-inline-ref-subsection : string -> context -> inline-boxes
@@ -24,10 +26,6 @@ end = struct
   open DocumentConfig
   open Mutables
   open FontConfig
-
-  let-mutable num-chapter <- 0
-  let-mutable num-section <- 0
-  let-mutable num-subsection <- 0
 
   let chapter-heading ctx ib-num-opt ib-title =
     let bb =
@@ -158,6 +156,8 @@ end = struct
     let bb-main = read-block ctx inner in
     bb-title +++ bb-main
 
+    let get-chapter-page label =
+        get-cross-reference (label |> Label.decorate `chapter` `page`)
 
     let render-inline-ref-chapter =
         CrossRef.gen-render-inline-ref

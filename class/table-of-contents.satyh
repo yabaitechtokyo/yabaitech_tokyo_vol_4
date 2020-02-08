@@ -4,13 +4,9 @@
 @require: base/option-ext
 @require: base/ref
 
-@import: cross-ref
+@import: lib/table-of-contents
+@import: chapterish
 @import: font-config
-
-type toc-element =
-| TOCElementChapter    of string * inline-text * inline-text option * inline-text
-% | TOCElementSection    of string * inline-text
-% | TOCElementSubsection of string * inline-text
 
 module TableOfContents : sig
   
@@ -58,7 +54,7 @@ end = struct
                    ++ inline-skip 3pt
                  in
                  let it-page =
-                   CrossRef2.get-chapter-page label
+                   Chapterish.get-chapter-page label
                    |> Option.map (fun page-num ->
                            (arabic (Int.of-string page-num - 2)))
                    |> Option.unwrap-or `?`

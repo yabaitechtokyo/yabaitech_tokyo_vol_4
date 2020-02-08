@@ -6,6 +6,7 @@
 @import: document-config
 @import: font-config
 @import: mutables
+@import: table-of-contents
 @import: title
 
 module Document : sig

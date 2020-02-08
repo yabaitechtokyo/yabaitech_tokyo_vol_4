@@ -1,4 +1,4 @@
-@import: table-of-contents
+@import: lib/table-of-contents
 
 module Mutables : sig
 
