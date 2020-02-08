@@ -1,8 +1,8 @@
 @require: color
 @require: table
-@import: ../base/block
-@import: ../base/inline
-@import: ../base/pager
+@require: base/block
+@require: base/inline
+@require: base/pager
 
 @import: font-config
 

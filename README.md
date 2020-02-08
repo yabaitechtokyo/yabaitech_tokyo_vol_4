@@ -8,6 +8,7 @@
 ```shell
 $ opam install satysfi-fonts-dejavu
 $ opam install satysfi-fonts-asana-math
+$ opam install satysfi-base
 $ satyrographos install
 $ git submodule init
 $ git submodule update

@@ -1,5 +1,5 @@
-@import: ../../base/inline
-@import: ../../base/image
+@require: base/inline
+@require: base/image
 @import: ../yabaitech
 
 module FigureTest : sig

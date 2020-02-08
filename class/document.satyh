@@ -1,5 +1,5 @@
 @require: footnote-scheme
-@import: ../base/ref
+@require: base/ref
 
 @import: chapterish
 @import: colophon

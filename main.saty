@@ -8,7 +8,7 @@
 @import: pohe/article
 @import: wasabiz/article
 @import: postscript
-@import: base/debug
+@require: base/debug
 
 let () = Debug.log ``
 =====================

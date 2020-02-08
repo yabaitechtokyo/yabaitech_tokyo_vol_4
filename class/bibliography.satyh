@@ -2,9 +2,9 @@
 @require: gr
 @require: list
 @require: vdecoset
-@import: ../base/block
-@import: ../base/inline
-@import: ../base/tuple
+@require: base/block
+@require: base/inline
+@require: base/tuple
 
 @import: font-config
 
