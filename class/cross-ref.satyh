@@ -1,6 +1,7 @@
 @require: base/option-ext
+@import: lib/cross-ref
 
-module CrossRef : sig
+module CrossRef2 : sig
 
     val register-number-if-present : string -> string -> string option -> unit
 
@@ -21,8 +22,6 @@ module CrossRef : sig
     val make-ib-ref-assumption : string -> context -> inline-boxes
     val make-ib-ref-example : string -> context -> inline-boxes
     val make-ib-ref-notation : string -> context -> inline-boxes
-    val make-ib-ref-figure : string -> context -> inline-boxes
-    val make-ib-ref-table : string -> context -> inline-boxes
 
 end = struct
 
@@ -32,17 +31,17 @@ end = struct
         | Some(label) -> register-cross-reference (prefix ^ `:` ^ label ^ `num`) num
 
     let get-number prefix label =
-      get-cross-reference (prefix ^ label ^ `:num`)
+      CrossRef.get (prefix ^ label ^ `:num`)
 
     let get-page prefix label =
-      get-cross-reference (prefix ^ label ^ `:page`)
+      CrossRef.get (prefix ^ label ^ `:page`)
 
     let get-chapter-page label = get-page `chapter:` label
 
     let gen-make-ib-ref key-annotator label-annotator =
         fun key ctx -> (
             let label =
-                get-cross-reference (key-annotator key)
+                CrossRef.get (key-annotator key)
                 |> Option.unwrap-or `?`
                 |> embed-string
             in
@@ -109,15 +108,5 @@ end = struct
         gen-make-ib-ref
             (fun key -> `notation:` ^ key ^ `:num`)
             (fun label -> {記法 #label;})
-
-    let make-ib-ref-figure =
-        gen-make-ib-ref
-            (fun key -> `figure:` ^ key ^ `:num`)
-            (fun label -> {図#label;})
-
-    let make-ib-ref-table =
-        gen-make-ib-ref
-            (fun key -> `table:` ^ key ^ `:num`)
-            (fun label -> {表#label;})
 
 end

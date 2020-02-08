@@ -1,10 +1,15 @@
+@import: ../base/inline
+@import: lib/label
 @import: font-config
 @import: mutables
 
 module Figure : sig
 
-    val make-ib-figure : string option -> inline-text -> block-text -> context -> inline-boxes
-    val make-ib-table : string option -> inline-text -> block-text -> context -> inline-boxes
+    val render-inline-figure : string option -> inline-text -> block-text -> context -> inline-boxes
+    val render-inline-table : string option -> inline-text -> block-text -> context -> inline-boxes
+
+    val render-inline-ref-figure : string -> context -> inline-boxes
+    val render-inline-ref-table : string -> context -> inline-boxes
 
 end = struct
 
@@ -14,10 +19,9 @@ end = struct
     let figure-scheme ctx labelopt prefix category caption inner =
         let () = num-figure <- !num-figure + 1 in
         let s-num = arabic !num-figure in
-        let () =
-          match labelopt with
-          | Some(label) -> register-cross-reference (prefix ^ label ^ `:num`) s-num
-          | None        -> ()
+        let () = labelopt
+            |> Option.map (fun label -> (prefix ^ label ^ `:num`))
+            |> CrossRef.register-if-present s-num
         in
         let it-num = embed-string s-num in
         let ctx-category =
@@ -41,10 +45,19 @@ end = struct
           ))
 
 
-  let make-ib-figure labelopt caption inner ctx =
-    figure-scheme ctx labelopt `figure:` {図} caption inner
+    let render-inline-figure labelopt caption inner ctx =
+        figure-scheme ctx labelopt `figure:` {図} caption inner
 
-  let make-ib-table labelopt caption inner ctx =
-    figure-scheme ctx labelopt `table:` {表} caption inner
+    let render-inline-table labelopt caption inner ctx =
+        figure-scheme ctx labelopt `table:` {表} caption inner
 
+    let render-inline-ref-figure =
+        CrossRef.gen-render-inline-ref
+            (Label.decorate `figure` `num`)
+            (fun value -> {図#value;})
+
+    let render-inline-ref-table =
+        CrossRef.gen-render-inline-ref
+            (Label.decorate `table` `num`)
+            (fun value -> {表#value;})
 end

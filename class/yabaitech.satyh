@@ -84,30 +84,31 @@ end = struct
 
   let document record inner = Document.render record inner
 
-  let-inline ctx \ref key = ctx |> CrossRef.make-ib-ref key
-  let-inline ctx \ref-page key = ctx |> CrossRef.make-ib-ref-page key
-  let-inline ctx \ref-chapter key = ctx |> CrossRef.make-ib-ref-chapter key
-  let-inline ctx \ref-section key = ctx |> CrossRef.make-ib-ref-section key
-  let-inline ctx \ref-subsection key = ctx |> CrossRef.make-ib-ref-subsection key
+  let-inline ctx \ref key = ctx |> CrossRef2.make-ib-ref key
+  let-inline ctx \ref-page key = ctx |> CrossRef2.make-ib-ref-page key
+  let-inline ctx \ref-chapter key = ctx |> CrossRef2.make-ib-ref-chapter key
+  let-inline ctx \ref-section key = ctx |> CrossRef2.make-ib-ref-section key
+  let-inline ctx \ref-subsection key = ctx |> CrossRef2.make-ib-ref-subsection key
 
-  let-inline ctx \ref-definition key = ctx |> CrossRef.make-ib-ref-definition key
-  let-inline ctx \ref-theorem key = ctx |> CrossRef.make-ib-ref-theorem key
-  let-inline ctx \ref-lemma key = ctx |> CrossRef.make-ib-ref-lemma key
-  let-inline ctx \ref-corollary key = ctx |> CrossRef.make-ib-ref-corollary key
-  let-inline ctx \ref-assumption key = ctx |> CrossRef.make-ib-ref-assumption key
-  let-inline ctx \ref-example key = ctx |> CrossRef.make-ib-ref-example key
-  let-inline ctx \ref-notation key = ctx |> CrossRef.make-ib-ref-notation key
+  let-inline ctx \ref-definition key = ctx |> CrossRef2.make-ib-ref-definition key
+  let-inline ctx \ref-theorem key = ctx |> CrossRef2.make-ib-ref-theorem key
+  let-inline ctx \ref-lemma key = ctx |> CrossRef2.make-ib-ref-lemma key
+  let-inline ctx \ref-corollary key = ctx |> CrossRef2.make-ib-ref-corollary key
+  let-inline ctx \ref-assumption key = ctx |> CrossRef2.make-ib-ref-assumption key
+  let-inline ctx \ref-example key = ctx |> CrossRef2.make-ib-ref-example key
+  let-inline ctx \ref-notation key = ctx |> CrossRef2.make-ib-ref-notation key
 
-  let-inline ctx \ref-figure key = ctx |> CrossRef.make-ib-ref-figure key
-  let-inline ctx \ref-table key = ctx |> CrossRef.make-ib-ref-table key
-
-  let-inline ctx \cite labels = Bibliography.make-ib-cite ctx labels
+  let-inline ctx \cite labels = Bibliography.render-inline-cite ctx labels
 
   let-inline ctx \figure ?:labelopt caption inner =
-    ctx |> Figure.make-ib-figure labelopt caption inner
+    ctx |> Figure.render-inline-figure labelopt caption inner
 
   let-inline ctx \table ?:labelopt caption inner =
-    ctx |> Figure.make-ib-table labelopt caption inner
+    ctx |> Figure.render-inline-table labelopt caption inner
+
+  let-inline ctx \ref-figure key = ctx |> Figure.render-inline-ref-figure key
+  let-inline ctx \ref-table key = ctx |> Figure.render-inline-ref-table key
+
 
   let-block ctx +chapter ?:labelopt ?:subtitle record inner =
     Chapterish.chapter-scheme ctx labelopt record#bibliography record#title subtitle record#author inner

@@ -1,6 +1,7 @@
 module Label : sig
 
     val or-fresh : string option -> string
+    val decorate : string -> string -> string -> string
 
 end = struct
 
@@ -15,5 +16,8 @@ end = struct
         match label-opt with
         | None -> generate-fresh-label ()
         | Some(label) -> label
+
+    let decorate prefix suffix label =
+        prefix ^ `:` ^ label ^ `:` ^ suffix
 
 end

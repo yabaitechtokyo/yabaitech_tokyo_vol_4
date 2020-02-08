@@ -1,9 +1,9 @@
 @require: pervasives
 
+@import: lib/label
 @import: bibliography
 @import: document-config
 @import: font-config
-@import: label
 @import: mutables
 
 module Chapterish : sig
@@ -50,7 +50,7 @@ end = struct
           (ib-bib-title ++ inline-fil)
           |> section-heading ctx-doc
         in
-        let bb-bib-main = Bibliography.make-bb-bibs ctx-bib bibliography
+        let bb-bib-main = Bibliography.render-block-bibs ctx-bib bibliography
         in
         bb-bib-title +++ bb-bib-main
 

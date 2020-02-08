@@ -58,7 +58,7 @@ end = struct
                    ++ inline-skip 3pt
                  in
                  let it-page =
-                   CrossRef.get-chapter-page label
+                   CrossRef2.get-chapter-page label
                    |> Option.map (fun page-num ->
                            (arabic (Int.of-string page-num - 2)))
                    |> Option.unwrap-or `?`
