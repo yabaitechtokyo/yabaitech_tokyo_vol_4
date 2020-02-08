@@ -1,14 +1,14 @@
 % -*- coding: utf-8 -*-
-@import: class/yabaitech
-@import: censored/article
-@import: gfn/article
-@import: irnbru/article
-@import: MasWag/article
-@import: mh/article
-@import: pohe/article
-@import: wasabiz/article
-@import: postscript
 @require: base/debug
+@import: class/yabaitech
+@import: articles/censored/article
+@import: articles/gfn/article
+@import: articles/irnbru/article
+@import: articles/MasWag/article
+@import: articles/mh/article
+@import: articles/pohe/article
+@import: articles/wasabiz/article
+@import: postscript
 
 let () = Debug.log ``
 =====================

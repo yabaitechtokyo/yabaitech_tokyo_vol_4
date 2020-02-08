@@ -1,4 +1,4 @@
-@import: ../class/yabaitech
+@import: ../../class/yabaitech
 
 module IrnBru : sig
 

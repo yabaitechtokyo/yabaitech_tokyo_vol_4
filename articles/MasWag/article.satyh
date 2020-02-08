@@ -1,4 +1,4 @@
-@import: ../class/yabaitech
+@import: ../../class/yabaitech
 @require: itemize
 @require: code
 @require: annot

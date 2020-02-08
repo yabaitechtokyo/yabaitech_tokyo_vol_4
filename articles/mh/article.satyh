@@ -1,6 +1,6 @@
-@import: ../class/yabaitech
+@import: ../../class/yabaitech
 
-module Gfn : sig
+module Mh : sig
 
   val article : block-text
 
@@ -9,11 +9,11 @@ end = struct
 let bibliography = []
 
 let article = '<
-    +chapter ?:(`gfn-article`)
+    +chapter ?:(`mh-article`)
     (|
         bibliography = bibliography;
         title = {Pohe Article};
-        author = {gfn};
+        author = {mh};
     |)
     <
         +p{Hello, world!}
