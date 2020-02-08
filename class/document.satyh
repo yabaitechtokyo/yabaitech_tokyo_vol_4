@@ -1,0 +1,149 @@
+@require: footnote-scheme
+@import: ../base/ref
+
+@import: chapterish
+@import: colophon
+@import: document-config
+@import: font-config
+@import: mutables
+@import: title
+
+module Document : sig
+
+    val render : 'a -> block-text -> document
+        constraint 'a :: (|
+            title: string;
+            date: string;
+            venue: string;
+            author: string;
+            email: string;
+            website: string;
+            publisher: string;
+        |)
+
+end = struct
+
+    let-mutable show-page-number-ref <- None
+
+    let make-bb-disable-page-number ctx =
+        ctx |> Block.of-inline false false
+                (Fn.const (Pager.make-hook (fun _ _ -> (show-page-number-ref <- None))))
+
+    let align-ib-left ib = ib ++ inline-fil
+
+    let height-of-float-boxes pageno =
+        (!Mutables.ref-float-boxes) |> List.fold-left (fun h (pn, bb) -> (
+            if pn < pageno then h +' (get-natural-length bb) else h
+        )) 0pt
+
+    let make-bb-toc-page ctx =
+        let ib-toc-title =
+            ctx |> FontConfig.make-chapter-title
+                |> Inline.read {目次}
+                |> align-ib-left
+        in
+        let bb-toc-title = Chapterish.chapter-heading ctx None ib-toc-title
+        in
+        let bb-toc-main = TableOfContents.make-bb Mutables.toc-acc-ref ctx
+        in
+        Block.concat [
+            bb-toc-title;
+            bb-toc-main;
+            clear-page;
+            line-break false false (ctx |> set-paragraph-margin 0pt 0pt)
+                  (hook-page-break (fun pbinfo _ -> (show-page-number-ref <- Some(pbinfo#page-number))) ++ inline-fil);
+        ]
+
+    let make-bb-colophon-page record ctx =
+        let bb-colophon = ctx |> Colophon.make-bb-colophon (|
+            title     = record#title;
+            date      = record#date;
+            author    = record#author;
+            email     = record#email;
+            website   = record#website;
+            publisher = record#publisher;
+        |)
+        in
+        let bb-disable-page-number = ctx |> make-bb-disable-page-number
+        in
+        bb-colophon +++ bb-disable-page-number
+
+    let pagecontf pbinfo =
+    let () = FootnoteScheme.start-page () in
+    let hgtfb = height-of-float-boxes pbinfo#page-number in
+    let (text-origin-x, text-origin-y) = DocumentConfig.text-origin in
+    (|
+      text-origin = (text-origin-x, text-origin-y +' hgtfb);
+      text-height = DocumentConfig.text-height -' hgtfb;
+    |)
+
+  let pagepartsf pbinfo =
+    let pageno = pbinfo#page-number in
+    let header =
+      let ctx =
+        FontConfig.get-standard-context DocumentConfig.header-width
+          |> set-paragraph-margin 0pt 0pt
+      in
+      let (bb-float-boxes, acc) =
+        (!Mutables.ref-float-boxes) |> List.fold-left (fun (bbacc, acc) elem -> (
+          let (pn, bb) = elem in
+            if pn < pageno then
+              let bbs =
+                line-break true true (ctx |> set-paragraph-margin 0pt 12pt)
+                  (inline-fil ++ embed-block-top ctx DocumentConfig.text-width (fun _ -> bb) ++ inline-fil)
+                    % 'ctx' is a dummy context
+              in
+                (bbacc +++ bbs, acc)
+            else
+              (bbacc, elem :: acc)
+        )) (block-nil, [])
+      in
+      let () = Mutables.ref-float-boxes |> Ref.set acc in
+        bb-float-boxes
+    in
+    let footer =
+      match !show-page-number-ref with
+      | Some(pagenolast) ->
+          let ctx = FontConfig.get-standard-context DocumentConfig.footer-width in
+          let it-pageno = embed-string (arabic (pageno - pagenolast + 1)) in
+            line-break true true ctx
+              (inline-fil ++ (read-inline ctx {— #it-pageno; —}) ++ inline-fil)
+
+      | None ->
+          block-nil
+    in
+      (|
+        header-origin  = DocumentConfig.header-origin;
+        header-content = header;
+        footer-origin  = DocumentConfig.footer-origin;
+        footer-content = footer;
+      |)
+
+    let render record inner =
+        let ctx-doc =
+            FontConfig.get-standard-context DocumentConfig.text-width
+            |> set-font-size 12pt
+            |> set-leading 18pt
+            |> set-hyphen-penalty 1000
+        in
+        let bb-title-pages = ctx-doc |> Title.make-bb (|
+            title = record#title;
+            date  = record#date;
+            venue = record#venue;
+            |)
+        in
+        let bb-main-pages = read-block ctx-doc inner
+        in
+        let bb-toc-pages = make-bb-toc-page ctx-doc
+        in
+        let bb-colophon-pages = make-bb-colophon-page record ctx-doc
+        in
+        page-break DocumentConfig.paper-size pagecontf pagepartsf
+            (Block.concat [
+                bb-title-pages;
+                bb-toc-pages;
+                bb-main-pages;
+                bb-colophon-pages;
+            ])
+
+end

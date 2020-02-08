@@ -1,4 +1,5 @@
 % -*- coding: utf-8 -*-
+@import: ../../base/debug
 @import: ../yabaitech
 @import: bibliography
 @import: chapter

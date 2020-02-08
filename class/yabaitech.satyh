@@ -1,25 +1,8 @@
 % -*- coding: utf-8 -*-
-@require: pervasives
-@require: gr
-@require: list
-@require: option
-@require: math
-@require: color
-@require: vdecoset
-@require: table
-@import: ../base/block
-@import: ../base/color-ext
-@import: ../base/fn
-@import: ../base/image
-@import: ../base/inline
-@import: ../base/int
-@import: ../base/pager
-@import: ../base/tuple
-@import: ../base/typeset/font
-
 @import: bibliography
 @import: chapterish
 @import: colophon
+@import: document
 @import: document-config
 @import: figure
 @import: font-config
@@ -90,16 +73,16 @@ module Book : sig
   direct \emph : [inline-text] inline-cmd
   direct \dfn : [inline-text] inline-cmd
 
+  % from Fiure
   direct \figure : [string?; inline-text; block-text] inline-cmd
   direct \table : [string?; inline-text; block-text] inline-cmd
 
+  % from Footnote
   direct \footnote : [inline-text] inline-cmd
 
 end = struct
 
-  open FontConfig
-  open DocumentConfig
-  open Mutables
+  let document record inner = Document.render record inner
 
   let-inline ctx \ref key = ctx |> CrossRef.make-ib-ref key
   let-inline ctx \ref-page key = ctx |> CrossRef.make-ib-ref-page key
@@ -118,134 +101,7 @@ end = struct
   let-inline ctx \ref-figure key = ctx |> CrossRef.make-ib-ref-figure key
   let-inline ctx \ref-table key = ctx |> CrossRef.make-ib-ref-table key
 
-
-  let height-of-float-boxes pageno =
-%    let () = display-message `get height` in
-    (!ref-float-boxes) |> List.fold-left (fun h (pn, bb) -> (
-      if pn < pageno then h +' (get-natural-length bb) else h
-    )) 0pt
-  
-  let align-ib-left ib = ib ++ inline-fil
-
-
-  let-mutable show-page-number-ref <- None
-  let make-bb-disable-page-number ctx = ctx
-    |> Block.of-inline false false
-         (Fn.const (Pager.make-hook (fun _ _ -> (show-page-number-ref <- None))))
-
   let-inline ctx \cite labels = Bibliography.make-ib-cite ctx labels
-
-  let make-bb-toc-page ctx =
-    let ib-toc-title =
-      ctx
-      |> make-chapter-title
-      |> Inline.read {目次}
-      |> align-ib-left
-    in
-    let bb-toc-title = Chapterish.chapter-heading ctx None ib-toc-title
-    in
-    let bb-toc-main = TableOfContents.make-bb toc-acc-ref ctx
-    in
-    Block.concat [
-      bb-toc-title;
-      bb-toc-main;
-      clear-page;
-      line-break false false (ctx |> set-paragraph-margin 0pt 0pt)
-            (hook-page-break (fun pbinfo _ -> (show-page-number-ref <- Some(pbinfo#page-number))) ++ inline-fil);
-    ]
-
-  let make-bb-colophon-page record ctx =
-    let bb-colophon = ctx |> Colophon.make-bb-colophon (|
-      title     = record#title;
-      date      = record#date;
-      author    = record#author;
-      email     = record#email;
-      website   = record#website;
-      publisher = record#publisher;
-    |)
-    in
-    let bb-disable-page-number = ctx |> make-bb-disable-page-number
-    in
-    bb-colophon +++ bb-disable-page-number
-
-  let pagecontf pbinfo =
-    let () = FootnoteScheme.start-page () in
-    let hgtfb = height-of-float-boxes pbinfo#page-number in
-    let (text-origin-x, text-origin-y) = text-origin in
-    (|
-      text-origin = (text-origin-x, text-origin-y +' hgtfb);
-      text-height = text-height -' hgtfb;
-    |)
-
-  let pagepartsf pbinfo =
-    let pageno = pbinfo#page-number in
-    let header =
-      let ctx =
-        get-standard-context header-width
-          |> set-paragraph-margin 0pt 0pt
-      in
-      let (bb-float-boxes, acc) =
-        (!ref-float-boxes) |> List.fold-left (fun (bbacc, acc) elem -> (
-          let (pn, bb) = elem in
-            if pn < pageno then
-              let bbs =
-                line-break true true (ctx |> set-paragraph-margin 0pt 12pt)
-                  (inline-fil ++ embed-block-top ctx text-width (fun _ -> bb) ++ inline-fil)
-                    % 'ctx' is a dummy context
-              in
-                (bbacc +++ bbs, acc)
-            else
-              (bbacc, elem :: acc)
-        )) (block-nil, [])
-      in
-      let () = ref-float-boxes <- acc in
-        bb-float-boxes
-    in
-    let footer =
-      match !show-page-number-ref with
-      | Some(pagenolast) ->
-          let ctx = get-standard-context footer-width in
-          let it-pageno = embed-string (arabic (pageno - pagenolast + 1)) in
-            line-break true true ctx
-              (inline-fil ++ (read-inline ctx {— #it-pageno; —}) ++ inline-fil)
-
-      | None ->
-          block-nil
-    in
-      (|
-        header-origin  = header-origin;
-        header-content = header;
-        footer-origin  = footer-origin;
-        footer-content = footer;
-      |)
-
-  let document record inner =
-    let ctx-doc =
-      get-standard-context text-width
-        |> set-font-size 12pt
-        |> set-leading 18pt
-        |> set-hyphen-penalty 1000
-    in
-    let bb-title-pages = ctx-doc |> Title.make-bb (|
-      title = record#title;
-      date  = record#date;
-      venue = record#venue;
-    |)
-    in
-    let bb-main-pages = read-block ctx-doc inner
-    in
-    let bb-toc-pages = make-bb-toc-page ctx-doc
-    in
-    let bb-colophon-pages = make-bb-colophon-page record ctx-doc
-    in
-    page-break paper-size pagecontf pagepartsf
-      (Block.concat [
-        bb-title-pages;
-        bb-toc-pages;
-        bb-main-pages;
-        bb-colophon-pages;
-      ])
-
 
   let-inline ctx \figure ?:labelopt caption inner =
     ctx |> Figure.make-ib-figure labelopt caption inner
@@ -287,7 +143,6 @@ end = struct
   let-block ctx +notation ?:wordopt ?:labelopt inner =
     ctx |> Theoremish.make-bb-notation labelopt wordopt inner
 
-
   let-block ctx +p inner = ctx |> MiscCommands.make-bb-paragraph inner
 
   let-block ctx +topic topic inner =
@@ -299,12 +154,9 @@ end = struct
   let-inline ctx \emph inner = ctx |> MiscCommands.make-ib-emph inner
   let-inline ctx \dfn inner = ctx |> MiscCommands.make-ib-dfn inner
 
-
-  let-inline ctx \footnote it =
-    ctx |> Footnote.render-block it
+  let-inline ctx \footnote it = ctx |> Footnote.render-block it
 
 end
-
 
 let document = Book.document
   % ad-hoc
