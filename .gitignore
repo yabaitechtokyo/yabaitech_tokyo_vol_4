@@ -7,3 +7,5 @@ class/tmp/*
 
 # For Emacs
 *~
+
+.DS_Store
