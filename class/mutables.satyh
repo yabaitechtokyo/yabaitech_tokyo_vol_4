@@ -8,6 +8,8 @@ module Mutables : sig
     val num-subsection : int ref
     val num-theorems : int ref
 
+    val ref-float-boxes : ((int * block-boxes) list) ref
+
     val toc-acc-ref : (toc-element list) ref
 
 end = struct
@@ -17,6 +19,8 @@ end = struct
     let-mutable num-section <- 0
     let-mutable num-subsection <- 0
     let-mutable num-theorems <- 0
+
+    let-mutable ref-float-boxes <- []
 
     let-mutable toc-acc-ref <- []
 
