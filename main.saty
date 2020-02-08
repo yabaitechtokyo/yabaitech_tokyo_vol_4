@@ -6,7 +6,6 @@
 @import: articles/irnbru/article
 @import: articles/MasWag/article
 @import: articles/mh/article
-@import: articles/pohe/article
 @import: articles/wasabiz/article
 @import: postscript
 
@@ -36,7 +35,6 @@ document (|
     #IrnBru.article;
     #MasWag.article;
     #Mh.article;
-    #Pohe.article;
     #Wasabiz.article;
     #Postscript.article;
 >
