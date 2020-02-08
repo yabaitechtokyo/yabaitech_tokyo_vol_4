@@ -470,6 +470,74 @@ let article = '<
     `);
     >
     >
+    +section{実験後} <
+    +p {
+      最後に実験後の流れについて説明をします。
+    }
+    +subsection{\code(`teardown.sh`);} <
+    +p {
+      まず始めに実験後に自動で行なわれる処理は \code(`teardown.sh`); (前述) に書かれている以下の内容ものです。具体的なスクリプトの内容については Section ??? を参照してください。
+    }
+    +listing{
+    *  実験内容を \code(`git commit`); する
+    *  slackに実験終了のお知らせをする
+    *  実験に使ったインスタンスを停止する
+    }
+    >
+    +subsection{Git レポジトリの同期} <
+    +p {
+      次にGitレポジトリを同期させる必要があります。Gitレポジトリの運用方針ですが以下の様にしていきます。
+    }
+    +listing{
+    *  基本的に \code(`master`); ブランチを使う
+    *  但し実験後、マージ前の一時的な場合のみ他のブランチを使う
+    }
+    +subsubsection{Git レポジトリの push} <
+    +p {
+      まず始めにGitレポジトリをpushしますが、ここは例によって Ansible で行ないます。ここで重要なことですが、push先のブランチは \code(`tmp`); から始まる一時的なもので、hostname が付いていて各インスタンスについて固有なものとなっているということです。なおインベントリは前述のコマンド・スクリプトで生成できます。Gitレポジトリのpushが終わったらインスタンスは不要なので停止させてください (無駄に課金されて勿体ないので)。
+    }
+    +code(`
+    - hosts: aws
+      tasks:
+        - name: Install required packages
+          apt:
+            pkg:
+              - git
+          become: yes
+
+        - name: push to the remote
+          command: 
+            cmd: git push origin master:tmp_{{ ansible_hostname }}
+            chdir: /home/ubuntu/bar-experiments
+    `);
+    >
+    +subsubsection{Gitレポジトリの merge} <
+    +p {
+      次にGitレポジトリのmergeを手元のマシンで行ないますが、早い話単に \code(`git merge`); するだけです。一つずつやっても良いですが、 \code(`tmp`); から始まるリモートレポジトリを全部 merge させたいのであれば例えば次のコマンドで行なえます。
+    }
+    +code(`
+    git branch -a | grep remotes/origin | grep tmp | sed 's:remotes/origin/::' | xargs -I{} git merge {}
+    `);
+    +p {
+      Gitレポジトリのmergeを終えて不要になったブランチは例えば次のコマンドで消せます。こちらは並列実行しても問題ないので、 \code(`xargs`); の \code(`-P`); オプション (POSIXには入っていないですが \code(`GNU xargs`); を始めとして多くの \code(`xargs`); が \code(`-P`); に対応しています) を使っても大丈夫です。
+    }
+    +code(`
+    git branch -a | grep remotes/origin | grep tmp | sed 's:remotes/origin/::' | xargs -I{} git push origin :{}
+    `);
+    >
+    >
+    >
+    +section{${\diamond} (Eventually) 回予告} <
+    +p {
+      \emph{\emph{いかがだったでしょうか!!}}
+    }
+    +p {
+      今回は複数マシンでの実験を Ansible とかでシュっとした話のうち、実験を回して結果を回収するところまで説明をしました。今回の方法が最適解であるかはさておき、自分で並列実験システムを構築するときのたたき台になると幸いです。
+    }
+    +p {
+      さて、実験を回したら当然結果を解析する必要があります。解析パートは実験が並列であるかどうかとはあまり関係ないですが、自動解析も結構工夫のしがいがあるところです。ということで ${\diamond} (Eventually) 回 は解析パートと題して、シェルスクリプトでの実験結果解析を説明する予定です。
+    }
+    >
     >
 >
 

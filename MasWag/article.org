@@ -1,4 +1,5 @@
 # -*- truncate-lines: nil; -*-
+#+TODO: TODO | DONE POSTPONED
 #+TITLE: 複数マシンでの実験を Ansible とかでシュっとした話 — 実験編
 #+AUTHOR: MasWag
 
@@ -419,13 +420,59 @@ expect {
 exit 0
 #+END_SRC
 
-* TODO COMMENT 実験後
+* 実験後
 
-** 実験終了通知が飛ぶ
+最後に実験後の流れについて説明をします。
 
-** マシンが自動で停止する
+** =teardown.sh=
 
-* COMMENT 実験解析パート
+まず始めに実験後に自動で行なわれる処理は =teardown.sh= (前述) に書かれている以下の内容ものです。具体的なスクリプトの内容については Section ??? を参照してください。
+
+- 実験内容を =git commit= する
+- slackに実験終了のお知らせをする
+- 実験に使ったインスタンスを停止する
+
+** Git レポジトリの同期
+
+次にGitレポジトリを同期させる必要があります。Gitレポジトリの運用方針ですが以下の様にしていきます。
+
+- 基本的に =master= ブランチを使う
+- 但し実験後、マージ前の一時的な場合のみ他のブランチを使う
+
+*** Git レポジトリの push
+
+まず始めにGitレポジトリをpushしますが、ここは例によって Ansible で行ないます。ここで重要なことですが、push先のブランチは =tmp= から始まる一時的なもので、hostname が付いていて各インスタンスについて固有なものとなっているということです。なおインベントリは前述のコマンド・スクリプトで生成できます。Gitレポジトリのpushが終わったらインスタンスは不要なので停止させてください (無駄に課金されて勿体ないので)。
+
+#+BEGIN_SRC yaml
+- hosts: aws
+  tasks:
+    - name: Install required packages
+      apt:
+        pkg:
+          - git
+      become: yes
+
+    - name: push to the remote
+      command: 
+        cmd: git push origin master:tmp_{{ ansible_hostname }}
+        chdir: /home/ubuntu/bar-experiments
+#+END_SRC
+
+*** Gitレポジトリの merge
+
+次にGitレポジトリのmergeを手元のマシンで行ないますが、早い話単に =git merge= するだけです。一つずつやっても良いですが、 =tmp= から始まるリモートレポジトリを全部 merge させたいのであれば例えば次のコマンドで行なえます。
+
+#+BEGIN_SRC sh
+git branch -a | grep remotes/origin | grep tmp | sed 's:remotes/origin/::' | xargs -I{} git merge {}
+#+END_SRC
+
+Gitレポジトリのmergeを終えて不要になったブランチは例えば次のコマンドで消せます。こちらは並列実行しても問題ないので、 =xargs= の =-P= オプション (POSIXには入っていないですが =GNU xargs= を始めとして多くの =xargs= が =-P= に対応しています) を使っても大丈夫です。
+
+#+BEGIN_SRC sh
+git branch -a | grep remotes/origin | grep tmp | sed 's:remotes/origin/::' | xargs -I{} git push origin :{}
+#+END_SRC
+
+* POSTPONED COMMENT 実験解析パート
 
 ** 解析対象のファイル名指定 YAML
 
@@ -449,7 +496,7 @@ exit 0
 
 ** 解析 Makefile
 
-* COMMENT 全体のワークフロー (フローチャートを書く)
+* POSTPONED COMMENT 全体のワークフロー (フローチャートを書く)
 
 - (ここからマシン構築パート) マシンを作成・設定する (起動させっぱなしだとお金が勿体ないので停止させておく)
    - 今回ここは完全に手動なので特に言うことなし
@@ -489,23 +536,13 @@ exit 0
 - Gitで実験結果をsyncさせる
 - 解析スクリプトを回す
 
-* TODO COMMENT 今後の課題
-** Gitでbranchを活用してmergeをlocalでやるようにすると、syncを並列化できる (はず)
-** スクリプトのポータビリティを上げる (POSIX shell で動く)
-*** 今のスクリプトはdashとかでは動かない
-* TODO COMMENT ◇ (Eventually) 回予告
 
-** いかがだったでしょうか
+* $\diamond$ (Eventually) 回予告
 
-** 今回は実験を回すところまでやった
+**いかがだったでしょうか!!**
 
-** 実験を回したら結果を回収して解析する必要がある
+今回は複数マシンでの実験を Ansible とかでシュっとした話のうち、実験を回して結果を回収するところまで説明をしました。今回の方法が最適解であるかはさておき、自分で並列実験システムを構築するときのたたき台になると幸いです。
 
-** 自動解析も結構工夫のしがいがある
+さて、実験を回したら当然結果を解析する必要があります。解析パートは実験が並列であるかどうかとはあまり関係ないですが、自動解析も結構工夫のしがいがあるところです。ということで $\diamond$ (Eventually) 回 は解析パートと題して、シェルスクリプトでの実験結果解析を説明する予定です。
 
-** どの実験結果を最終的に比較するか、はベタ書きしない
-
-*** 例えば表にして比較する実験設定をスクリプトにベタ書きしない。できるだけDRYにする。
-
-** ◇ (Eventually) 回 は解析パート
 
