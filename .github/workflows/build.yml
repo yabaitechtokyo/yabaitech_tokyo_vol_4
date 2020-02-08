@@ -19,7 +19,10 @@ jobs:
           export HOME=/root
           eval $(opam env)
           opam update
-          bash install-fonts.sh
+          opam install satysfi-fonts-dejavu
+          opam install satysfi-fonts-asana-math
+          opam install satysfi-base
+          satyrographos install
       - name: Build with SATySFi
         run: |
           export HOME=/root
@@ -57,7 +60,10 @@ jobs:
           export HOME=/root
           eval $(opam env)
           opam update
-          bash install-fonts.sh
+          opam install satysfi-fonts-dejavu
+          opam install satysfi-fonts-asana-math
+          opam install satysfi-base
+          satyrographos install
       - name: Run regression tests
         run: |
           export HOME=/root
