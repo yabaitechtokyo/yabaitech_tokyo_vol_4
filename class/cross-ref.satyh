@@ -12,16 +12,6 @@ module CrossRef2 : sig
 
     val make-ib-ref : string -> context -> inline-boxes
     val make-ib-ref-page : string -> context -> inline-boxes
-    val make-ib-ref-chapter : string -> context -> inline-boxes
-    val make-ib-ref-section : string -> context -> inline-boxes
-    val make-ib-ref-subsection : string -> context -> inline-boxes
-    val make-ib-ref-definition : string -> context -> inline-boxes
-    val make-ib-ref-theorem : string -> context -> inline-boxes
-    val make-ib-ref-lemma : string -> context -> inline-boxes
-    val make-ib-ref-corollary : string -> context -> inline-boxes
-    val make-ib-ref-assumption : string -> context -> inline-boxes
-    val make-ib-ref-example : string -> context -> inline-boxes
-    val make-ib-ref-notation : string -> context -> inline-boxes
 
 end = struct
 
@@ -58,55 +48,5 @@ end = struct
         gen-make-ib-ref
             (fun key -> key ^ `:page`)
             (fun label -> label)
-
-    let make-ib-ref-chapter =
-        gen-make-ib-ref
-            (fun key -> `chapter:` ^ key ^ `:num`)
-            (fun label -> {第#label;章})
-
-    let make-ib-ref-section =
-        gen-make-ib-ref
-            (fun key -> `section:` ^ key ^ `:num`)
-            (fun label -> {#label;節})
-
-    let make-ib-ref-subsection =
-        gen-make-ib-ref
-            (fun key -> `subsection:` ^ key ^ `:num`)
-            (fun label -> {#label;節})
-
-    let make-ib-ref-definition =
-        gen-make-ib-ref
-            (fun key ->  `definition:` ^ key ^ `:num`)
-            (fun label -> {定義 #label;})
-
-    let make-ib-ref-theorem =
-        gen-make-ib-ref
-            (fun key ->  `theorem:` ^ key ^ `:num`)
-            (fun label -> {定理 #label;})
-
-    let make-ib-ref-lemma =
-        gen-make-ib-ref
-            (fun key ->  `lemma:` ^ key ^ `:num`)
-            (fun label -> {補題 #label;})
-
-    let make-ib-ref-corollary =
-        gen-make-ib-ref
-            (fun key -> `corollary:` ^ key ^ `:num`)
-            (fun label -> {系 #label;})
-
-    let make-ib-ref-assumption =
-        gen-make-ib-ref
-            (fun key -> `assumption:` ^ key ^ `:num`)
-            (fun label -> {仮定 #label;})
-
-    let make-ib-ref-example =
-        gen-make-ib-ref
-            (fun key -> `example:` ^ key ^ `:num`)
-            (fun label -> {例 #label;})
-
-    let make-ib-ref-notation =
-        gen-make-ib-ref
-            (fun key -> `notation:` ^ key ^ `:num`)
-            (fun label -> {記法 #label;})
 
 end

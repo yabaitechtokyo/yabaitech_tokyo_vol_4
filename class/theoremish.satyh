@@ -1,18 +1,27 @@
 @require: base/typeset/font
 @require: base/option-ext
 
+@import: lib/cross-ref
 @import: font-config
 @import: mutables
 
 module Theoremish : sig
 
-    val make-bb-definition : string option -> inline-text option -> inline-text -> context -> block-boxes
-    val make-bb-theorem : string option -> inline-text option -> inline-text -> context -> block-boxes
-    val make-bb-lemma : string option -> inline-text option -> inline-text -> context -> block-boxes
-    val make-bb-corollary : string option -> inline-text option -> inline-text -> context -> block-boxes
-    val make-bb-assumption : string option -> inline-text option -> inline-text -> context -> block-boxes
-    val make-bb-example : string option -> inline-text option -> inline-text -> context -> block-boxes
-    val make-bb-notation : string option -> inline-text option -> inline-text -> context -> block-boxes
+    val render-block-definition : string option -> inline-text option -> inline-text -> context -> block-boxes
+    val render-block-theorem : string option -> inline-text option -> inline-text -> context -> block-boxes
+    val render-block-lemma : string option -> inline-text option -> inline-text -> context -> block-boxes
+    val render-block-corollary : string option -> inline-text option -> inline-text -> context -> block-boxes
+    val render-block-assumption : string option -> inline-text option -> inline-text -> context -> block-boxes
+    val render-block-example : string option -> inline-text option -> inline-text -> context -> block-boxes
+    val render-block-notation : string option -> inline-text option -> inline-text -> context -> block-boxes
+
+    val render-inline-ref-definition : string -> context -> inline-boxes
+    val render-inline-ref-theorem : string -> context -> inline-boxes
+    val render-inline-ref-lemma : string -> context -> inline-boxes
+    val render-inline-ref-corollary : string -> context -> inline-boxes
+    val render-inline-ref-assumption : string -> context -> inline-boxes
+    val render-inline-ref-example : string -> context -> inline-boxes
+    val render-inline-ref-notation : string -> context -> inline-boxes
 
 end = struct
 
@@ -49,39 +58,75 @@ end = struct
         (ib-dfn ++ ib-word ++ inline-skip (get-font-size ctx) ++ ib-inner ++ inline-fil
         ++ ib-glue ++ ib-diamond)
 
-    let make-bb-definition label-opt name-opt content ctx =
+    let render-block-definition label-opt name-opt content ctx =
         let num = get-num-and-register-cross-ref `definition` label-opt
         in
         theorem-scheme ctx (fun x -> x) num {定義} name-opt content
     
-    let make-bb-theorem label-opt name-opt content ctx =
+    let render-block-theorem label-opt name-opt content ctx =
         let num = get-num-and-register-cross-ref `theorem` label-opt
         in
         theorem-scheme ctx (set-latin-font font-latin-italic) num {定理} name-opt content
 
-    let make-bb-lemma label-opt name-opt content ctx =
+    let render-block-lemma label-opt name-opt content ctx =
         let num = get-num-and-register-cross-ref `lemma` label-opt
         in
         theorem-scheme ctx (set-latin-font font-latin-italic) num {補題} name-opt content
 
-    let make-bb-corollary label-opt name-opt content ctx =
+    let render-block-corollary label-opt name-opt content ctx =
         let num = get-num-and-register-cross-ref `corollary` label-opt
         in
         theorem-scheme ctx (set-latin-font font-latin-italic) num {系} name-opt content
 
-    let make-bb-assumption label-opt name-opt content ctx =
+    let render-block-assumption label-opt name-opt content ctx =
         let num = get-num-and-register-cross-ref `assumption` label-opt
         in
         theorem-scheme ctx (set-latin-font font-latin-italic) num {仮定} name-opt content
 
-    let make-bb-example label-opt name-opt content ctx =
+    let render-block-example label-opt name-opt content ctx =
         let num = get-num-and-register-cross-ref `example` label-opt
         in
         theorem-scheme ctx (fun x -> x) num {例} name-opt content
 
-    let make-bb-notation label-opt name-opt content ctx =
+    let render-block-notation label-opt name-opt content ctx =
         let num = get-num-and-register-cross-ref `notation` label-opt
         in
         theorem-scheme ctx (fun x -> x) num {記法} name-opt content
+
+
+    let render-inline-ref-definition =
+        CrossRef.gen-render-inline-ref
+            (fun key ->  `definition:` ^ key ^ `:num`)
+            (fun label -> {定義 #label;})
+
+    let render-inline-ref-theorem =
+        CrossRef.gen-render-inline-ref
+            (fun key ->  `theorem:` ^ key ^ `:num`)
+            (fun label -> {定理 #label;})
+
+    let render-inline-ref-lemma =
+        CrossRef.gen-render-inline-ref
+            (fun key ->  `lemma:` ^ key ^ `:num`)
+            (fun label -> {補題 #label;})
+
+    let render-inline-ref-corollary =
+        CrossRef.gen-render-inline-ref
+            (fun key -> `corollary:` ^ key ^ `:num`)
+            (fun label -> {系 #label;})
+
+    let render-inline-ref-assumption =
+        CrossRef.gen-render-inline-ref
+            (fun key -> `assumption:` ^ key ^ `:num`)
+            (fun label -> {仮定 #label;})
+
+    let render-inline-ref-example =
+        CrossRef.gen-render-inline-ref
+            (fun key -> `example:` ^ key ^ `:num`)
+            (fun label -> {例 #label;})
+
+    let render-inline-ref-notation =
+        CrossRef.gen-render-inline-ref
+            (fun key -> `notation:` ^ key ^ `:num`)
+            (fun label -> {記法 #label;})
 
 end

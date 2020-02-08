@@ -29,18 +29,7 @@ module Book : sig
   % from CrossRef
   direct \ref : [string] inline-cmd
   direct \ref-page : [string] inline-cmd
-  direct \ref-chapter : [string] inline-cmd
-  direct \ref-section : [string] inline-cmd
-  direct \ref-subsection : [string] inline-cmd
   direct \ref-definition : [string] inline-cmd
-  direct \ref-theorem : [string] inline-cmd
-  direct \ref-lemma : [string] inline-cmd
-  direct \ref-corollary : [string] inline-cmd
-  direct \ref-assumption : [string] inline-cmd
-  direct \ref-example : [string] inline-cmd
-  direct \ref-notation : [string] inline-cmd
-  direct \ref-figure : [string] inline-cmd
-  direct \ref-table : [string] inline-cmd
 
   % from Bibliography
   direct \cite : [string list] inline-cmd
@@ -57,6 +46,10 @@ module Book : sig
   direct +subsection : [string?; inline-text; block-text] block-cmd
   direct +subsubsection : [inline-text; block-text] block-cmd
 
+  direct \ref-chapter : [string] inline-cmd
+  direct \ref-section : [string] inline-cmd
+  direct \ref-subsection : [string] inline-cmd
+
   % from Theoremish
   direct +definition : [inline-text?; string?; inline-text] block-cmd
   direct +theorem : [inline-text?; string?; inline-text] block-cmd
@@ -65,6 +58,15 @@ module Book : sig
   direct +example : [inline-text?; string?; inline-text] block-cmd
   direct +notation : [inline-text?; string?; inline-text] block-cmd
   direct +assumption : [inline-text?; string?; inline-text] block-cmd
+
+  direct \ref-theorem : [string] inline-cmd
+  direct \ref-lemma : [string] inline-cmd
+  direct \ref-corollary : [string] inline-cmd
+  direct \ref-assumption : [string] inline-cmd
+  direct \ref-example : [string] inline-cmd
+  direct \ref-notation : [string] inline-cmd
+  direct \ref-figure : [string] inline-cmd
+  direct \ref-table : [string] inline-cmd
 
   % from MiscCommands
   direct +p : [inline-text] block-cmd
@@ -86,17 +88,6 @@ end = struct
 
   let-inline ctx \ref key = ctx |> CrossRef2.make-ib-ref key
   let-inline ctx \ref-page key = ctx |> CrossRef2.make-ib-ref-page key
-  let-inline ctx \ref-chapter key = ctx |> CrossRef2.make-ib-ref-chapter key
-  let-inline ctx \ref-section key = ctx |> CrossRef2.make-ib-ref-section key
-  let-inline ctx \ref-subsection key = ctx |> CrossRef2.make-ib-ref-subsection key
-
-  let-inline ctx \ref-definition key = ctx |> CrossRef2.make-ib-ref-definition key
-  let-inline ctx \ref-theorem key = ctx |> CrossRef2.make-ib-ref-theorem key
-  let-inline ctx \ref-lemma key = ctx |> CrossRef2.make-ib-ref-lemma key
-  let-inline ctx \ref-corollary key = ctx |> CrossRef2.make-ib-ref-corollary key
-  let-inline ctx \ref-assumption key = ctx |> CrossRef2.make-ib-ref-assumption key
-  let-inline ctx \ref-example key = ctx |> CrossRef2.make-ib-ref-example key
-  let-inline ctx \ref-notation key = ctx |> CrossRef2.make-ib-ref-notation key
 
   let-inline ctx \cite labels = Bibliography.render-inline-cite ctx labels
 
@@ -122,27 +113,40 @@ end = struct
   let-block ctx +subsubsection title inner =
     Chapterish.subsubsection-scheme ctx (Option.none) title inner
 
+  let-inline ctx \ref-chapter key = ctx |> Chapterish.render-inline-ref-chapter key
+  let-inline ctx \ref-section key = ctx |> Chapterish.render-inline-ref-section key
+  let-inline ctx \ref-subsection key = ctx |> Chapterish.render-inline-ref-subsection key
+
 
   let-block ctx +definition ?:wordopt ?:labelopt inner =
-    ctx |> Theoremish.make-bb-definition labelopt wordopt inner
+    ctx |> Theoremish.render-block-definition labelopt wordopt inner
 
   let-block ctx +theorem ?:wordopt ?:labelopt inner =
-    ctx |> Theoremish.make-bb-theorem labelopt wordopt inner
+    ctx |> Theoremish.render-block-theorem labelopt wordopt inner
 
   let-block ctx +lemma ?:wordopt ?:labelopt inner =
-    ctx |> Theoremish.make-bb-lemma labelopt wordopt inner
+    ctx |> Theoremish.render-block-lemma labelopt wordopt inner
 
   let-block ctx +corollary ?:wordopt ?:labelopt inner =
-    ctx |> Theoremish.make-bb-corollary labelopt wordopt inner
+    ctx |> Theoremish.render-block-corollary labelopt wordopt inner
 
   let-block ctx +assumption ?:wordopt ?:labelopt inner =
-    ctx |> Theoremish.make-bb-assumption labelopt wordopt inner
+    ctx |> Theoremish.render-block-assumption labelopt wordopt inner
 
   let-block ctx +example ?:wordopt ?:labelopt inner =
-    ctx |> Theoremish.make-bb-example labelopt wordopt inner
+    ctx |> Theoremish.render-block-example labelopt wordopt inner
 
   let-block ctx +notation ?:wordopt ?:labelopt inner =
-    ctx |> Theoremish.make-bb-notation labelopt wordopt inner
+    ctx |> Theoremish.render-block-notation labelopt wordopt inner
+
+  let-inline ctx \ref-definition key = ctx |> Theoremish.render-inline-ref-definition key
+  let-inline ctx \ref-theorem key = ctx |> Theoremish.render-inline-ref-theorem key
+  let-inline ctx \ref-lemma key = ctx |> Theoremish.render-inline-ref-lemma key
+  let-inline ctx \ref-corollary key = ctx |> Theoremish.render-inline-ref-corollary key
+  let-inline ctx \ref-assumption key = ctx |> Theoremish.render-inline-ref-assumption key
+  let-inline ctx \ref-example key = ctx |> Theoremish.render-inline-ref-example key
+  let-inline ctx \ref-notation key = ctx |> Theoremish.render-inline-ref-notation key
+
 
   let-block ctx +p inner = ctx |> MiscCommands.make-bb-paragraph inner
 

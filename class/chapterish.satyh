@@ -1,5 +1,6 @@
 @require: pervasives
 
+@import: lib/cross-ref
 @import: lib/label
 @import: bibliography
 @import: document-config
@@ -8,11 +9,15 @@
 
 module Chapterish : sig
 
-  val chapter-heading : context -> inline-boxes option -> inline-boxes -> block-boxes
-  val chapter-scheme : context -> string option -> bib-defs -> inline-text -> inline-text option -> inline-text -> block-text -> block-boxes
-  val section-scheme : context -> string option -> inline-text -> block-text -> block-boxes
-  val subsection-scheme : context -> string option -> inline-text -> block-text -> block-boxes
-  val subsubsection-scheme : context -> string option -> inline-text -> block-text -> block-boxes
+    val chapter-heading : context -> inline-boxes option -> inline-boxes -> block-boxes
+    val chapter-scheme : context -> string option -> bib-defs -> inline-text -> inline-text option -> inline-text -> block-text -> block-boxes
+    val section-scheme : context -> string option -> inline-text -> block-text -> block-boxes
+    val subsection-scheme : context -> string option -> inline-text -> block-text -> block-boxes
+    val subsubsection-scheme : context -> string option -> inline-text -> block-text -> block-boxes
+
+    val render-inline-ref-chapter : string -> context -> inline-boxes
+    val render-inline-ref-section : string -> context -> inline-boxes
+    val render-inline-ref-subsection : string -> context -> inline-boxes
 
 end = struct
 
@@ -152,5 +157,21 @@ end = struct
     in
     let bb-main = read-block ctx inner in
     bb-title +++ bb-main
+
+
+    let render-inline-ref-chapter =
+        CrossRef.gen-render-inline-ref
+            (Label.decorate `chapter` `num`)
+            (fun label -> {第#label;章})
+
+    let render-inline-ref-section =
+        CrossRef.gen-render-inline-ref
+            (Label.decorate `section` `num`)
+            (fun label -> {#label;節})
+
+    let render-inline-ref-subsection =
+        CrossRef.gen-render-inline-ref
+            (Label.decorate `subsection` `num`)
+            (fun label -> {#label;節})
 
 end
