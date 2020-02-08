@@ -2,6 +2,9 @@
 #+TODO: TODO | DONE POSTPONED
 #+TITLE: 複数マシンでの実験を Ansible とかでシュっとした話 — 実験編
 #+AUTHOR: MasWag
+#+EMAIL: masakiwaga@gmail.com
+#+OPTIONS: ^:{}
+#+LANG: ja
 
 * はじめに
 
@@ -59,9 +62,12 @@
 
 ここから各登場ツールについて説明をしていきます。なお、最終的なワークフローは 図 hoge の様になります。
 
-file:./figs/flowchart.pdf
+[[file:./MasWag/figs/flowchart.pdf]]
 
 ** vmctl
+:PROPERTIES:
+:CUSTOM_ID: my-headline-2
+:END:
 
 *vmctl* (https://github.com/MasWag/vmctl) は様々な仮想マシンに対して同様のインターフェースで起動、停止などの基本的な操作を行なえる様にした、手製のshell scriptです。「様々な仮想マシン」と言いつつ現状Amazon AWSの EC2 と VirtualBox にしか対応していないですが、原理的にはコマンドラインインターフェースが用意されている仮想マシンであればそれなりの工数で追加できることになっています。
 
@@ -167,8 +173,6 @@ aws ec2 describe-instances --query 'Reservations[*].Instances[*].[InstanceId,Tag
 
 まず始めに実験環境構築用の Ansible playbook を書きます。ここでは、データセットの準備や実験対象のプログラムのコンパイルや、験用Gitレポジトリの準備等に加えて、後で必要となるaws-cliやslackに通知を送るためのスクリプトの設定等も行ないます。細かい内容についてはさておき、例えば以下の様な YAMLファイル で設定を行なうことができます。
 
-*** 例
-
 #+BEGIN_SRC yaml
   - hosts: aws
     user: ubuntu
@@ -258,7 +262,7 @@ fi
     ...
 #+END_EXAMPLE
 
-それではそれぞれのファイルについて説明していきます。なお、 =notif_my_slack.m4= の説明はSection ???を参照してください。
+それではそれぞれのファイルについて説明していきます。なお、 =notif_my_slack.m4= の説明は \ref-subsection(`実験環境構築用の-ansible-playbook-を書く`); を参照してください。
 
 *** run.sh
 
@@ -426,7 +430,7 @@ exit 0
 
 ** =teardown.sh=
 
-まず始めに実験後に自動で行なわれる処理は =teardown.sh= (前述) に書かれている以下の内容ものです。具体的なスクリプトの内容については Section ??? を参照してください。
+まず始めに実験後に自動で行なわれる処理は =teardown.sh= (前述) に書かれている以下の内容ものです。具体的なスクリプトの内容については \ref-subsection(`実験スクリプトを書く`); を参照してください。
 
 - 実験内容を =git commit= する
 - slackに実験終了のお知らせをする
@@ -539,7 +543,7 @@ git branch -a | grep remotes/origin | grep tmp | sed 's:remotes/origin/::' | xar
 
 * $\diamond$ (Eventually) 回予告
 
-**いかがだったでしょうか!!**
+*いかがだったでしょうか!!*
 
 今回は複数マシンでの実験を Ansible とかでシュっとした話のうち、実験を回して結果を回収するところまで説明をしました。今回の方法が最適解であるかはさておき、自分で並列実験システムを構築するときのたたき台になると幸いです。
 
