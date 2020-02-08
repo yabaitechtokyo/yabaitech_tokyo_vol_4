@@ -1,6 +1,4 @@
 main.pdf
-.satysfi/local/fonts/*
-.satysfi/local/mathfonts/*
 *.satysfi-aux
 class/node_modules
 class/__test__/test.pdf
