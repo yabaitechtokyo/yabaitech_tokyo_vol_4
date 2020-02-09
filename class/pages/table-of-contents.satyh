@@ -1,8 +1,8 @@
-@import: ../../base/block
-@import: ../../base/inline
-@import: ../../base/int
-@import: ../../base/option-ext
-@import: ../../base/ref
+@require: base/block
+@require: base/inline
+@require: base/int
+@require: base/option-ext
+@require: base/ref
 
 @import: ../lib/table-of-contents
 @import: ../typeset/chapterish

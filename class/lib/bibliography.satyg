@@ -1,5 +1,5 @@
-@import: ../../base/list-ext
-@import: ../../base/tuple
+@require: base/list-ext
+@require: base/tuple
 @import: cross-ref
 
 type bib-in-proceedings = (|

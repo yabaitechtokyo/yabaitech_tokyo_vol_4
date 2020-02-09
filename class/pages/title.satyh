@@ -1,5 +1,5 @@
-@import: ../../base/block
-@import: ../../base/image
+@require: base/block
+@require: base/image
 
 @import: ../font-config
 

@@ -1,4 +1,4 @@
-@import: ../../base/list-ext
+@require: base/list-ext
 @import: ../lib/bibliography
 
 module Cite : sig

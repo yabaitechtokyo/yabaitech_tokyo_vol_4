@@ -1,5 +1,5 @@
-@import: ../../base/option-ext
-@import: ../../base/inline
+@require: base/option-ext
+@require: base/inline
 
 @import: unit
 

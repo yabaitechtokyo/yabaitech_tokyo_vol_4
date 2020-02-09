@@ -2,10 +2,10 @@
 @require: gr
 @require: list
 @require: vdecoset
-@import: ../../base/block
-@import: ../../base/inline
-@import: ../../base/option-ext
-@import: ../../base/tuple
+@require: base/block
+@require: base/inline
+@require: base/option-ext
+@require: base/tuple
 
 @import: ../lib/cross-ref
 @import: ../lib/bibliography

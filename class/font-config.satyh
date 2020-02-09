@@ -61,7 +61,7 @@ end = struct
     let font-latin-mono   = (`lmmono`    , font-ratio-latin, 0.)
     let font-cjk-mincho   = (`ipaexm`    , font-ratio-cjk  , 0.)
     let font-cjk-gothic   = (`ipaexg`    , font-ratio-cjk  , 0.)
-    let font-otherscript-roman = (`cmunrm` , font-ratio-latin, 0.)
+    let font-otherscript-roman = (`Junicode` , font-ratio-latin, 0.)
 
     let set-latin-font font ctx =
       ctx |> set-font Latin font
