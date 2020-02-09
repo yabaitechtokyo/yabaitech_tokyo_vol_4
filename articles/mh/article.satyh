@@ -137,6 +137,7 @@ let article = '<
         author = {mh};
     |)
     <
+      +review-comment (`censored`) {under peer review}
 
   +section{はじめに}<
     +p{
