@@ -38,6 +38,15 @@ end = struct
                 +proof { #lorem; }
                 +proof ?:({何らかの定理}) { #lorem; }
             >
+
+            +section {review-commentのテスト} <
+                +review-comment (`zeptometer`) {ここにレビューコメントが入る}
+                +p {
+                    review-commmentを使うとSATySFiのコード上にレビューコメントを書くことができます。
+                    今のところは何もしませんがSATySFiの注釈機能に対応させるようにしたい。
+                    \review-comment (`zeptometer`) {inline commandでも使えるよ}
+                }
+            >
         >
     >
 

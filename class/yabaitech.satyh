@@ -4,6 +4,7 @@
 @import: typeset/figure
 @import: typeset/footnote
 @import: typeset/misc-commands
+@import: typeset/review-comment
 @import: typeset/theoremish
 @import: document
 @import: document-config
@@ -74,6 +75,9 @@ module Book : sig
 
   % from Footnote
   direct \footnote : [inline-text] inline-cmd
+
+  % from ReviewComment
+  direct \reivew-comment : [string; inline-text] inline-cmd
 
 end = struct
 
@@ -150,6 +154,9 @@ end = struct
   let-inline ctx \dfn inner = ctx |> MiscCommands.make-ib-dfn inner
 
   let-inline ctx \footnote it = ctx |> Footnote.render-block it
+
+  let-inline ctx \review-comment reviewer comment = ctx |> ReviewComment.render-inline reviewer comment
+  let-block ctx +review-comment reviewer comment = ctx |> ReviewComment.render-block reviewer comment
 
 end
 
