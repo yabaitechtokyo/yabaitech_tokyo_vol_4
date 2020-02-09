@@ -77,7 +77,8 @@ module Book : sig
   direct \footnote : [inline-text] inline-cmd
 
   % from ReviewComment
-  direct \reivew-comment : [string; inline-text] inline-cmd
+  direct \review-comment : [string; inline-text] inline-cmd
+  direct +review-comment : [string; inline-text] block-cmd
 
 end = struct
 

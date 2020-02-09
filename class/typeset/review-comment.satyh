@@ -4,7 +4,7 @@
 module ReviewComment : sig
 
     val render-inline : string -> inline-text -> context -> inline-boxes
-    val render-block : string -> block-text -> context -> block-boxes 
+    val render-block : string -> inline-text -> context -> block-boxes
 
 end = struct
 
