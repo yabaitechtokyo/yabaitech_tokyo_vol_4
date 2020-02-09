@@ -138,6 +138,7 @@ unsigned max(unsigned a, unsigned b) {
     一方\code(`max`);は名前から類推される通り\code(`unsigned int`);を二つ受け取って大きい方を返す関数なのですが，実装がトリッキーです．
     そこで，さしあたってこの変な実装の\code(`max`);が期待する動作を行うかどうかを証明することを目標にします．
 }
++subsection{\code(`min`);を証明してみる} <
 +p{
     まずはこれらをIsabelleに読み込んでみます．
     一旦AutoCorresのことを忘れてc-parserだけを使ってみます．
@@ -194,7 +195,7 @@ lemma min'_is_min: "min' a b = min a b"
 ```);
 +p{
     ところで，先ほどちらっと紹介した変換前後の対応の証明は以下のような命題に対するものです．
-    \todo{そのうち拡充}
+    \todo{(そのうち拡充)}
 }
 +code(```
 ac_corres (lift_global_heap ∘ globals) True Γ ret__unsigned_'
@@ -202,6 +203,12 @@ ac_corres (lift_global_heap ∘ globals) True Γ ret__unsigned_'
   (λx. abs_var ?a id ?a' ∧ abs_var ?b id ?b') ∘ lift_global_heap ∘ globals)
  (L2_gets (λ_. min' ?a ?b) [''ret'']) (Call min_'proc)
 ```);
+>
++subsection{\code(`max`);を証明してみる} <
++p{
+    
+}
+>
 >
 >
 >
