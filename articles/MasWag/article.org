@@ -432,12 +432,6 @@ expect {
 exit 0
 #+END_SRC
 
-** TODO =launch.sh=
-
-#+BEGIN_SRC sh
-
-#+END_SRC
-
 * 実験後
 
 最後に実験後の流れについて説明をします。
