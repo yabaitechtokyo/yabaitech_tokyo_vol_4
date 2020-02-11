@@ -60,6 +60,7 @@
 
 以上!!
 
+# この問題があるのでPDFの画像をorg-modeで書けない https://github.com/jgm/pandoc/issues/5454
 #+BEGIN_EXPORT satysfi
 +figure ?:(`flowchart`) {実験全体のワークフロー} <
   +image-frame {
