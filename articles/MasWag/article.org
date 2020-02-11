@@ -60,9 +60,15 @@
 
 以上!!
 
-ここから各登場ツールについて説明をしていきます。なお、最終的なワークフローは 図 hoge の様になります。
+#+BEGIN_EXPORT satysfi
++figure ?:(`flowchart`) {実験全体のワークフロー} <
+  +image-frame {
+    \insert-pdf-image(14.5cm)(`./MasWag/figs/flowchart.pdf`)(1);
+  }
+>
+#+END_EXPORT
 
-[[file:./MasWag/figs/flowchart.pdf]]
+ここから各登場ツールについて説明をしていきます。なお、最終的なワークフローは \ref-figure(`flowchart`); の様になります。
 
 ** vmctl
 :PROPERTIES:
