@@ -9,6 +9,13 @@ module MasWag : sig
 
 end = struct
 
+let-block ctx +centering it =
+  line-break true true ctx (inline-fil ++ read-inline ctx it ++ inline-fil)
+
+let-block ctx +image-frame content =
+  let pads = (10pt, 10pt, 10pt, 10pt) in
+    block-frame-breakable ctx pads VDecoSet.empty (fun ctx -> read-block ctx '<+centering{#content;}>)
+
 let-inline ctx \insert-pdf-image width path page =
   let img = load-pdf-image path page in
     use-image-by-width img width
@@ -109,11 +116,16 @@ let article = '<
     +p {
       以上!!
     }
+
     +p {
-      ここから各登場ツールについて説明をしていきます。なお、最終的なワークフローは 図 hoge の様になります。
+      \figure ?:(`flowchart`) {実験全体のワークフロー} <
+        +image-frame {
+          \insert-pdf-image(7.0cm)(`./articles/MasWag/figs/flowchart-crop.pdf`)(1);
+        }
+      >
     }
     +p {
-      \href(`./MasWag/figs/flowchart.pdf`){file:./MasWag/figs/flowchart.pdf}
+      ここから各登場ツールについて説明をしていきます。なお、最終的なワークフローは \ref-figure(`flowchart`); の様になります。
     }
     +subsection ?:(`my-headline-2`) {vmctl} <
     +p {
