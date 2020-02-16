@@ -1,4 +1,4 @@
-all: article.satyh figs/flowchart-crop.pdf 
+all: figs/flowchart-crop.pdf 
 
 %-crop.pdf: %.pdf
 	pdfcrop $<
