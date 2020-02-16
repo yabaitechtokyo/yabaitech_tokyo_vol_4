@@ -1,6 +1,5 @@
 @require: pervasives
 
-@import: ../lib/cross-ref
 @import: ../lib/chapter-ref
 @import: ../lib/label
 @import: ../lib/table-of-contents
