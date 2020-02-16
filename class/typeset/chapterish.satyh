@@ -1,6 +1,7 @@
 @require: pervasives
 
 @import: ../lib/cross-ref
+@import: ../lib/chapter-ref
 @import: ../lib/label
 @import: ../lib/table-of-contents
 @import: ../lib/bibliography
@@ -17,164 +18,151 @@ module Chapterish : sig
     val subsection-scheme : context -> string option -> inline-text -> block-text -> block-boxes
     val subsubsection-scheme : context -> string option -> inline-text -> block-text -> block-boxes
 
-    % FIXME: should be in lib
-    val get-chapter-page : string -> string option
-
     val render-inline-ref-chapter : string -> context -> inline-boxes
     val render-inline-ref-section : string -> context -> inline-boxes
     val render-inline-ref-subsection : string -> context -> inline-boxes
 
 end = struct
 
-  open DocumentConfig
-  open Mutables
-  open FontConfig
+    open DocumentConfig
+    open Mutables
+    open FontConfig
 
-  let chapter-heading ctx ib-num-opt ib-title =
-    let bb =
-      match ib-num-opt with
-      | None         -> block-nil
-      | Some(ib-num) -> line-break false false ctx (ib-num ++ inline-fil)
-    in
-      bb +++ line-break false false ctx (ib-title ++ inline-fil) +++ block-skip 36pt
-
-
-  let section-heading ctx ib-heading =
-    line-break true false (ctx |> set-paragraph-margin section-top-margin section-bottom-margin) ib-heading
+    let chapter-heading ctx ib-num-opt ib-title =
+        let bb =
+            match ib-num-opt with
+            | None         -> block-nil
+            | Some(ib-num) -> line-break false false ctx (ib-num ++ inline-fil)
+            in
+            bb +++ line-break false false ctx (ib-title ++ inline-fil) +++ block-skip 36pt
 
 
-  let make-bb-bib-section ctx-bib ctx-doc bibliography =
-    match bibliography with
-    | [] -> Block.nil
-    | bibliography -> 
-        let ib-bib-title =
-          ctx-doc
-          |> make-chapter-title
-          |> Inline.read {参考文献}
+    let section-heading ctx ib-heading =
+        line-break true false (ctx |> set-paragraph-margin section-top-margin section-bottom-margin) ib-heading
+
+
+    let make-bb-bib-section ctx-bib ctx-doc bibliography =
+        match bibliography with
+        | [] -> Block.nil
+        | bibliography -> 
+            let ib-bib-title =
+                ctx-doc
+                |> make-chapter-title
+                |> Inline.read {参考文献}
+            in
+            let bb-bib-title =
+                (ib-bib-title ++ inline-fil)
+                |> section-heading ctx-doc
+            in
+            let bb-bib-main = BibliographySection.render-block ctx-bib bibliography
+            in
+            bb-bib-title +++ bb-bib-main
+
+    let chapter-heading-with-author ctx ib-num-opt ib-title ib-subtitle ib-author =
+        let bb-num-opt =
+            match ib-num-opt with
+            | None         -> block-nil
+            | Some(ib-num) -> line-break false false ctx (ib-num ++ inline-fil)
         in
-        let bb-bib-title =
-          (ib-bib-title ++ inline-fil)
-          |> section-heading ctx-doc
+        let bb-title = line-break false false ctx (ib-title ++ inline-fil) in
+        let bb-subtitle = line-break false false ctx (inline-fil ++ ib-subtitle ) in
+        let bb-author = line-break false false ctx (inline-fil ++ ib-author) in
+        bb-num-opt +++ bb-title +++ bb-subtitle +++ bb-author +++ block-skip 18pt
+
+    let chapter-scheme ctx labelopt bibliography title subtitle author inner =
+        let txtwid = text-width in
+        let () = ChapterRef.reset-section-num () in
+        let () = ChapterRef.reset-subsection-num () in
+        let label = Label.or-fresh labelopt in
+        let s-num = ChapterRef.register-new-chapter label in
+        let () = toc-acc-ref <- (TOCElementChapter(label, title, subtitle, author)) :: !toc-acc-ref in
+        let ctx-title = make-chapter-title ctx in
+        let ctx-subtitle = make-chapter-subtitle ctx in
+        let ctx-author = make-chapter-author ctx in
+        let ctx-doc =
+            get-standard-context txtwid
+            |> set-font-size 12pt
+            |> set-leading 18pt
+            |> set-hyphen-penalty 1000
         in
-        let bb-bib-main = BibliographySection.render-block ctx-bib bibliography
+        let ib-num =
+            read-inline ctx-title ({})
+            ++ hook-page-break (fun pbinfo _ ->
+                    ChapterRef.register-chapter-page label (arabic pbinfo#page-number))
         in
-        bb-bib-title +++ bb-bib-main
+        let ib-title = (read-inline ctx-title title) in
+        let ib-subtitle = match subtitle with
+                | None    -> inline-nil
+                | Some(st) -> (read-inline ctx-subtitle {―}) ++ (read-inline ctx-subtitle st) ++ (read-inline ctx-subtitle {―}) in
+        let ib-author = read-inline ctx-author author in
+        let bb-title = chapter-heading-with-author ctx (Some(ib-num)) ib-title ib-subtitle ib-author in
+        let bb-inner = read-block ctx inner in
 
-  let chapter-heading-with-author ctx ib-num-opt ib-title ib-subtitle ib-author =
-    let bb-num-opt =
-      match ib-num-opt with
-      | None         -> block-nil
-      | Some(ib-num) -> line-break false false ctx (ib-num ++ inline-fil)
-    in
-    let bb-title = line-break false false ctx (ib-title ++ inline-fil) in
-    let bb-subtitle = line-break false false ctx (inline-fil ++ ib-subtitle ) in
-    let bb-author = line-break false false ctx (inline-fil ++ ib-author) in
-      bb-num-opt +++ bb-title +++ bb-subtitle +++ bb-author +++ block-skip 18pt
+        let () = Bibliography.register bibliography
+        in
+        let bb-bib-section = make-bb-bib-section ctx ctx-doc bibliography
+        in
+        bb-title +++ bb-inner +++ bb-bib-section +++ clear-page
 
-  let chapter-scheme ctx labelopt bibliography title subtitle author inner =
-    let txtwid = text-width in
-    let () = increment num-chapter in
-    let () = num-section <- 0 in
-    let () = num-subsection <- 0 in
-    let () = num-figure <- 0 in
-    let () = num-theorems <- 0 in
-    let s-num = arabic (!num-chapter) in
-    let label = Label.or-fresh labelopt in
-    let () = register-cross-reference (`chapter:` ^ label ^ `:num`) s-num in
-    let () = toc-acc-ref <- (TOCElementChapter(label, title, subtitle, author)) :: !toc-acc-ref in
-    let ctx-title = make-chapter-title ctx in
-    let ctx-subtitle = make-chapter-subtitle ctx in
-    let ctx-author = make-chapter-author ctx in
-    let ctx-doc =
-      get-standard-context txtwid
-        |> set-font-size 12pt
-        |> set-leading 18pt
-        |> set-hyphen-penalty 1000
-    in
-    let ib-num =
-      read-inline ctx-title ({})
-        ++ hook-page-break (fun pbinfo _ ->
-             register-cross-reference (`chapter:` ^ label ^ `:page`) (arabic pbinfo#page-number))
-    in
-    let ib-title = (read-inline ctx-title title) in
-    let ib-subtitle = match subtitle with
-          | None    -> inline-nil
-          | Some(st) -> (read-inline ctx-subtitle {―}) ++ (read-inline ctx-subtitle st) ++ (read-inline ctx-subtitle {―}) in
-    let ib-author = read-inline ctx-author author in
-    let bb-title = chapter-heading-with-author ctx (Some(ib-num)) ib-title ib-subtitle ib-author in
-    let bb-inner = read-block ctx inner in
+    let section-scheme ctx label-opt title inner =
+        let ctx-title = make-section-title ctx in
+        let () = ChapterRef.reset-subsection-num () in
+        let label = Label.or-fresh label-opt in
+        let section-num = ChapterRef.register-new-section label in
+        let ib-num = read-inline ctx-title (embed-string (section-num ^ `.`)) in
+        let ib-title = read-inline ctx-title title in
+        let bb-title = section-heading ctx (ib-num ++ (inline-skip 10pt) ++ ib-title ++ (inline-fil)) in
+        let bb-inner = read-block ctx inner in
+        bb-title +++ bb-inner
 
-    let () = Bibliography.register bibliography
-    in
-    let bb-bib-section = make-bb-bib-section ctx ctx-doc bibliography
-    in
-    bb-title +++ bb-inner +++ bb-bib-section +++ clear-page
+    let subsection-scheme ctx label-opt title inner =
+        let label = Label.or-fresh label-opt in
+        let subsection-num = ChapterRef.register-new-subsection label in
+        let ctx-title = make-subsection-title ctx in
+        let ib-num = read-inline ctx-title (embed-string (subsection-num ^ `.`))
+        in
+        let ib-title = read-inline ctx-title title in
+        let bb-title =
+            line-break true false (ctx |> set-paragraph-margin section-top-margin section-bottom-margin)
+            (ib-num ++ (inline-skip 10pt) ++ ib-title ++ (inline-fil))
+        in
+        let bb-inner = read-block ctx inner in
+        bb-title +++ bb-inner
 
-  let section-scheme ctx label-opt title inner =
-    let ctx-title = make-section-title ctx in
-    let () = increment num-section in
-    let () = num-subsection <- 0 in
-    let s-num = arabic (!num-section) in
-    let label = Label.or-fresh label-opt in
-    let () = register-cross-reference (`section:` ^ label ^ `:num`) s-num in
-%    let () = toc-acc-ref <- (TOCElementSection(label, title)) :: !toc-acc-ref in
-    let ib-num =
-      read-inline ctx-title (embed-string (s-num ^ `.`))
-        ++ hook-page-break (fun pbinfo _ ->
-             register-cross-reference (`section:` ^ label ^ `:page`) (arabic pbinfo#page-number))
-    in
-    let ib-title = read-inline ctx-title title in
-    let bb-title = section-heading ctx (ib-num ++ (inline-skip 10pt) ++ ib-title ++ (inline-fil)) in
-    let bb-inner = read-block ctx inner in
-      bb-title +++ bb-inner
+    let subsubsection-scheme ctx label-opt title inner =
+        let ib-title =
+            let ctx-title = make-subsubsection-title ctx
+            in
+            read-inline ctx-title title
+        in
+        let bb-title = line-break true false ctx (ib-title ++ inline-fil)
+        in
+        let bb-main = read-block ctx inner in
+        bb-title +++ bb-main
 
-  let subsection-scheme ctx label-opt title inner =
-    let () = num-subsection <- !num-subsection + 1 in
-    let s-num = arabic (!num-section) ^ `.` ^ arabic (!num-subsection) in
-    let label = Label.or-fresh label-opt in
-    let () = register-cross-reference (`subsection:` ^ label ^ `:num`) s-num in
-%    let () = toc-acc-ref <- (TOCElementSubsection(label, title)) :: !toc-acc-ref in
-    let ctx-title = make-subsection-title ctx in
-    let ib-num =
-      read-inline ctx-title (embed-string (s-num ^ `.`))
-        ++ hook-page-break (fun pbinfo _ ->
-             register-cross-reference (`subsection:` ^ label ^ `:page`) (arabic pbinfo#page-number))
-    in
-    let ib-title = read-inline ctx-title title in
-    let bb-title =
-      line-break true false (ctx |> set-paragraph-margin section-top-margin section-bottom-margin)
-        (ib-num ++ (inline-skip 10pt) ++ ib-title ++ (inline-fil))
-    in
-    let bb-inner = read-block ctx inner in
-      bb-title +++ bb-inner
 
-  let subsubsection-scheme ctx label-opt title inner =
-    let ib-title =
-      let ctx-title = make-subsubsection-title ctx
-      in
-      read-inline ctx-title title
-    in
-    let bb-title = line-break true false ctx (ib-title ++ inline-fil)
-    in
-    let bb-main = read-block ctx inner in
-    bb-title +++ bb-main
+    let render-inline-ref-chapter label ctx =
+        let value = label
+                    |> ChapterRef.get-chapter-num
+                    |> Option.unwrap-or `?`
+                    |> embed-string
+        in
+        ctx |> Inline.read {第#value;章}
 
-    let get-chapter-page label =
-        get-cross-reference (label |> Label.decorate `chapter` `page`)
+    let render-inline-ref-section label ctx =
+        let value = label
+                    |> ChapterRef.get-section-num
+                    |> Option.unwrap-or `?`
+                    |> embed-string
+        in
+        ctx |> Inline.read {#value;節}
 
-    let render-inline-ref-chapter =
-        CrossRef.gen-render-inline-ref
-            (Label.decorate `chapter` `num`)
-            (fun label -> {第#label;章})
-
-    let render-inline-ref-section =
-        CrossRef.gen-render-inline-ref
-            (Label.decorate `section` `num`)
-            (fun label -> {#label;節})
-
-    let render-inline-ref-subsection =
-        CrossRef.gen-render-inline-ref
-            (Label.decorate `subsection` `num`)
-            (fun label -> {#label;節})
+    let render-inline-ref-subsection label ctx =
+        let value = label
+                    |> ChapterRef.get-subsection-num
+                    |> Option.unwrap-or `?`
+                    |> embed-string
+        in
+        ctx |> Inline.read {#value;節}
 
 end

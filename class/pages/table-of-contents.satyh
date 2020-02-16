@@ -4,8 +4,8 @@
 @require: base/option-ext
 @require: base/ref
 
+@import: ../lib/chapter-ref
 @import: ../lib/table-of-contents
-@import: ../typeset/chapterish
 @import: ../font-config
 
 module TableOfContents : sig
@@ -54,7 +54,7 @@ end = struct
                    ++ inline-skip 3pt
                  in
                  let it-page =
-                   Chapterish.get-chapter-page label
+                   ChapterRef.get-chapter-page label
                    |> Option.map (fun page-num ->
                            (arabic (Int.of-string page-num - 2)))
                    |> Option.unwrap-or `?`
