@@ -1,4 +1,7 @@
 @require: pervasives
+@require: base/inline
+@require: base/block
+@require: base/fn
 
 @import: ../lib/chapter-ref
 @import: ../lib/label
@@ -57,51 +60,68 @@ end = struct
             in
             bb-bib-title +++ bb-bib-main
 
-    let chapter-heading-with-author ctx ib-num-opt ib-title ib-subtitle ib-author =
-        let bb-num-opt =
-            match ib-num-opt with
-            | None         -> block-nil
-            | Some(ib-num) -> line-break false false ctx (ib-num ++ inline-fil)
+    let render-inline-chapter-title title ctx =
+        ctx |> make-chapter-title
+            |> Inline.read title
+
+    let render-inline-chapter-subtitle subtitle ctx =
+        let ctx-subtitle = ctx |> make-chapter-subtitle
         in
-        let bb-title = line-break false false ctx (ib-title ++ inline-fil) in
-        let bb-subtitle = line-break false false ctx (inline-fil ++ ib-subtitle ) in
-        let bb-author = line-break false false ctx (inline-fil ++ ib-author) in
-        bb-num-opt +++ bb-title +++ bb-subtitle +++ bb-author +++ block-skip 18pt
+        Inline.concat [
+            ctx-subtitle |> Inline.read {―};
+            ctx-subtitle |> Inline.read subtitle;
+            ctx-subtitle |> Inline.read {―}
+        ]
+    
+    let render-inline-chapter-author author ctx =
+        ctx |> make-chapter-author
+            |> Inline.read author
+
+    let render-block-chapter-heading label title subtitle-opt author ctx =
+        let ib-title = (ctx |> render-inline-chapter-title title) ++ inline-fil
+        in
+        let ib-subtitle = subtitle-opt
+            |> Option.map (fun subtitle -> inline-fil ++ (ctx |> render-inline-chapter-subtitle subtitle))
+            |> Option.unwrap-or inline-fil
+        in
+        let ib-author = inline-fil ++ (ctx |> render-inline-chapter-author author)
+        in
+        Block.concat [
+            line-break false false ctx ib-title;
+            line-break false false ctx ib-subtitle;
+            line-break false false ctx ib-author;
+            Block.skip 18pt
+        ]
 
     let chapter-scheme ctx labelopt bibliography title subtitle author inner =
-        let txtwid = text-width in
+        % Setup
+        let label = Label.or-fresh labelopt in
         let () = ChapterRef.reset-section-num () in
         let () = ChapterRef.reset-subsection-num () in
-        let label = Label.or-fresh labelopt in
-        let s-num = ChapterRef.register-new-chapter label in
+        let () = ChapterRef.register-new-chapter label |> Fn.ignore in
         let () = toc-acc-ref <- (TOCElementChapter(label, title, subtitle, author)) :: !toc-acc-ref in
-        let ctx-title = make-chapter-title ctx in
-        let ctx-subtitle = make-chapter-subtitle ctx in
-        let ctx-author = make-chapter-author ctx in
+        let () = Bibliography.register bibliography in
+        % Render
         let ctx-doc =
-            get-standard-context txtwid
+            get-standard-context text-width
             |> set-font-size 12pt
             |> set-leading 18pt
             |> set-hyphen-penalty 1000
         in
-        let ib-num =
-            read-inline ctx-title ({})
-            ++ hook-page-break (fun pbinfo _ ->
-                    ChapterRef.register-chapter-page label (arabic pbinfo#page-number))
+        let ib-pagehook = hook-page-break (fun pbinfo _ -> 
+            ChapterRef.register-chapter-page label (arabic pbinfo#page-number))
         in
-        let ib-title = (read-inline ctx-title title) in
-        let ib-subtitle = match subtitle with
-                | None    -> inline-nil
-                | Some(st) -> (read-inline ctx-subtitle {―}) ++ (read-inline ctx-subtitle st) ++ (read-inline ctx-subtitle {―}) in
-        let ib-author = read-inline ctx-author author in
-        let bb-title = chapter-heading-with-author ctx (Some(ib-num)) ib-title ib-subtitle ib-author in
-        let bb-inner = read-block ctx inner in
-
-        let () = Bibliography.register bibliography
-        in
+        let bb-title = ctx |> render-block-chapter-heading label title subtitle author in
+        let bb-content = read-block ctx inner in
         let bb-bib-section = make-bb-bib-section ctx ctx-doc bibliography
         in
-        bb-title +++ bb-inner +++ bb-bib-section +++ clear-page
+        Block.concat [
+            line-break false false ctx (ib-pagehook ++ inline-fil);
+            bb-title;
+            bb-content;
+            bb-bib-section;
+            clear-page
+        ]
 
     let section-scheme ctx label-opt title inner =
         let ctx-title = make-section-title ctx in
