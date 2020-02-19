@@ -7,6 +7,7 @@ module MiscCommands : sig
     val make-bb-proof : inline-text option -> inline-text -> context -> block-boxes
     val make-ib-emph : inline-text -> context -> inline-boxes
     val make-ib-dfn : inline-text -> context -> inline-boxes
+    val make-ib-br : context -> inline-boxes
 
 end = struct
 
@@ -52,4 +53,6 @@ end = struct
 
     let make-ib-dfn = make-ib-emph
 
+    let make-ib-br ctx =
+        discretionary 0 (inline-skip (get-text-width ctx *' 2.)) inline-fil inline-nil
 end

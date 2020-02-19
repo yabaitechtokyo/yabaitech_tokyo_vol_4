@@ -17,9 +17,8 @@ module FontConfig : sig
     val font-size-normal  : length
     val font-size-title   : length
     val font-size-author  : length
-    val font-size-chapter : length
+
     val font-size-chapter-subtitle : length
-    val font-size-chapter-author : length
     val font-size-section : length
     val font-size-subsection : length
     val font-size-subsubsection : length
@@ -44,9 +43,7 @@ end = struct
     let font-size-normal  = 11pt
     let font-size-title   = 32pt
     let font-size-author  = 16pt
-    let font-size-chapter = 24pt
-    let font-size-chapter-subtitle = 16pt
-    let font-size-chapter-author = 18pt
+
     let font-size-section = 18pt
     let font-size-subsection = 16pt
     let font-size-subsubsection = 14pt
@@ -91,20 +88,37 @@ end = struct
             |> set-hyphen-penalty 1000
             |> set-space-ratio 0.275 0.08 0.12
     
+
+    let font-latin-chapter-title = (`fonts-dejavu:DejaVuSans`, 1.0, 0.)
+    let font-cjk-chapter-title  = (`fonts-noto-sans-cjk-jp:NotoSansCJKjp-Regular`, 0.95, 0.)
+    let font-size-chapter-title = 20pt
+    let leading-chapter-title = 28pt
+
     let make-chapter-title ctx =
-      ctx |> set-font-size font-size-chapter
-          |> set-font Latin font-latin-bold
-          |> set-cjk-font font-cjk-gothic
-    
+      ctx |> set-font-size font-size-chapter-title
+          |> set-font Latin font-latin-chapter-title
+          |> set-cjk-font font-cjk-chapter-title
+          |> set-leading leading-chapter-title
+
+    %% chapter-subtitle
+    let font-latin-chapter-subtitle = (`fonts-dejavu:DejaVuSans`, 1.0, 0.)
+    let font-cjk-chapter-subtitle  = (`fonts-noto-sans-cjk-jp:NotoSansCJKjp-DemiLight`, 0.95, 0.)
+    let font-size-chapter-subtitle = 18pt
+
     let make-chapter-subtitle ctx =
       ctx |> set-font-size font-size-chapter-subtitle
-          |> set-font Latin font-latin-bold
-          |> set-cjk-font font-cjk-gothic
+          |> set-font Latin font-latin-chapter-subtitle
+          |> set-cjk-font font-cjk-chapter-subtitle
+
+    %% chapter-author    
+    let font-size-chapter-author = 18pt
+    let font-latin-chapter-author = (`fonts-dejavu:DejaVuSans-ExtraLight`, 1.0, 0.)
+    let font-cjk-chapter-author  = (`fonts-noto-sans-cjk-jp:NotoSansCJKjp-Light`, 0.95, 0.)
     
     let make-chapter-author ctx =
       ctx |> set-font-size font-size-chapter-author
-          |> set-font Latin font-latin-bold
-          |> set-cjk-font font-cjk-gothic
+          |> set-font Latin font-latin-chapter-author
+          |> set-cjk-font font-cjk-chapter-author
     
     let make-section-title ctx =
       ctx |> set-font-size font-size-section

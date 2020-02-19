@@ -60,36 +60,49 @@ end = struct
             in
             bb-bib-title +++ bb-bib-main
 
-    let render-inline-chapter-title title ctx =
-        ctx |> make-chapter-title
-            |> Inline.read title
+    let render-block-chapter-title title ctx =
+        ctx |> FontConfig.make-chapter-title
+            |> Block.of-inline ?:true false false (Inline.read title)
 
-    let render-inline-chapter-subtitle subtitle ctx =
-        let ctx-subtitle = ctx |> make-chapter-subtitle
+    let render-block-chapter-subtitle subtitle ctx =
+        let render-inline ctx =
+            let ctx-subtitle = ctx |> make-chapter-subtitle
+            in
+            Inline.concat [
+                ctx-subtitle |> Inline.read {―};
+                ctx-subtitle |> Inline.read subtitle;
+                ctx-subtitle |> Inline.read {―};
+                Inline.fil;
+            ]
         in
-        Inline.concat [
-            ctx-subtitle |> Inline.read {―};
-            ctx-subtitle |> Inline.read subtitle;
-            ctx-subtitle |> Inline.read {―}
-        ]
+        ctx |> FontConfig.make-chapter-subtitle
+            |> Block.of-inline false false render-inline
     
-    let render-inline-chapter-author author ctx =
+    let render-block-chapter-author author ctx =
+        let render-inline ctx =
+            Inline.concat [
+                Inline.fil;
+                ctx |> FontConfig.make-chapter-author
+                    |> Inline.read author
+            ]
+        in
         ctx |> make-chapter-author
-            |> Inline.read author
+            |> Block.of-inline false false render-inline
 
     let render-block-chapter-heading label title subtitle-opt author ctx =
-        let ib-title = (ctx |> render-inline-chapter-title title) ++ inline-fil
+        let bb-title = ctx |> render-block-chapter-title title
         in
-        let ib-subtitle = subtitle-opt
-            |> Option.map (fun subtitle -> inline-fil ++ (ctx |> render-inline-chapter-subtitle subtitle))
-            |> Option.unwrap-or inline-fil
+        let bb-subtitle = subtitle-opt
+            |> Option.map (fun subtitle -> render-block-chapter-subtitle subtitle ctx)
+            |> Option.unwrap-or Block.nil
         in
-        let ib-author = inline-fil ++ (ctx |> render-inline-chapter-author author)
+        let bb-author = ctx |> render-block-chapter-author author
         in
         Block.concat [
-            line-break false false ctx ib-title;
-            line-break false false ctx ib-subtitle;
-            line-break false false ctx ib-author;
+            Block.skip 18pt;
+            bb-title;
+            bb-subtitle;
+            bb-author;
             Block.skip 18pt
         ]
 
@@ -116,7 +129,7 @@ end = struct
         let bb-bib-section = make-bb-bib-section ctx ctx-doc bibliography
         in
         Block.concat [
-            line-break false false ctx (ib-pagehook ++ inline-fil);
+            line-break false false ctx ib-pagehook;
             bb-title;
             bb-content;
             bb-bib-section;

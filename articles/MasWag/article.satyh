@@ -24,9 +24,10 @@ let bibliography = []
 
 let article = '<
     +chapter ?:(`maswag-article`)
+    ?:({実験編})
     (|
         bibliography = bibliography;
-        title = {複数マシンでの実験を Ansible とかでシュっとした話 — 実験編};
+        title = {複数マシンでの実験を \br;Ansible とかでシュっとした話};
         author = {MasWag};
     |)
     <

@@ -68,6 +68,7 @@ module Book : sig
   direct +proof : [inline-text?; inline-text] block-cmd
   direct \emph : [inline-text] inline-cmd
   direct \dfn : [inline-text] inline-cmd
+  direct \br : [] inline-cmd
 
   % from Fiure
   direct \figure : [string?; inline-text; block-text] inline-cmd
@@ -153,6 +154,7 @@ end = struct
 
   let-inline ctx \emph inner = ctx |> MiscCommands.make-ib-emph inner
   let-inline ctx \dfn inner = ctx |> MiscCommands.make-ib-dfn inner
+  let-inline ctx \br = ctx |> MiscCommands.make-ib-br
 
   let-inline ctx \footnote it = ctx |> Footnote.render-block it
 

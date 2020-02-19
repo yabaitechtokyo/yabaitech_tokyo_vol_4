@@ -15,12 +15,7 @@ module TableOfContents : sig
 end = struct
 
   open FontConfig
-
-  let make-chapter-title ctx =
-    ctx |> set-font-size font-size-chapter
-        |> set-font Latin font-latin-bold
-        |> set-cjk-font font-cjk-gothic
-
+  
   let-rec repeat-inline n ib =
     if n <= 0 then inline-nil else
       ib ++ (repeat-inline (n - 1) ib)
