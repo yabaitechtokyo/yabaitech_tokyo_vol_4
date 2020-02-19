@@ -21,6 +21,8 @@ jobs:
           opam update
           opam install satysfi-fonts-dejavu
           opam install satysfi-fonts-asana-math
+          opam install satysfi-fonts-noto-sans-cjk-jp
+          opam install satysfi-fonts-noto-serif-cjk-jp
           opam install satysfi-base
           satyrographos install
       - name: Build with SATySFi
