@@ -4,6 +4,7 @@
 @import: typeset/figure
 @import: typeset/footnote
 @import: typeset/misc-commands
+@import: typeset/paragraph
 @import: typeset/review-comment
 @import: typeset/theoremish
 @import: document
@@ -144,10 +145,10 @@ end = struct
   let-inline ctx \ref-notation key = ctx |> Theoremish.render-inline-ref-notation key
 
 
-  let-block ctx +p inner = ctx |> MiscCommands.make-bb-paragraph inner
+  let-block ctx +p inner = ctx |> Paragraph.render-block-paragraph inner
 
   let-block ctx +topic topic inner =
-    ctx |> MiscCommands.make-bb-topic topic inner
+    ctx |> Paragraph.render-block-topic topic inner
 
   let-block ctx +proof ?:wordopt inner =
     ctx |> MiscCommands.make-bb-proof wordopt inner

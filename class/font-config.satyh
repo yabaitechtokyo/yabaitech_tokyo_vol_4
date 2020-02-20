@@ -14,15 +14,6 @@ module FontConfig : sig
     val font-ratio-latin : float
     val font-ratio-cjk : float
 
-    val font-size-normal  : length
-    val font-size-title   : length
-    val font-size-author  : length
-
-    val font-size-chapter-subtitle : length
-    val font-size-section : length
-    val font-size-subsection : length
-    val font-size-subsubsection : length
-
     val set-latin-font : (string * float * float) -> context -> context
     val set-cjk-font   : (string * float * float) -> context -> context
 
@@ -38,9 +29,11 @@ module FontConfig : sig
     val make-subsection-title : context -> context
     val make-subsubsection-title : context -> context
 
+    val make-paragraph : context -> context
+    val make-topic-name : context -> context
+
 end = struct
 
-    let font-size-normal  = 11pt
     let font-size-title   = 32pt
     let font-size-author  = 16pt
 
@@ -61,17 +54,17 @@ end = struct
     let font-otherscript-roman = (`Junicode` , font-ratio-latin, 0.)
 
     let set-latin-font font ctx =
-      ctx |> set-font Latin font
+        ctx |> set-font Latin font
     
     let set-cjk-font font ctx =
-      ctx |> set-font HanIdeographic font
-          |> set-font Kana           font
+        ctx |> set-font HanIdeographic font
+            |> set-font Kana           font
     
     let get-latin-font-size ctx =
-      get-font-size ctx *' font-ratio-latin
+        get-font-size ctx *' font-ratio-latin
     
     let get-cjk-font-size ctx =
-      get-font-size ctx *' font-ratio-cjk
+        get-font-size ctx *' font-ratio-cjk
 
     let get-standard-context wid =
         get-initial-context wid (command \math)
@@ -95,10 +88,10 @@ end = struct
     let leading-chapter-title = 28pt
 
     let make-chapter-title ctx =
-      ctx |> set-font-size font-size-chapter-title
-          |> set-font Latin font-latin-chapter-title
-          |> set-cjk-font font-cjk-chapter-title
-          |> set-leading leading-chapter-title
+        ctx |> set-font-size font-size-chapter-title
+            |> set-font Latin font-latin-chapter-title
+            |> set-cjk-font font-cjk-chapter-title
+            |> set-leading leading-chapter-title
 
     %% chapter-subtitle
     let font-latin-chapter-subtitle = (`fonts-dejavu:DejaVuSans`, 1.0, 0.)
@@ -106,9 +99,9 @@ end = struct
     let font-size-chapter-subtitle = 18pt
 
     let make-chapter-subtitle ctx =
-      ctx |> set-font-size font-size-chapter-subtitle
-          |> set-font Latin font-latin-chapter-subtitle
-          |> set-cjk-font font-cjk-chapter-subtitle
+        ctx |> set-font-size font-size-chapter-subtitle
+            |> set-font Latin font-latin-chapter-subtitle
+            |> set-cjk-font font-cjk-chapter-subtitle
 
     %% chapter-author    
     let font-size-chapter-author = 18pt
@@ -116,23 +109,47 @@ end = struct
     let font-cjk-chapter-author  = (`fonts-noto-sans-cjk-jp:NotoSansCJKjp-Light`, 0.95, 0.)
     
     let make-chapter-author ctx =
-      ctx |> set-font-size font-size-chapter-author
-          |> set-font Latin font-latin-chapter-author
-          |> set-cjk-font font-cjk-chapter-author
+        ctx |> set-font-size font-size-chapter-author
+            |> set-font Latin font-latin-chapter-author
+            |> set-cjk-font font-cjk-chapter-author
     
     let make-section-title ctx =
-      ctx |> set-font-size font-size-section
-          |> set-font Latin font-latin-bold
-          |> set-cjk-font font-cjk-gothic
+        ctx |> set-font-size font-size-section
+            |> set-font Latin font-latin-bold
+            |> set-cjk-font font-cjk-gothic
 
     let make-subsection-title ctx =
-      ctx |> set-font-size font-size-subsection
-          |> set-font Latin font-latin-bold
-          |> set-cjk-font font-cjk-gothic
+        ctx |> set-font-size font-size-subsection
+            |> set-font Latin font-latin-bold
+            |> set-cjk-font font-cjk-gothic
 
     let make-subsubsection-title ctx =
-      ctx |> set-font-size font-size-subsubsection
-          |> set-font Latin font-latin-bold
-          |> set-cjk-font font-cjk-gothic
+        ctx |> set-font-size font-size-subsubsection
+            |> set-font Latin font-latin-bold
+            |> set-cjk-font font-cjk-gothic
+    
+    %% paragraph
+    let font-size-paragraph  = 10.5pt
+    let font-latin-paragraph = (`fonts-computer-modern-unicode:CMUSerif-Roman`, 1.0, 0.)
+    let font-cjk-paragraph  = (`fonts-noto-serif-cjk-jp:NotoSerifCJKjp-Regular`, 0.95, 0.)
+    let leading-paragraph = 18pt
+
+    let make-paragraph ctx = 
+        ctx |> set-font-size font-size-paragraph
+            |> set-latin-font font-latin-paragraph
+            |> set-cjk-font font-cjk-paragraph
+            |> set-leading leading-paragraph
+
+    %% topic
+    let font-size-topic-name  = font-size-paragraph
+    let font-latin-topic-name = (`fonts-dejavu:DejaVuSans-Bold`, 1.0, 0.)
+    let font-cjk-topic-name  = (`fonts-noto-sans-cjk-jp:NotoSansCJKjp-Medium`, 0.95, 0.)
+    let leading-topic-name =  leading-paragraph
+
+    let make-topic-name ctx = 
+        ctx |> set-font-size font-size-topic-name
+            |> set-latin-font font-latin-topic-name
+            |> set-cjk-font font-cjk-topic-name
+            |> set-leading leading-topic-name
 
 end
