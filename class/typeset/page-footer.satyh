@@ -1,0 +1,22 @@
+@import: ../document-config
+@import: ../font-config
+@import: ../mutables
+
+module PageFooter : sig
+
+    val render-block : int -> block-boxes
+
+end = struct
+
+    let render-block pageno =
+        match !Mutables.show-page-number-ref with
+        | Some(pagenolast) ->
+            let ctx = FontConfig.get-standard-context DocumentConfig.footer-width in
+            let it-pageno = embed-string (arabic (pageno - pagenolast + 1)) in
+                line-break true true ctx
+                (inline-fil ++ (read-inline ctx {— #it-pageno; —}) ++ inline-fil)
+
+        | None ->
+            block-nil
+
+end

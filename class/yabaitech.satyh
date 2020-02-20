@@ -1,5 +1,5 @@
 % -*- coding: utf-8 -*-
-@import: typeset/chapterish
+@import: typeset/chapter
 @import: typeset/cite
 @import: typeset/figure
 @import: typeset/footnote
@@ -28,7 +28,7 @@ module Book : sig
   % from Bibliography
   direct \cite : [string list] inline-cmd
 
-  % from Chapterish
+  % from Chapter
   direct +chapter : [string?; inline-text?; 'a; block-text] block-cmd
     constraint 'a :: (|
       title : inline-text;
@@ -99,20 +99,20 @@ end = struct
 
 
   let-block ctx +chapter ?:labelopt ?:subtitle record inner =
-    Chapterish.chapter-scheme ctx labelopt record#bibliography record#title subtitle record#author inner
+    Chapter.chapter-scheme ctx labelopt record#bibliography record#title subtitle record#author inner
 
   let-block ctx +section ?:labelopt title inner =
-    Chapterish.section-scheme ctx labelopt title inner
+    Chapter.section-scheme ctx labelopt title inner
 
   let-block ctx +subsection ?:labelopt title inner =
-    Chapterish.subsection-scheme ctx labelopt title inner
+    Chapter.subsection-scheme ctx labelopt title inner
 
   let-block ctx +subsubsection title inner =
-    Chapterish.subsubsection-scheme ctx (Option.none) title inner
+    Chapter.subsubsection-scheme ctx (Option.none) title inner
 
-  let-inline ctx \ref-chapter key = ctx |> Chapterish.render-inline-ref-chapter key
-  let-inline ctx \ref-section key = ctx |> Chapterish.render-inline-ref-section key
-  let-inline ctx \ref-subsection key = ctx |> Chapterish.render-inline-ref-subsection key
+  let-inline ctx \ref-chapter key = ctx |> Chapter.render-inline-ref-chapter key
+  let-inline ctx \ref-section key = ctx |> Chapter.render-inline-ref-section key
+  let-inline ctx \ref-subsection key = ctx |> Chapter.render-inline-ref-subsection key
 
 
   let-block ctx +definition ?:wordopt ?:labelopt inner =

@@ -2,7 +2,6 @@
 
 module FontConfig : sig
 
-    val font-latin-roman  : string * float * float
     val font-latin-italic : string * float * float
     val font-latin-bold   : string * float * float
     val font-latin-sans   : string * float * float

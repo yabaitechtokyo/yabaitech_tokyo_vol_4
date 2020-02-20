@@ -12,7 +12,7 @@
 @import: ../font-config
 @import: ../mutables
 
-module Chapterish : sig
+module Chapter : sig
 
     val chapter-heading : context -> inline-boxes option -> inline-boxes -> block-boxes
     val chapter-scheme : context -> string option -> bib-defs -> inline-text -> inline-text option -> inline-text -> block-text -> block-boxes
@@ -43,7 +43,7 @@ end = struct
         line-break true false (ctx |> set-paragraph-margin section-top-margin section-bottom-margin) ib-heading
 
 
-    let make-bb-bib-section ctx-bib ctx-doc bibliography =
+    let render-block-bib-section ctx-bib ctx-doc bibliography =
         match bibliography with
         | [] -> Block.nil
         | bibliography -> 
@@ -126,7 +126,7 @@ end = struct
         in
         let bb-title = ctx |> render-block-chapter-heading label title subtitle author in
         let bb-content = read-block ctx inner in
-        let bb-bib-section = make-bb-bib-section ctx ctx-doc bibliography
+        let bb-bib-section = render-block-bib-section ctx ctx-doc bibliography
         in
         Block.concat [
             line-break false false ctx ib-pagehook;

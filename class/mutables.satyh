@@ -8,6 +8,8 @@ module Mutables : sig
 
     val toc-acc-ref : (toc-element list) ref
 
+    val show-page-number-ref : (int option) ref
+
 end = struct
 
     let-mutable num-figure <- 0
@@ -15,5 +17,7 @@ end = struct
     let-mutable ref-float-boxes <- []
 
     let-mutable toc-acc-ref <- []
+
+    let-mutable show-page-number-ref <- None
 
 end
