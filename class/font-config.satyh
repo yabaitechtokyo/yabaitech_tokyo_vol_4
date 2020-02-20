@@ -31,6 +31,7 @@ module FontConfig : sig
 
     val make-paragraph : context -> context
     val make-topic-name : context -> context
+    val make-proof-header : context -> context
 
 end = struct
 
@@ -144,12 +145,19 @@ end = struct
     let font-size-topic-name  = font-size-paragraph
     let font-latin-topic-name = (`fonts-dejavu:DejaVuSans-Bold`, 1.0, 0.)
     let font-cjk-topic-name  = (`fonts-noto-sans-cjk-jp:NotoSansCJKjp-Medium`, 0.95, 0.)
-    let leading-topic-name =  leading-paragraph
 
     let make-topic-name ctx = 
         ctx |> set-font-size font-size-topic-name
             |> set-latin-font font-latin-topic-name
             |> set-cjk-font font-cjk-topic-name
-            |> set-leading leading-topic-name
+    
+    %% proof
+    let font-size-topic-name  = font-size-paragraph
+    let font-latin-topic-name = (`fonts-dejavu:DejaVuSans`, 1.0, 0.)
+    let font-cjk-topic-name  = (`fonts-noto-sans-cjk-jp:NotoSansCJKjp-Regular`, 0.95, 0.)
+
+    let make-proof-header ctx =
+        ctx |> set-latin-font font-latin-topic-name
+            |> set-cjk-font font-cjk-topic-name
 
 end

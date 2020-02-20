@@ -151,7 +151,7 @@ end = struct
     ctx |> Paragraph.render-block-topic topic inner
 
   let-block ctx +proof ?:wordopt inner =
-    ctx |> MiscCommands.make-bb-proof wordopt inner
+    ctx |> Paragraph.render-block-proof wordopt inner
 
   let-inline ctx \emph inner = ctx |> MiscCommands.make-ib-emph inner
   let-inline ctx \dfn inner = ctx |> MiscCommands.make-ib-dfn inner
