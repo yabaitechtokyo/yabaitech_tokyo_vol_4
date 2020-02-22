@@ -24,6 +24,8 @@ jobs:
           opam install satysfi-fonts-asana-math
           opam install satysfi-fonts-computer-modern-unicode
           opam install satysfi-fonts-dejavu
+          opam install satysfi-fonts-noto-sans
+          opam install satysfi-fonts-noto-serif
           opam install satysfi-fonts-noto-sans-cjk-jp
           opam install satysfi-fonts-noto-serif-cjk-jp
           opam install satysfi-base
@@ -68,6 +70,8 @@ jobs:
           opam install satysfi-fonts-asana-math
           opam install satysfi-fonts-computer-modern-unicode
           opam install satysfi-fonts-dejavu
+          opam install satysfi-fonts-noto-sans
+          opam install satysfi-fonts-noto-serif
           opam install satysfi-fonts-noto-sans-cjk-jp
           opam install satysfi-fonts-noto-serif-cjk-jp
           opam install satysfi-base
