@@ -1,3 +1,5 @@
+@require: base/inline
+@require: base/block
 @import: ../document-config
 @import: ../font-config
 @import: ../mutables
@@ -11,11 +13,15 @@ end = struct
     let render-block pageno =
         match !Mutables.show-page-number-ref with
         | Some(pagenolast) ->
-            let ctx = FontConfig.get-standard-context DocumentConfig.footer-width in
-            let it-pageno = embed-string (arabic (pageno - pagenolast + 1)) in
-                line-break true true ctx
-                (inline-fil ++ (read-inline ctx {— #it-pageno; —}) ++ inline-fil)
-
+            let render-inline ctx =
+                let pageno = embed-string (arabic (pageno - pagenolast + 1)) in
+                Inline.concat [
+                    Inline.fil;
+                    ctx |> Inline.read pageno;
+                    Inline.fil;
+                ]
+            in
+            FontConfig.page-footer |> Block.of-inline ?:false true true render-inline 
         | None ->
             block-nil
 
