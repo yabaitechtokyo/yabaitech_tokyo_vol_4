@@ -9,13 +9,12 @@ module Mh : sig
 
 end = struct
 
-let bibliography = MhBib.bib
-
 let article = '<
     +chapter ?:(`mh-article`)
     (|
-        bibliography = bibliography;
-        title = {忙しくないプログラマのためのゲーム紹介};
+        bibliography = MhBib.bib;
+        title = {ゲーム紹介};
+        subtitle = Option.some{忙しくないプログラマのための};
         author = {mh};
     |)
     <

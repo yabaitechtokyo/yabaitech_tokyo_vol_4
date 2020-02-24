@@ -1,9 +1,6 @@
 @import: ../../class/yabaitech
-@import: bib
 
 module MhMain = struct
-
-let bibliography = MhBib.bib
 
 let article = '<
   +section{ほんだい}<
@@ -181,8 +178,8 @@ jahooma's logic box\cite[`jlb`];も同様に文字列処理を行うブラウザ
     +p{
 上記のURLは改訂版で、前作となる作品も存在します\cite[`jlb_old`];。
 どちらもブラウザゲームですが、旧版はFlash、新版はHTMLによる実装になっています。
-正直なところ旧版の方がグラフィックやUIは上なのですが、旧版が気に入ったなら
-問題数が充実しているほか作者へのお布施も可能なで新版にも手を出してみてください。
+正直なところ旧版の方がグラフィックやUIは上なのですが、旧版をプレイして気に入ったなら
+問題数がより充実している新版にも手を出して（そして作者へお布施をして）みてください。
     }
 
     +p{
