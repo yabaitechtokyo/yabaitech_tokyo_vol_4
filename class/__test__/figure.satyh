@@ -1,5 +1,6 @@
 @require: base/inline
 @require: base/image
+@require: base/option-ext
 @import: ../yabaitech
 
 module FigureTest : sig
@@ -18,6 +19,8 @@ end = struct
         (|
             bibliography = [];
             title = {図のテスト};
+            title-for-toc = Option.none;
+            subtitle = Option.none;
             author = {著者名};
         |)
         <
@@ -36,6 +39,8 @@ end = struct
         (|
             bibliography = [];
             title = {図のテスト2};
+            title-for-toc = Option.none;
+            subtitle = Option.none;
             author = {著者名};
         |)
         <

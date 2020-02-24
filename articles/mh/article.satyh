@@ -1,3 +1,5 @@
+@require: base/option-ext
+
 @import: ../../class/yabaitech
 @import: bib
 @import: intro
@@ -16,6 +18,8 @@ let article = '<
     (|
         bibliography = bibliography;
         title = {忙しくないプログラマのためのゲーム紹介};
+        title-for-toc = Option.none;
+        subtitle = Option.none;
         author = {mh};
     |)
     <

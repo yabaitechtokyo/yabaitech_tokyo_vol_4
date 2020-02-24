@@ -9,6 +9,13 @@ module MasWag : sig
 
 end = struct
 
+let-block ctx +centering it =
+  line-break true true ctx (inline-fil ++ read-inline ctx it ++ inline-fil)
+
+let-block ctx +image-frame content =
+  let pads = (10pt, 10pt, 10pt, 10pt) in
+    block-frame-breakable ctx pads VDecoSet.empty (fun ctx -> read-block ctx '<+centering{#content;}>)
+
 let-inline ctx \insert-pdf-image width path page =
   let img = load-pdf-image path page in
     use-image-by-width img width
