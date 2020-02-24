@@ -2,7 +2,6 @@
 @import: ../../class/yabaitech
 @require: base/string
 @require: base/length
-@require: base/debug
 
 module Dialog : sig
   type line

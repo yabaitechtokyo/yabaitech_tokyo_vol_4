@@ -1,0 +1,49 @@
+@require: vdecoset
+@import: ../../class/yabaitech
+@require: base/string
+@require: base/length
+@require: base/debug
+
+module Alerts : sig
+  direct +warning : [inline-text] block-cmd
+end = struct
+  type line = (string option * inline-text)
+  let (+++>) = List.fold-left (+++)
+  open Length
+  let-block ctx +warning inner =
+    let pads = (5pt, 5pt, 3pt, 3pt) in
+    let decoset = VDecoSet.simple-frame-stroke 1pt (Gray(0.5)) in
+      let alert-width = (get-text-width ctx) *' 0.8 in
+      let alert-box = embed-block-top ctx alert-width (fun ctx ->
+        (block-frame-breakable ctx pads decoset (fun ctx -> (
+        let ctx-icon = ctx
+          |> set-font-size 30pt
+          |> set-paragraph-margin 3pt 3pt in 
+        line-break true true ctx-icon (
+          let br-icon = read-inline ctx-icon {!} in
+          let (icon-width, icon-height, icon-depth) = get-natural-metrics br-icon in
+          %% 寸法がめちゃめちゃ手合わせが必要な感じになっているので何とかすべし
+          let icon-width = icon-width *' 3.0 in
+          let content-width = (get-text-width ctx) -' icon-width -' ((get-font-size ctx) *' 1.0) in
+          let br-pbox =
+              embed-block-top ctx content-width
+                (Block.of-inline ?:true true true (Inline.read inner)) in
+          let (_, content-height, content-depth) = get-natural-metrics br-pbox in
+          let content-length = content-height +' content-depth in
+          let icon-vmargin = 
+              if content-length >= icon-depth then
+                (content-length -' icon-depth) *' 0.5
+              else
+                0pt in
+          let () = Debug.log (String.of-length icon-vmargin) in
+          let br-icon-pbox =
+            embed-block-top ctx icon-width (fun ctx ->
+              block-skip (0pt -' icon-height) +++
+              form-paragraph ctx br-icon) in
+          (inline-graphics icon-width content-height 0pt (fun (x,y) ->
+          [fill (Gray(0.8)) (Gr.polygon (x +' 15pt, y -' icon-vmargin +' 35pt) [(x -' 5pt,y -' icon-vmargin -' 5pt); (x +' 35pt,y -' icon-vmargin -' 5pt)]);
+           draw-text (x +' icon-width *' 0.35, y -' icon-vmargin) br-icon]))
+          ++ (inline-skip ((get-font-size ctx) *' 0.5)) ++ br-pbox
+     ))))) in
+     Block.of-inline false false (fun _ -> inline-fil ++ alert-box ++ inline-fil) ctx
+end

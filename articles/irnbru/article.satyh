@@ -1,5 +1,6 @@
 @import: ../../class/yabaitech
 @import: dialog
+@import: alerts
 
 module IrnBru : sig
 
@@ -9,6 +10,7 @@ end = struct
 
 let bibliography = []
 
+open Alerts
 open Dialog
 
 let article = '<
@@ -22,6 +24,11 @@ let article = '<
     |)
     <
         +p{Hello, world!}
+        +warning{
+        時間を無駄にするくらいなら今からでも "Untitled Goose Game" を買ってプレイしましょう！(クリアまでの推定プレイ時間約 5 ~ 8 時間)
+        あるいは他の記事を書いている人間はこんな奴らなのかー近寄らんとこと敬遠するために読んでいただければ幸いである。
+        }
+        +warning{このwarningのalertは行数が足りないとこうなってしまうので注意}
         +dialog([ibLine{というわけで、マジでやるんですねこれ。(約束から 1 時間遅れで某所に来た)};
                  censoredLine{実際買ってきたからねこれ。(ニシキヘビ XXXg の入った箱を持ち出す)};
                  ibLine{いやー改めて意味がわからないし記事になる気がしない。誰が Go サインを出してしまったのか。};
