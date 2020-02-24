@@ -1,6 +1,7 @@
 @import: ../../class/yabaitech
 @require: itemize
-@require: code
+%@require: code
+@require: base/typeset/code2
 @require: annot
 
 module MasWag : sig
@@ -438,7 +439,7 @@ let article = '<
     +p {
       まず始めに実験に必要なマシンを立てます。今回既に実験に必要なマシンは構築されているので、 \code(`vmctl`); を使ってマシンを立ち上げるだけです。例えば以下の様なコマンドでマシンを立ち上げられます。なお、マシン名が連番だったり共通部分がある場合はシェルのブレース展開 (Brace Expansion) を使うと便利です。
     }
-    +code(`
+    +console(`
     vmctl start マシン1 マシン2 ...
     `);
     >
