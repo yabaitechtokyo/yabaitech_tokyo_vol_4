@@ -1,9 +1,10 @@
 % -*- coding: utf-8 -*-
-@import: typeset/chapterish
+@import: typeset/chapter
 @import: typeset/cite
 @import: typeset/figure
 @import: typeset/footnote
 @import: typeset/misc-commands
+@import: typeset/paragraph
 @import: typeset/review-comment
 @import: typeset/theoremish
 @import: document
@@ -27,7 +28,7 @@ module Book : sig
   % from Bibliography
   direct \cite : [string list] inline-cmd
 
-  % from Chapterish
+  % from Chapter
   direct +chapter : [string?; inline-text?; 'a; block-text] block-cmd
     constraint 'a :: (|
       title : inline-text;
@@ -68,6 +69,7 @@ module Book : sig
   direct +proof : [inline-text?; inline-text] block-cmd
   direct \emph : [inline-text] inline-cmd
   direct \dfn : [inline-text] inline-cmd
+  direct \br : [] inline-cmd
 
   % from Fiure
   direct \figure : [string?; inline-text; block-text] inline-cmd
@@ -97,20 +99,20 @@ end = struct
 
 
   let-block ctx +chapter ?:labelopt ?:subtitle record inner =
-    Chapterish.chapter-scheme ctx labelopt record#bibliography record#title subtitle record#author inner
+    Chapter.chapter-scheme ctx labelopt record#bibliography record#title subtitle record#author inner
 
   let-block ctx +section ?:labelopt title inner =
-    Chapterish.section-scheme ctx labelopt title inner
+    Chapter.section-scheme ctx labelopt title inner
 
   let-block ctx +subsection ?:labelopt title inner =
-    Chapterish.subsection-scheme ctx labelopt title inner
+    Chapter.subsection-scheme ctx labelopt title inner
 
   let-block ctx +subsubsection title inner =
-    Chapterish.subsubsection-scheme ctx (Option.none) title inner
+    Chapter.subsubsection-scheme ctx (Option.none) title inner
 
-  let-inline ctx \ref-chapter key = ctx |> Chapterish.render-inline-ref-chapter key
-  let-inline ctx \ref-section key = ctx |> Chapterish.render-inline-ref-section key
-  let-inline ctx \ref-subsection key = ctx |> Chapterish.render-inline-ref-subsection key
+  let-inline ctx \ref-chapter key = ctx |> Chapter.render-inline-ref-chapter key
+  let-inline ctx \ref-section key = ctx |> Chapter.render-inline-ref-section key
+  let-inline ctx \ref-subsection key = ctx |> Chapter.render-inline-ref-subsection key
 
 
   let-block ctx +definition ?:wordopt ?:labelopt inner =
@@ -143,16 +145,17 @@ end = struct
   let-inline ctx \ref-notation key = ctx |> Theoremish.render-inline-ref-notation key
 
 
-  let-block ctx +p inner = ctx |> MiscCommands.make-bb-paragraph inner
+  let-block ctx +p inner = ctx |> Paragraph.render-block-paragraph inner
 
   let-block ctx +topic topic inner =
-    ctx |> MiscCommands.make-bb-topic topic inner
+    ctx |> Paragraph.render-block-topic topic inner
 
   let-block ctx +proof ?:wordopt inner =
-    ctx |> MiscCommands.make-bb-proof wordopt inner
+    ctx |> Paragraph.render-block-proof wordopt inner
 
   let-inline ctx \emph inner = ctx |> MiscCommands.make-ib-emph inner
   let-inline ctx \dfn inner = ctx |> MiscCommands.make-ib-dfn inner
+  let-inline ctx \br = ctx |> MiscCommands.make-ib-br
 
   let-inline ctx \footnote it = ctx |> Footnote.render-block it
 

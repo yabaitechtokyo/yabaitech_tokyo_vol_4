@@ -24,9 +24,10 @@ let bibliography = []
 
 let article = '<
     +chapter ?:(`maswag-article`)
+    ?:({実験編})
     (|
         bibliography = bibliography;
-        title = {複数マシンでの実験を Ansible とかでシュっとした話 — 実験編};
+        title = {複数マシンでの実験を \br;Ansible とかでシュっとした話};
         author = {MasWag};
     |)
     <
@@ -191,7 +192,7 @@ let article = '<
     +p {
       \emph{expect} (\href(`https://core.tcl-lang.org/expect/index`){https://core.tcl-lang.org/expect/index}) はTcl製の対話的なCUIプログラムの自動化ツールです。
       \review-comment(`zeptometer`) {「～ですが」の繰り返し} \review-comment(`MasWag`) {そうですか?}
-      普通のCUIの処理の自動化なら例えばシェルスクリプトで行なえますが、sshやftp等で必要となる対話的な操作の自動化をシェルスクリプトで行なうのは至難の技です\footnote{シェルスクリプトでも例えばbash 4.0で追加されたコプロセスを使えば実現できそうな気がしますが、それはまた別の話ということで}。こういった場面でexpectを使うことで比較的用意に自動化することができます。今回は実験スクリプトをリモートで実行する際にexpectを使いました。
+      普通のCUIの処理の自動化なら例えばシェルスクリプトで行なえますが、sshやftp等で必要となる対話的な操作の自動化をシェルスクリプトで行なうのは至難の技です\footnote{シェルスクリプトでも例えばbash 4.0で追加されたコプロセスを使えば実現できそうな気がしますが、それはまた別の話ということで}。こういった場面でexpectを使うことで比較的容易に自動化することができます。今回は実験スクリプトをリモートで実行する際にexpectを使いました。
       \review-comment(`zeptometer`) {nit: 「ansible」→「Ansible」他にも該当箇所あり} \review-comment(`MasWag`) {thx}
       Ansible でも似たことができるかもしれないですが、知らないうちにオーバーヘッドが載って実験結果に影響があると良くないので、できるだけ簡素な方法ということでexpectを使いました。
     }
