@@ -1,8 +1,8 @@
 @require: footnote-scheme
 @require: base/option-ext
 @require: base/ref
+@require: base/pager
 
-@import: pages/colophon
 @import: pages/table-of-contents
 @import: pages/title
 @import: typeset/chapter
@@ -56,18 +56,7 @@ end = struct
         ]
 
     let make-bb-colophon-page record ctx =
-        let bb-colophon = ctx |> Colophon.make-bb-colophon (|
-            title     = record#title;
-            date      = record#date;
-            author    = record#author;
-            email     = record#email;
-            website   = record#website;
-            publisher = record#publisher;
-        |)
-        in
-        let bb-disable-page-number = ctx |> make-bb-disable-page-number
-        in
-        bb-colophon +++ bb-disable-page-number
+        ctx |> make-bb-disable-page-number
 
     let get-content-area pbinfo =
         let () = FootnoteScheme.start-page () in
