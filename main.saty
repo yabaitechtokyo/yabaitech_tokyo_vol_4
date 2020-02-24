@@ -20,9 +20,9 @@ YABAITECH.TOKYO vol.4
 `` in
 
 document (|
-  title = `yabaitech.tokyo vol.4`;
-  venue = `技術書典8`;
-  date = `2019.03.01`;
+  title = `yabaitech.tokyo`;
+  volume = `volume 4`;
+  date = `Feb 29th 2020`;
   author = `yabaitech.tokyo`;
   email = `admin@yabaitech.tokyo`;
   website = `http://yabaitech.tokyo`;

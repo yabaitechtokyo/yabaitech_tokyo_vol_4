@@ -17,8 +17,8 @@ module Book : sig
   val document : 'a -> block-text -> document
     constraint 'a :: (|
       title: string;
+      volume: string;
       date: string;
-      venue: string;
       author: string;
       email: string;
       website: string;

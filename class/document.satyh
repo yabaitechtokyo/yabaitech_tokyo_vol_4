@@ -17,8 +17,8 @@ module Document : sig
     val render : 'a -> block-text -> document
         constraint 'a :: (|
             title: string;
+            volume: string;
             date: string;
-            venue: string;
             author: string;
             email: string;
             website: string;
@@ -95,9 +95,9 @@ end = struct
             |> set-hyphen-penalty 1000
         in
         let bb-title-pages = ctx-doc |> Title.make-bb (|
-            title = record#title;
-            date  = record#date;
-            venue = record#venue;
+                title = record#title;
+                volume = record#volume;
+                date  = record#date;
             |)
         in
         let bb-main-pages = read-block ctx-doc inner
