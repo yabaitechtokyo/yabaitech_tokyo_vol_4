@@ -90,9 +90,6 @@ end = struct
     let render record inner =
         let ctx-doc =
             FontConfig.get-standard-context DocumentConfig.text-width
-            |> set-font-size 12pt
-            |> set-leading 18pt
-            |> set-hyphen-penalty 1000
         in
         let bb-title-pages = ctx-doc |> Title.make-bb (|
                 title = record#title;

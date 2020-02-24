@@ -42,7 +42,7 @@ end = struct
                    |> Option.map (fun st -> (
                         Inline.concat [
                           inline-skip 10pt;
-                          ctx |> Inline.read {―#st;―};
+                          ctx |> Inline.read {― #st; ―};
                        ]
                    ))
                    |> Option.unwrap-or inline-nil)

@@ -79,7 +79,7 @@ end = struct
 
     %% chapter-subtitle
     let font-latin-chapter-subtitle = (`fonts-noto-sans:NotoSans-Light`, 1.0, 0.)
-    let font-cjk-chapter-subtitle  = (`fonts-noto-sans-cjk-jp:NotoSansCJKjp-DemiLight`, 1.0, 0.)
+    let font-cjk-chapter-subtitle  = (`fonts-noto-sans-cjk-jp:NotoSansCJKjp-Light`, 1.0, 0.)
     let font-size-chapter-subtitle = 18pt
 
     let make-chapter-subtitle ctx =

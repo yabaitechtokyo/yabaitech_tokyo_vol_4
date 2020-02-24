@@ -69,9 +69,7 @@ end = struct
             let ctx-subtitle = ctx |> make-chapter-subtitle
             in
             Inline.concat [
-                ctx-subtitle |> Inline.read {―};
-                ctx-subtitle |> Inline.read subtitle;
-                ctx-subtitle |> Inline.read {―};
+                ctx-subtitle |> Inline.read {― #subtitle; ―};
                 Inline.fil;
             ]
         in
