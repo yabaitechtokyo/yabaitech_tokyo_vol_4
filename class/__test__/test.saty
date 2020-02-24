@@ -22,8 +22,8 @@ YABAITECH.TOKYO vol.4
 
 document (|
   title = `YABAITECH.TOKYO vol.4 class file`;
-  venue = `技術書典8`;
-  date = `2019.03.01`;
+  volume = `(no volume)`;
+  date = `Feb 29th 2020`;
   author = `yabaitech.tokyo`;
   email = `admin@yabaitech.tokyo`;
   website = `http://yabaitech.tokyo`;
