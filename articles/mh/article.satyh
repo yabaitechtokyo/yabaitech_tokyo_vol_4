@@ -17,7 +17,7 @@ let article = '<
         bibliography = MhBib.bib;
         title = {ゲーム紹介};
         subtitle = Option.some{忙しくないプログラマのための};
-        title-for-toc = {忙しくないプログラマのためのゲーム紹介};
+        title-for-toc = Option.some{忙しくないプログラマのためのゲーム紹介};
         author = {mh};
     |)
     <
