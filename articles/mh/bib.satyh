@@ -1,0 +1,128 @@
+@import: ../../class/yabaitech
+
+module MhBib = struct
+
+let bib = [
+  (`cpgame`, WebSite(|
+    author = {|フリー百科事典　ウィキペディア日本語版|};
+    title = {コンピュータゲーム};
+    url = `https://ja.wikipedia.org/wiki/コンピュータゲーム`;
+    year = 0;
+  |));
+  (`steam`, WebSite(|
+    author = {|Valve co.|};
+    title = {Steam};
+    url = `https://store.steampowered.com`;
+    year = 0;
+  |));
+  (`hrm`, WebSite(|
+    author = {|Tomorrow Corporation|};
+    title = {Human Resource Machine};
+    url = `https://tomorrowcorporation.com/humanresourcemachine`;
+    year = 0;
+  |));
+  (`7bh`, WebSite(|
+    author = {|Tomorrow Corporation|};
+    title = {7 Billion Humans};
+    url = `https://tomorrowcorporation.com/7billionhumans`;
+    year = 0;
+  |));
+  (`tis`, WebSite(|
+    author = {|ZACHTRONICS|};
+    title = {TIS-100};
+    url = `http://www.zachtronics.com/tis-100/`;
+    year = 0;
+  |));
+  (`zac`, WebSite(|
+    author = {|ZACHTRONICS|};
+    title = {ZACHTRONICS};
+    url = `http://www.zachtronics.com`;
+    year = 0;
+  |));
+  (`sio`, WebSite(|
+    author = {|ZACHTRONICS|};
+    title = {SHENZHEN I/O};
+    url = `http://www.zachtronics.com/shenzhen-io/`;
+    year = 0;
+  |));
+  (`sz`, WebSite(|
+    author = {|Pleasing Fungus|};
+    title = {Silicon Zeroes};
+    url = `http://pleasingfungus.com/Silicon%20Zeroes/`;
+    year = 0;
+  |));
+  (`sc`, WebSite(|
+    author = {|ZACHTRONICS|};
+    title = {SpaceChem};
+    url = `http://www.zachtronics.com/spacechem/`;
+    year = 0;
+  |));
+  (`om`, WebSite(|
+    author = {|ZACHTRONICS|};
+    title = {Opus Mugnam};
+    url = `http://www.zachtronics.com/opus-magnum/`;
+    year = 0;
+  |));
+  (`coa`, WebSite(|
+    author = {|ZACHTRONICS|};
+    title = {The Codex of Alchemical Engineering};
+    url = `https://www.kongregate.com/games/krispykrem/the-codex-of-alchemical-engineering`;
+    year = 0;
+  |));
+  (`koh`, WebSite(|
+    author = {|ZACHTRONICS|};
+    title = {KOHCTPYKTOP};
+    url = `http://www.kongregate.com/games/krispykrem/kohctpyktop-engineer-of-the-people?referrer=Jayisgames`;
+    year = 0;
+  |));
+  (`zl`, WebSite(|
+    author = {|ZACHTRONICS|};
+    title = {ZACH-LIKE};
+    url = `http://www.zachtronics.com/zach-like/`;
+    year = 0;
+  |));
+  (`manu`, WebSite(|
+    author = {|Pleasing Fungus|};
+    title = {Manufactoria};
+    url = `http://pleasingfungus.com/Manufactoria/`;
+    year = 0;
+  |));
+  (`jlb`, WebSite(|
+    author = {|Jahooma|};
+    title = {Jahooma's Logic Box};
+    url = `https://logicbox.jahooma.com`;
+    year = 0;
+  |));
+  (`jlb_old`, WebSite(|
+    author = {|Jahooma|};
+    title = {Jahooma's Logic Box};
+    url = `http://www.kongregate.com/games/jahooma/jahoomas-logicbox`;
+    year = 0;
+  |));
+  (`tf`, WebSite(|
+    author = {|duerig|};
+    title = {Tile Factory};
+    url = `http://www.kongregate.com/games/duerig/tile-factory?acomplete=tile+fa`;
+    year = 0;
+  |));
+  (`hoj`, WebSite(|
+    author = {|quolc|};
+    title = {Herbert Online Judge};
+    url = `http://herbert.tealang.info`;
+    year = 0;
+  |));
+  (`scr`, WebSite(|
+    author = {|Screeps|};
+    title = {Screeps};
+    url = `https://screeps.com`;
+    year = 0;
+  |));
+  (`dusk`, WebSite(|
+    author = {|Misfits Attic|};
+    title = {Duskers};
+    url = `http://duskers.misfits-attic.com`;
+    year = 0;
+  |));
+]
+
+end
