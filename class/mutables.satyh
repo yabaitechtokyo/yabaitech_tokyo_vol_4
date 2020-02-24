@@ -3,25 +3,21 @@
 module Mutables : sig
 
     val num-figure : int ref
-    val num-chapter : int ref
-    val num-section : int ref
-    val num-subsection : int ref
-    val num-theorems : int ref
 
     val ref-float-boxes : ((int * block-boxes) list) ref
 
     val toc-acc-ref : (toc-element list) ref
 
+    val show-page-number-ref : (int option) ref
+
 end = struct
 
     let-mutable num-figure <- 0
-    let-mutable num-chapter <- 0
-    let-mutable num-section <- 0
-    let-mutable num-subsection <- 0
-    let-mutable num-theorems <- 0
 
     let-mutable ref-float-boxes <- []
 
     let-mutable toc-acc-ref <- []
+
+    let-mutable show-page-number-ref <- None
 
 end

@@ -1,4 +1,5 @@
 @import: ../yabaitech
+@require: base/option-ext
 
 module BibliographyTest : sig
 
@@ -62,6 +63,8 @@ end = struct
         (|
             bibliography = bib;
             title = {bibliographyのテスト};
+            title-for-toc = Option.none;
+            subtitle = Option.none;
             author = {著者名};
         |) <
             +p{
@@ -73,6 +76,8 @@ end = struct
         (|
             bibliography = empty-bib;
             title = {bibliographyが空の場合のテスト};
+            title-for-toc = Option.none;
+            subtitle = Option.none;
             author = {著者名};
         |) <
             +p{

@@ -1,4 +1,5 @@
 @import: ../yabaitech
+@require: base/option-ext
 
 module MiscCommandsTest : sig
 
@@ -13,6 +14,8 @@ end = struct
         (|
             bibliography = [];
             title = {諸々のコマンドのテスト};
+            title-for-toc = Option.none;
+            subtitle = Option.none;
             author = {著者名};
         |)
         <

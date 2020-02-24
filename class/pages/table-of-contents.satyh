@@ -4,8 +4,8 @@
 @require: base/option-ext
 @require: base/ref
 
+@import: ../lib/chapter-ref
 @import: ../lib/table-of-contents
-@import: ../typeset/chapterish
 @import: ../font-config
 
 module TableOfContents : sig
@@ -15,12 +15,7 @@ module TableOfContents : sig
 end = struct
 
   open FontConfig
-
-  let make-chapter-title ctx =
-    ctx |> set-font-size font-size-chapter
-        |> set-font Latin font-latin-bold
-        |> set-cjk-font font-cjk-gothic
-
+  
   let-rec repeat-inline n ib =
     if n <= 0 then inline-nil else
       ib ++ (repeat-inline (n - 1) ib)
@@ -54,7 +49,7 @@ end = struct
                    ++ inline-skip 3pt
                  in
                  let it-page =
-                   Chapterish.get-chapter-page label
+                   ChapterRef.get-chapter-page label
                    |> Option.map (fun page-num ->
                            (arabic (Int.of-string page-num - 2)))
                    |> Option.unwrap-or `?`

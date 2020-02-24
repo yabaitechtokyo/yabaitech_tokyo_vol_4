@@ -1,4 +1,5 @@
 @import: ../yabaitech
+@require: base/option-ext
 
 module ChapterTest : sig
 
@@ -11,16 +12,20 @@ end = struct
         (|
             bibliography = [];
             title = {chapterのテスト};
+            title-for-toc = Option.none;
+            subtitle = Option.none;
             author = {著者名};
         |)
         <
         +p {Hello, world!}
         >
 
-        +chapter ?:(`chapter-with-substitle`) ?:({サブタイトル})
+        +chapter ?:(`chapter-with-substitle`)
         (|
             bibliography = [];
             title = {chapterのサブタイトルのテスト};
+            title-for-toc = Option.none;
+            subtitle = Option.some {サブタイトル};
             author = {著者名};
         |)
         <
@@ -31,6 +36,8 @@ end = struct
         (|
             bibliography = [];
             title = {sectionとsubsectionのテスト};
+            title-for-toc = Option.none;
+            subtitle = Option.none;
             author = {著者名};
         |)
         <
@@ -58,6 +65,8 @@ end = struct
         (|
             bibliography = [];
             title = {chapter系の参照のテスト};
+            title-for-toc = Option.none;
+            subtitle = Option.none;
             author = {著者名};
         |) <
             +p {\ref-chapter(`chapter`);は「chapterのテスト」です}

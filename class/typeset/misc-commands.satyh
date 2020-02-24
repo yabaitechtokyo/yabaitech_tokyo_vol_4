@@ -1,55 +1,23 @@
+@require: base/inline
 @import: ../font-config
 
 module MiscCommands : sig
 
-    val make-bb-paragraph : inline-text -> context -> block-boxes
-    val make-bb-topic : inline-text -> inline-text -> context -> block-boxes
-    val make-bb-proof : inline-text option -> inline-text -> context -> block-boxes
     val make-ib-emph : inline-text -> context -> inline-boxes
     val make-ib-dfn : inline-text -> context -> inline-boxes
+    val make-ib-br : context -> inline-boxes
 
 end = struct
 
-    open FontConfig
-
-    let make-bb-paragraph content ctx =
-        let len = get-font-size ctx *' font-ratio-cjk in
-        let ib-inner = inline-skip len ++ read-inline ctx content ++ inline-fil in
-        form-paragraph ctx ib-inner
-
-    let make-bb-topic topic-name content ctx =
-        let ctx-emph = ctx |> set-font Latin font-latin-sans
-                           |> set-cjk-font font-cjk-gothic
-        in
-        let ib-topic = read-inline ctx-emph topic-name
-        in
-        let len = get-font-size ctx *' font-ratio-cjk
-        in
-        let ib-inner = ib-topic ++ inline-skip len ++ read-inline ctx content ++ inline-fil in
-        form-paragraph ctx ib-inner
-
-    let-math \QED = math-char MathOrd `∎`
-
-    let make-bb-proof name-opt content ctx =
-        let ib-heading =
-            let ctx = ctx |> set-font Latin font-latin-sans
-                          |> set-cjk-font font-cjk-gothic
-            in
-            match name-opt with
-            | None    -> read-inline ctx {証明}
-            | Some(w) -> read-inline ctx {#w; の証明}
-        in
-        let ib-box = read-inline ctx {${\QED}} in
-            line-break true true ctx
-                (ib-heading ++ inline-skip (get-font-size ctx) ++ read-inline ctx content ++ inline-fil ++ ib-box)
-
     let make-ib-emph content ctx =
         let ctx-emph =
-            ctx |> set-font Latin font-latin-sans
-                |> set-cjk-font font-cjk-gothic
+            ctx |> set-font Latin FontConfig.font-latin-sans
+                |> FontConfig.set-cjk-font FontConfig.font-cjk-gothic
         in
         read-inline ctx-emph content
 
     let make-ib-dfn = make-ib-emph
 
+    let make-ib-br ctx =
+        discretionary 0 (inline-skip (get-text-width ctx *' 2.)) inline-fil inline-nil
 end

@@ -13,6 +13,8 @@ let article = '<
     (|
         bibliography = bibliography;
         title = {Pohe Article};
+        title-for-toc = Option.none;
+        subtitle = Option.none;
         author = {irnbru};
     |)
     <

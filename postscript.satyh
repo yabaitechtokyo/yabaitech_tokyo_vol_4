@@ -1,4 +1,5 @@
 @import: class/yabaitech
+@require: base/option-ext
 
 module Postscript : sig
   val article : block-text
@@ -14,6 +15,8 @@ let article = '<
   +chapter ?:(`postscript-article`) (|
     bibliography = [];
     title = {あとがき};
+    title-for-toc = Option.none;
+    subtitle = Option.none;
     author = {};
   |) <
     +p{Have a good night!}
