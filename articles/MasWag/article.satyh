@@ -2,6 +2,7 @@
 @require: itemize
 @require: code
 @require: annot
+@require: base/option-ext
 
 module MasWag : sig
 
@@ -24,10 +25,11 @@ let bibliography = []
 
 let article = '<
     +chapter ?:(`maswag-article`)
-    ?:({実験編})
     (|
         bibliography = bibliography;
         title = {複数マシンでの実験を \br;Ansible とかでシュっとした話};
+        title-for-toc = Option.some {複数マシンでの実験を Ansible とかでシュっとした話};
+        subtitle = Option.some {実験編};
         author = {MasWag};
     |)
     <

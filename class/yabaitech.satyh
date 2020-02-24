@@ -29,9 +29,11 @@ module Book : sig
   direct \cite : [string list] inline-cmd
 
   % from Chapter
-  direct +chapter : [string?; inline-text?; 'a; block-text] block-cmd
+  direct +chapter : [string?; 'a; block-text] block-cmd
     constraint 'a :: (|
       title : inline-text;
+      title-for-toc : inline-text option;
+      subtitle : inline-text option;
       author : inline-text;
       bibliography : (string * bib-item) list;
     |)
@@ -98,8 +100,8 @@ end = struct
   let-inline ctx \ref-table key = ctx |> Figure.render-inline-ref-table key
 
 
-  let-block ctx +chapter ?:labelopt ?:subtitle record inner =
-    Chapter.chapter-scheme ctx labelopt record#bibliography record#title subtitle record#author inner
+  let-block ctx +chapter ?:labelopt record inner =
+    Chapter.chapter-scheme ctx labelopt record#bibliography record#title record#title-for-toc record#subtitle record#author inner
 
   let-block ctx +section ?:labelopt title inner =
     Chapter.section-scheme ctx labelopt title inner

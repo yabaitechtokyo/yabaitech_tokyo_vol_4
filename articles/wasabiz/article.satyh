@@ -3,6 +3,7 @@
 @require: base/image
 @require: base/block
 @require: base/format
+@require: base/option-ext
 @require: base/typeset/base
 
 module Wasabiz : sig
@@ -22,6 +23,8 @@ let bibliography = []
 let metadata = (|
     bibliography = bibliography;
     title = {Let's verify your C program!};
+    title-for-toc = Option.none;
+    subtitle = Option.none;
     author = {wasabiz};
 |)
 

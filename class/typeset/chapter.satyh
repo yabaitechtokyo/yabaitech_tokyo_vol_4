@@ -15,7 +15,7 @@
 module Chapter : sig
 
     val chapter-heading : context -> inline-boxes option -> inline-boxes -> block-boxes
-    val chapter-scheme : context -> string option -> bib-defs -> inline-text -> inline-text option -> inline-text -> block-text -> block-boxes
+    val chapter-scheme : context -> string option -> bib-defs -> inline-text -> inline-text option -> inline-text option -> inline-text -> block-text -> block-boxes
     val section-scheme : context -> string option -> inline-text -> block-text -> block-boxes
     val subsection-scheme : context -> string option -> inline-text -> block-text -> block-boxes
     val subsubsection-scheme : context -> string option -> inline-text -> block-text -> block-boxes
@@ -106,13 +106,14 @@ end = struct
             Block.skip 18pt
         ]
 
-    let chapter-scheme ctx labelopt bibliography title subtitle author inner =
+    let chapter-scheme ctx labelopt bibliography title title-for-toc subtitle author inner =
         % Setup
         let label = Label.or-fresh labelopt in
         let () = ChapterRef.reset-section-num () in
         let () = ChapterRef.reset-subsection-num () in
         let () = ChapterRef.register-new-chapter label |> Fn.ignore in
-        let () = toc-acc-ref <- (TOCElementChapter(label, title, subtitle, author)) :: !toc-acc-ref in
+        let title-for-toc = title-for-toc |> Option.unwrap-or title in
+        let () = toc-acc-ref <- (TOCElementChapter(label, title-for-toc, subtitle, author)) :: !toc-acc-ref in
         let () = Bibliography.register bibliography in
         % Render
         let ctx-doc =
