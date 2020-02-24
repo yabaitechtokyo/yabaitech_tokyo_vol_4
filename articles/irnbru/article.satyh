@@ -1,4 +1,5 @@
 @import: ../../class/yabaitech
+@import: dialog
 
 module IrnBru : sig
 
@@ -7,6 +8,8 @@ module IrnBru : sig
 end = struct
 
 let bibliography = []
+
+open Dialog
 
 let article = '<
     +chapter ?:(`ib-article`)
@@ -19,6 +22,14 @@ let article = '<
     |)
     <
         +p{Hello, world!}
+        +dialog([ibLine{というわけで、マジでやるんですねこれ。(約束から 1 時間遅れで某所に来た)};
+                 censoredLine{実際買ってきたからねこれ。(ニシキヘビ XXXg の入った箱を持ち出す)};
+                 ibLine{いやー改めて意味がわからないし記事になる気がしない。誰が Go サインを出してしまったのか。};
+                 wasabizLine{いや絶対需要あるでしょ。俺は読みたいよ。};
+                 zptLine{Python 食べた記事、バズらないわけがないじゃないですかやだなぁ。};
+                 ibLine{確かに。(ヤケクソ)};
+                 censoredLine{レシピはもう用意してあるから、あと足りない食材買ってくるとこから始めるんで。};
+        ]);
     >
 >
 

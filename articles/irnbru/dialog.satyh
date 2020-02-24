@@ -1,0 +1,52 @@
+@require: vdecoset
+@import: ../../class/yabaitech
+@require: base/string
+@require: base/length
+@require: base/debug
+
+module Dialog : sig
+  type line
+  val ibLine : inline-text -> line
+  val censoredLine : inline-text -> line
+  val wasabizLine : inline-text -> line
+  val maswagLine : inline-text -> line
+  val zptLine : inline-text -> line
+  direct +dialog : [line list] block-cmd
+end = struct
+  let makeLine name inner = (Some(name), inner)
+  let ibLine = makeLine `irnbru`
+  let censoredLine = makeLine `censored__`
+  let wasabizLine = makeLine `wasabiz`
+  let maswagLine = makeLine `MasWag`
+  let zptLine = makeLine `zptmtr`
+  type line = (string option * inline-text)
+  let (+++>) = List.fold-left (+++)
+  let-block ctx +dialog input =
+    let pads = (5pt, 5pt, 3pt, 3pt) in
+    let decoset = VDecoSet.simple-frame-stroke 1pt (Gray(0.75)) in
+      block-frame-breakable ctx pads decoset (fun ctx -> (
+        let bclst = 
+          input |> List.map (fun (nameOpt, content) -> (
+                   let ctx-name = ctx
+                       |> set-paragraph-margin 3pt 3pt
+                       |> set-font HanIdeographic (`ipaexg`, 1.0, 0.)
+                       |> set-font Kana (`ipaexg`, 1.0, 0.) in 
+                   line-break true true ctx-name (
+                   match nameOpt with
+                   | None -> read-inline (ctx |> set-paragraph-margin 3pt 3pt) {#content;}
+                   | Some(nameStr) ->  
+                     let name = embed-string nameStr in
+                     let br-name = read-inline ctx-name {#name;:} in
+                     let name-width = get-natural-width br-name in
+                     let br-name-pbox = 
+                       embed-block-top ctx name-width (fun ctx ->
+                         form-paragraph ctx (br-name ++ inline-fil)) in
+                     let content-width = (get-text-width ctx) -' (get-natural-width br-name-pbox) -' ((get-font-size ctx) *' 1.0) in
+                     let br-pbox =
+                       embed-block-top ctx content-width
+                         (Block.of-inline ?:true true true (Inline.read {#content;})) in
+                     br-name-pbox ++ (inline-skip ((get-font-size ctx) *' 0.5)) ++ br-pbox
+                 ))) in
+          block-skip (0pt) +++> bclst
+      ))
+end
