@@ -11,8 +11,7 @@ end = struct
 
     let make-ib-emph content ctx =
         let ctx-emph =
-            ctx |> set-font Latin FontConfig.font-latin-sans
-                |> FontConfig.set-cjk-font FontConfig.font-cjk-gothic
+            ctx |> FontConfig.make-emph
         in
         read-inline ctx-emph content
 

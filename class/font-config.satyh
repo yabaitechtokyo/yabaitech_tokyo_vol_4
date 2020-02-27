@@ -33,6 +33,8 @@ module FontConfig : sig
     val make-topic-name : context -> context
     val make-proof-header : context -> context
 
+    val make-emph : context -> context
+
     val page-footer : context
 
 end = struct
@@ -171,6 +173,12 @@ end = struct
             |> set-hyphen-penalty 1000
             |> set-space-ratio 0.275 0.08 0.12
             |> make-paragraph
+
+    let font-latin-emph = (`fonts-noto-sans:NotoSans-Medium`, 1.0, 0.)
+    let font-cjk-emph  = (`fonts-noto-sans-cjk-jp:NotoSansCJKjp-Medium`, 1.00, 0.)
+    let make-emph ctx =
+        ctx |> set-latin-font font-latin-emph
+            |> set-cjk-font font-cjk-emph
 
     %% page-footer
     let font-size-page-footer = 10pt

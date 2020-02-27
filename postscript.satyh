@@ -1,5 +1,6 @@
 @import: class/yabaitech
 @require: base/option-ext
+@require: itemize
 
 module Postscript : sig
   val article : block-text
@@ -16,12 +17,53 @@ let article = '<
     bibliography = [];
     title = {あとがき};
     title-for-toc = Option.none;
-    subtitle = Option.none;
+    subtitle = Option.some {yabaitech.tokyoを支える技術};
     author = {};
   |) <
-    +p{Have a good night!}
+    +p{
+      (大仰なタイトルですがそんな大したことは書かないです、悪しからず)
+    }
+    +p{
+      この度は yabaitech.tokyo vol.4 をお買い上げいただきありがとうございます。yabaitech.tokyoは大学院時代の同期が集まってできたサークルで、本誌のような合同誌を出すことを主な活動内容にしています。毎度のことながら、忙しいなか時間を記事やイラスト、その他の作業に充ててくれるメンバーの皆には頭があがりません。
+    }
+    +p{
+      合同誌yabaitech.tokyoはvol.1から今回に至るまで \SATySFi; で組版を行っています。 \SATySFi; は静的な型システムを持つフル機能のプログラミング言語を供えた組版処理システムで、\LaTeX;の代替を目指す新進気鋭のソフトウェアです。ちなみに今回の表紙を描いてくれたgfnによって開発されています。
+    }
+    +p{
+      フル機能のプログラミング言語で原稿を書けるというのは結構快適なものです。ただそうなると、ただ原稿を書くだけでなくソフトウェア開発の手法を取り入れていきたい、と思うのがエンジニアの性でして。実際今回の合同紙作るにあたっては色々な試みを行いました。そこらへんの話を「yabaitech.tokyoを支える技術」として紹介させてください。
+    }
+    +topic {汎用ライブラリの開発と公開} {
+      \emph{satysfi-base}(https://github.com/nyuichi/satysfi-base)は \SATySFi; の標準ライブラリの代替を目指した \SATySFi; ライブラリで、「Let's verify your C program!」の寄稿者であるところのわさびずが owner です。もともとは彼が yabaitech.tokyo vol.3用に書いたライブラリを切り出してオープンソース化したものがもとになっています。今回のvol.4でもsatysfi-baseを多用しています。詳しくは「satysfi-baseを使って関数型プログラミングで組版する」(https://qiita.com/wasabiz/items/ea55c65f23a5e187caf2)をご覧ください。
+    }
+    +topic {クラスファイルの回帰テスト} {
+      ソフトウェア開発をしているのであればテスト駆動開発をしたいですよね。しかしながらクラスファイルを書いている場合出力はもっぱらpdfファイルになってしまい、テストを書くのはのはなかなか難しいところです。そういう事情で今回は代わりに回帰テストの導入を行いました。回帰テストは「既存の機能が壊れていないことを確認するためのテスト」で、やっていることは単純です。
+      \listing{
+        * クラスファイルに新しいデザインやコマンドを追加したら、テスト用のコードとその時のpdfの出力を保存しておく
+        * コードに変更があったときにはテスト用のコードを再実行して出力が変わっていないかを確認する
+        * 出力の変更が期待したものであれば上書きする
+      }
+      回帰テストが特に便利なのはコードをリファクタする時です。つまり、リファクタするときに確認したいのは「そのコード変更が出力に影響を与えないこと」なので回帰テストがぴったりなわけですね。今回はvol.3の際に使用したクラスファイルに回帰テストを導入してがっつりリファクタするということをやっていました。関連する記事として「SATySFiの組版結果をテストする」(https://qiita.com/zptmtr/items/59b485c47edfbca67c60)をご覧ください。
+    }
+    +topic {Github ActionsによるCI} {
+      Github Actionsを使って原稿のpdfを作成したり回帰テストを実行したりします。標準的な環境の下で行うので現在のコードが特定個人の開発環境に依存していないことを確認できて良いです。セットアップにあたっては「GitHub Actions を使った文書やパッケージの CI」(http://amutake.hatenablog.com/entry/2019/12/03/082528)を参考にさせてもらいました。 
+    }
+    +topic {Satyrographosフォントライブラリの作成} {
+      vol.3までは必要なフォントを自前でダウンロードして適切な設定をするということをやっていました。ところでSATySFiには有志のパッケージ管理システムSatyrographosがあり、これはフォントライブラリも配布することができます。折角なので必要なフォントを全部ライブラリとして登録してしまってsatyrographos経由でインストールできるようにできたらかっちょいいよね、という話になったので実際にやってみました。以下が今回作成したフォントライブラリで対応したフォントの一覧です(括弧内はパッケージ名です)。
+      \listing {
+        * DejaVu fonts (satysfi-fonts-dejavu)
+        * Asana-Math (satysfi-fonts-asana-math)
+        * Computer Modern Unicode (satysfi-fonts-computer-modern-unicode)
+        * Noto Sans (satysfi-fonts-noto-sans)
+        * Noto Serif (satysfi-fonts-noto-serif)
+        * Noto Sans CJK Jp (satysfi-fonts-noto-sans-cjk-jp)
+        * Noto Serif CJK Jp (satysfi-fonts-noto-serif-cjk-jp)
+      }
+      こうしてみると結構たくさん作っていますね。結構がんばったなあ僕。なおフォントライブラリを作成するにあたってSatyrographosの作者である na4zagin3 さんに多くの助言をいただきました。この場を借りてお礼申し上げます。
+    }
+    +p{
+      というわけで合同誌の記事を書くのはもちろんのことながら、このような形で \SATySFi; で色々遊ぶというのもこのサークルの活動の一つになっています。折角なので色々な知見をアウトプットできればいいですね。それでは皆さま、また次回でお会いしましょう！
+    }
     +right-align{(文責 : zeptometer)}
-    +clear-page;
   >
 >
 
