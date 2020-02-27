@@ -15,9 +15,9 @@ let article = '<
     +chapter ?:(`mh-article`)
     (|
         bibliography = MhBib.bib;
-        title = {ゲーム紹介};
+        title = {ゲーム紹介記事};
         subtitle = Option.some{忙しくないプログラマのための};
-        title-for-toc = Option.some{忙しくないプログラマのためのゲーム紹介};
+        title-for-toc = Option.none;
         author = {mh};
     |)
     <
