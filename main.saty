@@ -28,9 +28,9 @@ document (|
   website = `http://yabaitech.tokyo`;
   publisher = `有限会社 ねこのしっぽ`
   |) '<
-    #IrnBru.article;
-    #MasWag.article;
+    % #IrnBru.article;
     #Mh.article;
+    #MasWag.article;
     #Wasabiz.article;
     #Postscript.article;
 >
