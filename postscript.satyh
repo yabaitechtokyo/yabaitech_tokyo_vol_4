@@ -12,6 +12,11 @@ let-block ctx +right-align it =
 let-block ctx +clear-page =
   clear-page
 
+let-block ctx +image w path =
+    let image = load-image path in
+    let insert-image = use-image-by-width image w in
+        line-break true true ctx (inline-fil ++ insert-image ++ inline-fil)
+
 let article = '<
   +chapter ?:(`postscript-article`) (|
     bibliography = [];
@@ -31,6 +36,11 @@ let article = '<
     }
     +p{
       フル機能のプログラミング言語で原稿を書けるというのは結構快適なものです。ただそうなると、ただ原稿を書くだけでなくソフトウェア開発の手法を取り入れていきたい、と思うのがエンジニアの性でして。実際今回の合同紙作るにあたっては色々な試みを行いました。そこらへんの話を「yabaitech.tokyoを支える技術」として紹介させてください。
+    }
+    +p{
+      \figure {コンパイルをするとこんな感じのログがでます。かわいいですね。} <
+        +image(130mm)(`compile.jpg`);
+      >
     }
     +topic {汎用ライブラリの開発と公開} {
       \emph{satysfi-base}(https://github.com/nyuichi/satysfi-base)は \SATySFi; の標準ライブラリの代替を目指した \SATySFi; ライブラリで、「Let's verify your C program!」の寄稿者であるところのわさびずが owner です。もともとは彼が yabaitech.tokyo vol.3用に書いたライブラリを切り出してオープンソース化したものがもとになっています。今回のvol.4でもsatysfi-baseを多用しています。詳しくは「satysfi-baseを使って関数型プログラミングで組版する」(https://qiita.com/wasabiz/items/ea55c65f23a5e187caf2)をご覧ください。
@@ -61,7 +71,7 @@ let article = '<
       こうしてみると結構たくさん作っていますね。結構がんばったなあ僕。なおフォントライブラリを作成するにあたってSatyrographosの作者である na4zagin3 さんに多くの助言をいただきました。この場を借りてお礼申し上げます。
     }
     +p{
-      というわけで合同誌の記事を書くのはもちろんのことながら、このような形で \SATySFi; で色々遊ぶというのもこのサークルの活動の一つになっています。折角なので色々な知見をアウトプットできればいいですね。それでは皆さま、また次回でお会いしましょう！
+      というわけで合同誌の記事を書くのはもちろんのことながら、このような形で \SATySFi; で色々遊ぶというのもこのサークルの活動の一つになっています。それでは皆さま、また次回でお会いしましょう！
     }
     +right-align{(文責 : zeptometer)}
   >
