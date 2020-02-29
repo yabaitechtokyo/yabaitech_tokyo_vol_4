@@ -209,7 +209,36 @@ ac_corres (lift_global_heap ∘ globals) True Γ ret__unsigned_'
 >
 +subsection{\code(`max`);を証明してみる} <
 +p{
-    
+    \code(`min`);の性質が証明できたので\code(`max`);についても同じように性質を証明してみましょう．
+    目標はCで書いたちょっとトリッキーな\code(`max`);がIsabelleの\code(`max`);と同じ挙動をすることです．
+}
++code(```
+lemma max'_is_max: "max' a b = max a b"
+  sorry
+```);
++p{
+    まずはc-parserで\code(`max`);を変換した結果を確認してみます．
+}
++code(```
+max_body ≡
+TRY
+  ´ret__unsigned :== CALL min_'proc(- 1 - ´a,- 1 - ´b);;
+  creturn global_exn_var_'_update ret__unsigned_'_update
+   (λs. - 1 - ret__unsigned_' s);;
+  Guard DontReach {} SKIP
+CATCH SKIP
+END
+```);
++p{
+    慣れてしまえば読めますがそれでもこれを直接証明の対象とするのは大変そうです．
+    AutoCorresを通してみると以下のような定義が得られます．
+}
++code(```
+max' ?a ?b ≡ - 1 - min' (- 1 - ?a) (- 1 - ?b)
+```);
++p{
+    CのプログラムほぼそのままのIsabelleのコードが出てきました．
+    こうなると単にIsabelleの演習問題程度の難易度です．
 }
 >
 >
