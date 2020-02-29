@@ -5,6 +5,7 @@
 @require: base/format
 @require: base/option-ext
 @require: base/typeset/base
+@require: vdecoset
 
 module Wasabiz : sig
 
@@ -18,9 +19,19 @@ let-block ctx +pdf filename =
 let-inline ctx \todo it =
     ctx |> Inline.read it
 
+let-inline ctx \quote-block bt =
+  let pads = (5pt, 5pt, 5pt, 5pt) in
+  let wid = get-text-width ctx in
+  let bb =
+      block-frame-breakable ctx pads VDecoSet.paper (fun ctx ->
+        read-block ctx bt
+      )
+  in
+    inline-fil ++ embed-block-breakable ctx bb
+
 let bibliography = []
 
-let metadata = (|
+let metadata-orig = (|
     bibliography = bibliography;
     title = {Let's verify your C program!};
     title-for-toc = Option.none;
@@ -28,8 +39,8 @@ let metadata = (|
     author = {wasabiz};
 |)
 
-let article = '<
-+chapter ?:(`wasabiz-article`) (metadata) <
+let article-orig = '<
++chapter ?:(`wasabiz-article`) (metadata-orig) <
 +section{はじめに}<
 +p{
     この記事ではC言語で書かれたプログラムの正しさを証明する手法について解説します．
@@ -41,9 +52,9 @@ let article = '<
     * Cプログラムを入れると欲しい性質が満たされているか自動で検査してくれるツールを使う（自動検証）
     * Cプログラムを別の言語に変換して変換後のプログラムに証明をつける（自動/半自動検証）
 }
-+p{
-    (上のやつのpros/consの表)
-}
+% +p{
+%     (上のやつのpros/consの表)
+% }
 +p{
     一つ目の手法でよく使われるのはCoqとかでしょうか．
     Coqそれ自体は依存型付のプログラミング言語でなんか証明も書けるようなものです．
@@ -121,127 +132,151 @@ let article = '<
     まずは一番簡単な例としてピュアなCプログラムの証明を行ってみたいと思います．
     実際に証明するコード\code(`minmax.c`);はこちら：
 }
-+code(```
-unsigned min(unsigned a, unsigned b) {
-    if (a <= b) {
-        return a;
-    } else {
-        return b;
-    }
-}
+% +code(```
+% unsigned min(unsigned a, unsigned b) {
+%     if (a <= b) {
+%         return a;
+%     } else {
+%         return b;
+%     }
+% }
 
-#define UINT_MAX (-1u)
+% #define UINT_MAX (-1u)
 
-unsigned max(unsigned a, unsigned b) {
-    return UINT_MAX - min(UINT_MAX - a, UINT_MAX - b);
-}
-```);
-+p{
-    みて分かる通り\code(`min`);は\code(`unsigned int`);を二つ受け取って小さい方を返すだけの関数です．
-    一方\code(`max`);は名前から類推される通り\code(`unsigned int`);を二つ受け取って大きい方を返す関数なのですが，実装がトリッキーです．
-    そこで，さしあたってこの変な実装の\code(`max`);が期待する動作を行うかどうかを証明することを目標にします．
-}
-+subsection{\code(`min`);を証明してみる} <
-+p{
-    まずはこれらをIsabelleに読み込んでみます．
-    一旦AutoCorresのことを忘れてc-parserだけを使ってみます．
-    c-parserをインポートすると\code(`install_C_file`);というキーワードが有効になります．
-    このキーワードを使うことでCのプログラムをSimplのプログラムとしてIsabelleに読み込むことができます．
-    この際\code(`min`);という名前のCの関数（の中身）はSimplプログラムに変換された後に\code(`min_body`);という名前で定義されます．
-    （\code(`max`);も同様です．)
-    \code(`min_body`);の中身がなんなのかは\code(`min_body_def`);をみるとわかります（これはIsabelleの機能です）．
-}
-+pdf(`min_body_def.pdf`);
-+p{
-    スクリーンショットをみると分かる通り変換後のプログラムは
-}
-+code(```
-min_body ≡
-TRY
-  IF ´a ≤ ´b THEN
-    creturn global_exn_var_'_update ret__unsigned_'_update a_'
-  ELSE
-    creturn global_exn_var_'_update ret__unsigned_'_update b_'
-  FI;;
-  Guard DontReach {} SKIP
-CATCH SKIP
-END
-```);
-+p{
-    という感じで本質的ではないコードが所々に挿入されています．
-    例えば関数の最後の方に\code(`Guard DontReach {} SKIP`);という文がありますが，これはC言語の仕様上「戻り値がvoid型でない関数は必ず値を返さなければならない」ことになっているために挿入されています．
-}
-+p{
-    次にAutoCorresを使って先ほど得たプログラムの抽象化を行います．
-    AutoCorresを使うにはずばり\code(`autocorres`);というキーワードを使います．
-    \code(`autocorres`);を行うと抽象化されたプログラムと抽象化の前後でのプログラムの対応の証明が得られます．
-    たとえば\code(`min`);の場合前者には\code(`min'`);，後者には\code(`min'_ac_corres`);という名前がつけられます．
-}
-+pdf(`min'_def.pdf`);
-+p{
-    AutoCorresを通した結果複雑だった\code(`min_body`);から
-}
-+code(```
-min' ?a ?b ≡ if ?a ≤ ?b then ?a else ?b
-```);
-+p{
-    という，とても直接的な定義が得られました．
-}
-+p{
-    ちなみにIsabelleの標準で定義されている\code(`min`);関数の定義はこれと全く同じものです．
-    よって以下のようにreflexivityを一回使うだけでCの\code(`min`);の正しさが証明できたことになります（Isabelleの\code(`min`);は信頼でき，かつそれと同じ動作をするという意味で）．
-}
-+code(```
-lemma min'_is_min: "min' a b = min a b"
-  unfolding min'_def min_def
-  by (rule refl)
-```);
-+p{
-    ところで，先ほどちらっと紹介した変換前後の対応の証明は以下のような命題に対するものです．
-    \todo{(そのうち拡充)}
-}
-+code(```
-ac_corres (lift_global_heap ∘ globals) True Γ ret__unsigned_'
- ((λs. a_' s = ?a') and (λs. b_' s = ?b') and
-  (λx. abs_var ?a id ?a' ∧ abs_var ?b id ?b') ∘ lift_global_heap ∘ globals)
- (L2_gets (λ_. min' ?a ?b) [''ret'']) (Call min_'proc)
-```);
+% unsigned max(unsigned a, unsigned b) {
+%     return UINT_MAX - min(UINT_MAX - a, UINT_MAX - b);
+% }
+% ```);
+% +p{
+%     みて分かる通り\code(`min`);は\code(`unsigned int`);を二つ受け取って小さい方を返すだけの関数です．
+%     一方\code(`max`);は名前から類推される通り\code(`unsigned int`);を二つ受け取って大きい方を返す関数なのですが，実装がトリッキーです．
+%     そこで，さしあたってこの変な実装の\code(`max`);が期待する動作を行うかどうかを証明することを目標にします．
+% }
+% +subsection{\code(`min`);を証明してみる} <
+% +p{
+%     まずはこれらをIsabelleに読み込んでみます．
+%     一旦AutoCorresのことを忘れてc-parserだけを使ってみます．
+%     c-parserをインポートすると\code(`install_C_file`);というキーワードが有効になります．
+%     このキーワードを使うことでCのプログラムをSimplのプログラムとしてIsabelleに読み込むことができます．
+%     この際\code(`min`);という名前のCの関数（の中身）はSimplプログラムに変換された後に\code(`min_body`);という名前で定義されます．
+%     （\code(`max`);も同様です．)
+%     \code(`min_body`);の中身がなんなのかは\code(`min_body_def`);をみるとわかります（これはIsabelleの機能です）．
+% }
+% +pdf(`min_body_def.pdf`);
+% +p{
+%     スクリーンショットをみると分かる通り変換後のプログラムは
+% }
+% +code(```
+% min_body ≡
+% TRY
+%   IF ´a ≤ ´b THEN
+%     creturn global_exn_var_'_update ret__unsigned_'_update a_'
+%   ELSE
+%     creturn global_exn_var_'_update ret__unsigned_'_update b_'
+%   FI;;
+%   Guard DontReach {} SKIP
+% CATCH SKIP
+% END
+% ```);
+% +p{
+%     という感じで本質的ではないコードが所々に挿入されています．
+%     例えば関数の最後の方に\code(`Guard DontReach {} SKIP`);という文がありますが，これはC言語の仕様上「戻り値がvoid型でない関数は必ず値を返さなければならない」ことになっているために挿入されています．
+% }
+% +p{
+%     次にAutoCorresを使って先ほど得たプログラムの抽象化を行います．
+%     AutoCorresを使うにはずばり\code(`autocorres`);というキーワードを使います．
+%     \code(`autocorres`);を行うと抽象化されたプログラムと抽象化の前後でのプログラムの対応の証明が得られます．
+%     たとえば\code(`min`);の場合前者には\code(`min'`);，後者には\code(`min'_ac_corres`);という名前がつけられます．
+% }
+% +pdf(`min'_def.pdf`);
+% +p{
+%     AutoCorresを通した結果複雑だった\code(`min_body`);から
+% }
+% +code(```
+% min' ?a ?b ≡ if ?a ≤ ?b then ?a else ?b
+% ```);
+% +p{
+%     という，とても直接的な定義が得られました．
+% }
+% +p{
+%     ちなみにIsabelleの標準で定義されている\code(`min`);関数の定義はこれと全く同じものです．
+%     よって以下のようにreflexivityを一回使うだけでCの\code(`min`);の正しさが証明できたことになります（Isabelleの\code(`min`);は信頼でき，かつそれと同じ動作をするという意味で）．
+% }
+% +code(```
+% lemma min'_is_min: "min' a b = min a b"
+%   unfolding min'_def min_def
+%   by (rule refl)
+% ```);
+% +p{
+%     ところで，先ほどちらっと紹介した変換前後の対応の証明は以下のような命題に対するものです．
+%     % \todo{(そのうち拡充)}
+% }
+% +code(```
+% ac_corres (lift_global_heap ∘ globals) True Γ ret__unsigned_'
+%  ((λs. a_' s = ?a') and (λs. b_' s = ?b') and
+%   (λx. abs_var ?a id ?a' ∧ abs_var ?b id ?b') ∘ lift_global_heap ∘ globals)
+%  (L2_gets (λ_. min' ?a ?b) [''ret'']) (Call min_'proc)
+% ```);
+% >
+% +subsection{\code(`max`);を証明してみる} <
+% +p{
+%     \code(`min`);の性質が証明できたので\code(`max`);についても同じように性質を証明してみましょう．
+%     目標はCで書いたちょっとトリッキーな\code(`max`);がIsabelleの\code(`max`);と同じ挙動をすることです．
+% }
+% +code(```
+% lemma max'_is_max: "max' a b = max a b"
+%   sorry
+% ```);
+% +p{
+%     まずはc-parserで\code(`max`);を変換した結果を確認してみます．
+% }
+% +code(```
+% max_body ≡
+% TRY
+%   ´ret__unsigned :== CALL min_'proc(- 1 - ´a,- 1 - ´b);;
+%   creturn global_exn_var_'_update ret__unsigned_'_update
+%    (λs. - 1 - ret__unsigned_' s);;
+%   Guard DontReach {} SKIP
+% CATCH SKIP
+% END
+% ```);
+% +p{
+%     慣れてしまえば読めますがそれでもこれを直接証明の対象とするのは大変そうです．
+%     AutoCorresを通してみると以下のような定義が得られます．
+% }
+% +code(```
+% max' ?a ?b ≡ - 1 - min' (- 1 - ?a) (- 1 - ?b)
+% ```);
+% +p{
+%     CのプログラムほぼそのままのIsabelleのコードが出てきました．
+%     こうなると単にIsabelleの演習問題程度の難易度です．
+% }
+% >
 >
-+subsection{\code(`max`);を証明してみる} <
-+p{
-    \code(`min`);の性質が証明できたので\code(`max`);についても同じように性質を証明してみましょう．
-    目標はCで書いたちょっとトリッキーな\code(`max`);がIsabelleの\code(`max`);と同じ挙動をすることです．
-}
-+code(```
-lemma max'_is_max: "max' a b = max a b"
-  sorry
-```);
-+p{
-    まずはc-parserで\code(`max`);を変換した結果を確認してみます．
-}
-+code(```
-max_body ≡
-TRY
-  ´ret__unsigned :== CALL min_'proc(- 1 - ´a,- 1 - ´b);;
-  creturn global_exn_var_'_update ret__unsigned_'_update
-   (λs. - 1 - ret__unsigned_' s);;
-  Guard DontReach {} SKIP
-CATCH SKIP
-END
-```);
-+p{
-    慣れてしまえば読めますがそれでもこれを直接証明の対象とするのは大変そうです．
-    AutoCorresを通してみると以下のような定義が得られます．
-}
-+code(```
-max' ?a ?b ≡ - 1 - min' (- 1 - ?a) (- 1 - ?b)
-```);
-+p{
-    CのプログラムほぼそのままのIsabelleのコードが出てきました．
-    こうなると単にIsabelleの演習問題程度の難易度です．
-}
 >
 >
+
+let metadata = (|
+    bibliography = bibliography;
+    title = {おまけページ: Cプログラムの形式検証について};
+    title-for-toc = Option.none;
+    subtitle = Option.none;
+    author = {wasabiz};
+|)
+
+let article = '<
++chapter ?:(`wasabiz-article`) (metadata) <
++p{
+    みなさんこんにちは．
+    この章ではおまけページとしてCプログラムの検証についての記事の冒頭数ページをチラ見せしたいと思います．
+    よく映画とかである「本編の劇場公開に合わせて今回特別に冒頭10分を先行公開！」みたいなやつですね．
+    このyabaitech vol4を刊行するにあたって社会情勢的な部分で非常に困難が多かったのですが，この記事も本来ならしっかり完成して頒布される予定でした．
+    ここでチラ見せする記事はまだまだ作っている途中という雰囲気がつよいので，表紙ページにどうどうとタイトルを載せてお金を取るというのが非常に憚られました．
+    そのためここではあくまでおまけとして掲載させていただきます．
+}
++p{
+    \quote-block(article-orig);
+}
 >
 >
 
