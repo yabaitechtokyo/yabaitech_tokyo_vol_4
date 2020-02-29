@@ -14,10 +14,10 @@ end = struct
 let article = '<
     +chapter ?:(`mh-article`)
     (|
-        bibliography = MhBib.bib;
-        title = {ゲーム紹介記事};
-        subtitle = Option.some{忙しくないプログラマのための};
-        title-for-toc = Option.none;
+        bibliography = ([]);
+        title = {忙しくないプログラマのための\br;ゲーム紹介記事};
+        title-for-toc = Option.some{忙しくないプログラマのためのゲーム紹介記事};
+        subtitle = Option.none;
         author = {mh};
     |)
     <

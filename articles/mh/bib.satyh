@@ -3,18 +3,6 @@
 module MhBib = struct
 
 let bib = [
-  (`cpgame`, WebSite(|
-    author = {|フリー百科事典　ウィキペディア日本語版|};
-    title = {コンピュータゲーム};
-    url = `https://ja.wikipedia.org/wiki/コンピュータゲーム`;
-    year = 0;
-  |));
-  (`steam`, WebSite(|
-    author = {|Valve co.|};
-    title = {Steam};
-    url = `https://store.steampowered.com`;
-    year = 0;
-  |));
   (`hrm`, WebSite(|
     author = {|Tomorrow Corporation|};
     title = {Human Resource Machine};
@@ -48,7 +36,7 @@ let bib = [
   (`sz`, WebSite(|
     author = {|Pleasing Fungus|};
     title = {Silicon Zeroes};
-    url = `http://pleasingfungus.com/Silicon%20Zeroes/`;
+    url = `hoge`;
     year = 0;
   |));
   (`sc`, WebSite(|
@@ -120,7 +108,7 @@ let bib = [
   (`dusk`, WebSite(|
     author = {|Misfits Attic|};
     title = {Duskers};
-    url = `http://duskers.misfits-attic.com`;
+    url = `hoge`;
     year = 0;
   |));
 ]
