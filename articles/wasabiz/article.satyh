@@ -40,7 +40,7 @@ let metadata-orig = (|
 |)
 
 let article-orig = '<
-+chapter ?:(`wasabiz-article`) (metadata-orig) <
++pseudo-chapter (metadata-orig) <
 +section{はじめに}<
 +p{
     この記事ではC言語で書かれたプログラムの正しさを証明する手法について解説します．
