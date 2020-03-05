@@ -76,9 +76,25 @@ end = struct
             footer-content = PageFooter.render-block pageno;
         |)
 
+    let render-front path ctx =
+        let width = 188mm in
+        let lower-left-corner = (-3mm, -3mm) in
+        let img = load-pdf-image path 1 in
+        let ib =
+            inline-graphics 0pt 0pt 0pt (fun _ ->
+            [ draw-text lower-left-corner
+                (use-image-by-width img width) ]
+            )
+        in
+        line-break false true ctx (ib ++ inline-fil)
+            +++ clear-page
+
     let render record inner =
         let ctx-doc =
             FontConfig.get-standard-context DocumentConfig.text-width
+        in
+        let front-page =
+            ctx-doc |> render-front `class/front.pdf`
         in
         let bb-title-pages = ctx-doc |> Title.make-bb (|
                 title = record#title;
@@ -94,6 +110,7 @@ end = struct
         in
         page-break DocumentConfig.paper-size get-content-area render-header-and-footer
             (Block.concat [
+                front-page;
                 bb-title-pages;
                 bb-toc-pages;
                 bb-main-pages;
