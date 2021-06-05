@@ -1,4 +1,4 @@
-@import: class/yabaitech
+@require: class-yabaitech/yabaitech
 @require: base/option-ext
 @require: itemize
 

@@ -1,5 +1,5 @@
 @require: vdecoset
-@import: ../../class/yabaitech
+@require: class-yabaitech/yabaitech
 @require: base/string
 @require: base/length
 @require: base/debug

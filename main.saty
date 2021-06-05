@@ -1,6 +1,7 @@
 % -*- coding: utf-8 -*-
 @require: base/debug
-@import: class/yabaitech
+@require: class-yabaitech/yabaitech
+
 @import: articles/irnbru/article
 @import: articles/MasWag/article
 @import: articles/mh/article
@@ -19,14 +20,24 @@ YABAITECH.TOKYO vol.4
 =====================
 `` in
 
+let colophon = ColophonData.make (|
+  title = `YABAITECH.TOKYO vol.4`;
+  history = [
+    `2020年2月29日 第一刷(電子版) 発行`;
+    `2021年7月10日 第二刷(書籍版) 発行`
+  ];
+  publisher = Option.some `yabaitech.tokyo`;
+  website = Option.some `http://yabaitech.tokyo`;
+  email = Option.some `admin@yabaitech.tokyo`;
+  printer = Option.some `株式会社ポプルス`;
+|) in
+
 document (|
-  title = `yabaitech.tokyo`;
-  volume = `volume 4`;
-  date = `Feb 29th 2020`;
-  author = `yabaitech.tokyo`;
-  email = `admin@yabaitech.tokyo`;
-  website = `http://yabaitech.tokyo`;
-  publisher = `有限会社 ねこのしっぽ`
+    title = `YABAITECH.TOKYO`;
+    volume = `vol.4`;
+    date = `2020`;
+    front = Option.none;
+    colophon = colophon;
   |) '<
     % #IrnBru.article;
     #Mh.article;

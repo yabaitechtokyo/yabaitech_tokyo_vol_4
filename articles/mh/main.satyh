@@ -1,4 +1,4 @@
-@import: ../../class/yabaitech
+@require: class-yabaitech/yabaitech
 
 module MhMain = struct
 

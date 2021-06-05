@@ -1,4 +1,5 @@
-@import: ../../class/yabaitech
+@require: class-yabaitech/yabaitech
+
 @require: itemize
 @require: base/image
 @require: base/block
@@ -7,11 +8,14 @@
 @require: base/typeset/base
 @require: vdecoset
 
+@import: pseudo-chapter
+
 module Wasabiz : sig
 
   val article : block-text
 
 end = struct
+    open PseudoChapter
 
 let-block ctx +pdf filename =
     ctx |> Block.read '<+p{\eval-const(Image.of-pdf (Format.format `articles/wasabiz/pictures/{}` [filename]) 1 |> Inline.of-image 13.5cm);}>
