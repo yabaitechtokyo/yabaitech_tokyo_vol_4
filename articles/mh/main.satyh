@@ -1,8 +1,10 @@
-@import: ../../class/yabaitech
+@require: class-yabaitech/yabaitech
+
+@import: ../../lib/lib
 
 module MhMain = struct
 
-let article = '<
+let article = open YT4Lib in '<
   +section{ほんだい}<
     +p{
 さあ本題に入りましょう。
@@ -115,7 +117,7 @@ TIS100と比べるとノードの種類や情報のやりとりなどで自由�
     +subsubsection{Space Chem}<
     +p{
 さてここからは一般的なプログラミングからは離れる方向に進んでいきましょう。
-Space Chem\footnote{http://www.zachtronics.com/spacechem}は
+\force-newline; Space Chem\footnote{http://www.zachtronics.com/spacechem}は
 打って変わってコンピュータから離れ、化学をテーマにしています。
 とはいっても授業で学んだような化学合成が出てくるわけではありません。
 謎技術によって分子・原子を単体分離して扱える上

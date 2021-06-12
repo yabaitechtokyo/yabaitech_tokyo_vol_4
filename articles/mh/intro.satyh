@@ -1,4 +1,4 @@
-@import: ../../class/yabaitech
+@require: class-yabaitech/yabaitech
 @import: bib
 
 module MhIntro = struct

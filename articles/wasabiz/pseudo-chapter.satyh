@@ -1,0 +1,113 @@
+@require: class-yabaitech/yabaitech
+@require: class-yabaitech/chapter/repository
+@require: class-yabaitech/bibliography/repository
+@require: class-yabaitech/document-config
+@require: class-yabaitech/font-config
+@require: pervasives
+
+module PseudoChapter : sig
+
+  val +pseudo-chapter : [string?; 'a; block-text] block-cmd
+    constraint 'a :: (|
+      title : inline-text;
+      title-for-toc : inline-text option;
+      subtitle : inline-text option;
+      author : inline-text;
+      bibliography : (string * bib-item) list;
+    |)
+
+end = struct
+
+  let section-heading ctx ib-heading =
+    line-break true false (
+      ctx
+      |> set-paragraph-margin DocumentConfig.section-top-margin DocumentConfig.section-bottom-margin
+    ) ib-heading
+
+  let render-chapter-author author ctx =
+    let render-inline ctx =
+      Inline.concat [
+        Inline.fil;
+        ctx
+        |> FontConfig.make-chapter-author
+        |> Inline.read author
+      ]
+    in
+    ctx
+    |> FontConfig.make-chapter-author
+    |> Block.of-inline false false render-inline
+
+  let render-chapter-subtitle subtitle ctx =
+    let render-inline ctx =
+      let ctx-subtitle = ctx |> FontConfig.make-chapter-subtitle in
+      Inline.concat [
+        ctx-subtitle |> Inline.read {― #subtitle; ―};
+        Inline.fil;
+      ] in
+    ctx
+    |> FontConfig.make-chapter-subtitle
+    |> Block.of-inline false false render-inline
+
+  let render-chapter-title title ctx = ctx
+    |> FontConfig.make-chapter-title
+    |> Block.of-inline ?:true false false (Inline.read title)
+
+  let render-chapter-heading label title subtitle-opt author ctx =
+    let bb-title = ctx |> render-chapter-title title in
+    let bb-subtitle = subtitle-opt
+      |> Option.map (fun subtitle -> render-chapter-subtitle subtitle ctx)
+      |> Option.unwrap-or Block.nil in
+    let bb-author = ctx |> render-chapter-author author in
+    Block.concat [
+      Block.skip 18pt;
+      bb-title;
+      bb-subtitle;
+      bb-author;
+      Block.skip 18pt
+    ]
+
+  let render-bib-section ctx-bib ctx-doc bibliography =
+    match bibliography with
+    | [] -> Block.nil
+    | bibliography ->
+      let ib-bib-title = ctx-doc
+          |> FontConfig.make-chapter-title
+          |> Inline.read { 参考文献 } in
+      let bb-bib-title = (ib-bib-title ++ inline-fil)
+        |> section-heading ctx-doc in
+      let bb-bib-main = BibliographySection.render ctx-bib bibliography in
+      bb-bib-title +++ bb-bib-main
+
+  let render-pseudo-chapter ctx labelopt bibliography title title-for-toc subtitle author inner =
+      % Setup
+    let label = Label.or-fresh labelopt in
+      let () = ChapterRepository.reset-section-num () in
+      let () = ChapterRepository.reset-subsection-num () in
+      let () = ChapterRepository.register-new-chapter label |> Fn.ignore in
+      let () = BibliographyRepository.register bibliography in
+      % Render
+      let ctx-doc =
+        FontConfig.get-standard-context DocumentConfig.text-width
+        |> set-font-size 12pt
+        |> set-leading 18pt
+        |> set-hyphen-penalty 1000 in
+      let ib-pagehook = hook-page-break (fun pbinfo _ ->
+      TableOfContentsRepository.register-page
+          label
+          (arabic pbinfo#page-number)) in
+      let bb-title = ctx
+      |> render-chapter-heading label title subtitle author in
+      let bb-content = read-block ctx inner in
+      let bb-bib-section = render-bib-section ctx ctx-doc bibliography in
+      Block.concat [
+      line-break false false ctx ib-pagehook;
+      bb-title;
+      bb-content;
+      bb-bib-section;
+      clear-page
+      ]
+
+  let-block ctx +pseudo-chapter ?:labelopt record inner =
+    render-pseudo-chapter ctx labelopt record#bibliography record#title record#title-for-toc record#subtitle record#author inner
+
+end

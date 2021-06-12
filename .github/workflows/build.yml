@@ -1,72 +1,33 @@
-name: build   # ワークフローの名前は build (バッヂをつける際はこの名前で参照することになります)
-on: push      # push 毎にワークフローを実行
+name: build
+on: push
 
 jobs:
   publish:
-    name: Publish pdf
+    name: Build pdf
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        version: [0.0.4]
     container:
       image: amutake/satysfi:latest
     steps:
       - uses: actions/checkout@v1
-        with:
-          submodules: recursive
-      - name: Install Apt dependencies
-        run: apt-get update && apt-get install -y xz-utils liblzma-dev
+      - name: Install pre-dependencies
+        run: |
+          apt-get update && apt-get install -y pkg-config
       - name: Install Satyrographos dependencies and fonts
         run: |
           export HOME=/root
           eval $(opam env)
           opam update
-          opam install satysfi-fonts-asana-math satysfi-fonts-computer-modern-unicode satysfi-fonts-dejavu satysfi-fonts-noto-sans satysfi-fonts-noto-serif satysfi-fonts-noto-sans-cjk-jp satysfi-fonts-noto-serif-cjk-jp satysfi-base
+          opam pin add yabai2020s.opam "file://${PWD}"
           satyrographos install
       - name: Build with SATySFi
         run: |
           export HOME=/root
           eval $(opam env)
           satysfi main.saty
+      - name: Install Apt dependencies
+        run: apt-get update && apt-get install -y xz-utils liblzma-dev
       - name: Upload artifact
         uses: actions/upload-artifact@master
         with:
           name: yabai2020s
-          path: main.pdf  # main.pdf をアップロード
-  regression-test:
-    name: Run regression test
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        version: [0.0.4]
-    container:
-      image: amutake/satysfi:latest
-    steps:
-      - uses: actions/checkout@v1
-        with:
-          submodules: recursive # Submodule init/update
-      - name: Install Apt dependencies
-        run: |
-          apt-get update && apt install -y gnupg
-          curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
-          echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
-          apt-get update && apt-get install -y yarn graphicsmagick xz-utils liblzma-dev
-      - name: Install Yarn dependencies
-        run: |
-          yarn install
-        working-directory: class/
-      - name: Install Satyrographos dependencies and fonts
-        run: |
-          export HOME=/root
-          eval $(opam env)
-          opam update
-          opam install satysfi-fonts-asana-math satysfi-fonts-computer-modern-unicode satysfi-fonts-dejavu satysfi-fonts-noto-sans satysfi-fonts-noto-serif satysfi-fonts-noto-sans-cjk-jp satysfi-fonts-noto-serif-cjk-jp satysfi-base
-          opam install satysfi-base
-          satyrographos install
-      - name: Run regression tests
-        run: |
-          export HOME=/root
-          eval $(opam env)
-          yarn test
-        working-directory: class/
-
+          path: main.pdf

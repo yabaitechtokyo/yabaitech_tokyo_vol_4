@@ -1,6 +1,6 @@
 @require: base/option-ext
+@require: class-yabaitech/yabaitech
 
-@import: ../../class/yabaitech
 @import: bib
 @import: intro
 @import: main
