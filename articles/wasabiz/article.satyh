@@ -138,6 +138,9 @@ let article-orig = '<
     まずは一番簡単な例としてピュアなCプログラムの証明を行ってみたいと思います．
     実際に証明するコード\code(`minmax.c`);はこちら：
 }
++p{
+    …
+}
 % +code(```
 % unsigned min(unsigned a, unsigned b) {
 %     if (a <= b) {
