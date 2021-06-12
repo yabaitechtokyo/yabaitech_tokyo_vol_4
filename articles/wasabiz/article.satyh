@@ -9,6 +9,7 @@
 @require: vdecoset
 
 @import: pseudo-chapter
+@import: ../../lib/lib
 
 module Wasabiz : sig
 
@@ -16,6 +17,7 @@ module Wasabiz : sig
 
 end = struct
     open PseudoChapter
+    open YT4Lib
 
 let-block ctx +pdf filename =
     ctx |> Block.read '<+p{\eval-const(Image.of-pdf (Format.format `articles/wasabiz/pictures/{}` [filename]) 1 |> Inline.of-image 13.5cm);}>
@@ -127,7 +129,7 @@ let article-orig = '<
     この仕組みのおかげで人間にとっての読みやすさ・検証しやすさと信頼性を両立しています．
 }
 +p{
-    さて先立つ節でこの記事ではc-parserを使いますと宣言したところですが，実際にはAutoCorresを使って間接的にc-parserを呼び出します．
+    さて先立つ節でこの記事ではc-parserを使いますと宣言したところですが，実際には\force-newline;AutoCorresを使って間接的にc-parserを呼び出します．
     また，内容的にはAutoCorresのチュートリアルに大まかに従ったものになります．
 }
 >

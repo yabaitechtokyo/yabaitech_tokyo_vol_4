@@ -4,6 +4,8 @@
 @require: annot
 @require: base/option-ext
 
+@import: ../../lib/lib
+
 module MasWag : sig
 
   val article : block-text
@@ -23,7 +25,7 @@ let-inline ctx \insert-pdf-image width path page =
 
 let bibliography = []
 
-let article = '<
+let article = open YT4Lib in '<
     +chapter ?:(`maswag-article`)
     (|
         bibliography = bibliography;
@@ -337,7 +339,7 @@ let article = '<
     +subsubsection{\code(`notif_my_slack.m4`);} <
     +p {
       \review-comment (`zeptometer`) {notif_my_slack.m4見つけるの結構大変だったのでここの文章言い換えてもいいかも。「setup notf_my_slackの部分を見てほしいのですが、ここではm4を使っています」みたいな} \review-comment(`MasWag`) {これでどうでしょうか}
-      環境設定用のAnsible notebookの"setup notf_my_slack"の部分で \code(`m4`); 及び \code(`notif_my_slack.m4`); が出てきたので説明をします。 \code(`notif_my_slack.m4`); はm4のコードです。今回m4は \code(`notif_my_slack`); というシェルスクリプトを生成するためのプリプロセッサとして使っています。m4自体もチューリング完全なプログラミング言語ですが、今回は単に文字列 \code(`HOST`); をEC2でのインスタンス名に置換するためだけに使っています。なお最後の \code(`https://hooks.slack.com/services/<The ID>`); はslackで外部から通知を飛ばす用のURL (Incoming Webhooksのエンドポイント) です。取得法などについては slack, Incoming Webhooks, 等で検索すると詳しい説明が出てくるので省略します。
+      環境設定用のAnsible notebookの"setup notf_my_slack"の部分で \code(`m4`); 及び \code(`notif_my_slack.m4`); が出てきたので説明をします。 \code(`notif_my_slack.m4`); はm4のコードです。今回m4は\force-newline; \code(`notif_my_slack`); というシェルスクリプトを生成するためのプリプロセッサとして使っています。m4自体もチューリング完全なプログラミング言語ですが、今回は単に文字列 \code(`HOST`); をEC2でのインスタンス名に置換するためだけに使っています。なお最後の \code(`https://hooks.slack.com/services/<The ID>`); はslackで外部から通知を飛ばす用のURL (Incoming Webhooksのエンドポイント) です。取得法などについては slack, Incoming Webhooks, 等で検索すると詳しい説明が出てくるので省略します。
     }
     +code(``
 

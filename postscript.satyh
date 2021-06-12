@@ -2,9 +2,15 @@
 @require: base/option-ext
 @require: itemize
 
+@import: lib/lib
+
 module Postscript : sig
+
   val article : block-text
+
 end = struct
+
+  open YT4Lib
 
 let-block ctx +right-align it =
   line-break false false ctx (inline-fil ++ (read-inline ctx it))
@@ -32,7 +38,7 @@ let article = '<
       この度は yabaitech.tokyo vol.4 をお買い上げいただきありがとうございます。yabaitech.tokyoは大学院時代の同期が集まってできたサークルで、本誌のような合同誌を出すことを主な活動内容にしています。毎度のことながら、忙しいなか時間を記事やイラスト、その他の作業に充ててくれるメンバーの皆には頭があがりません。
     }
     +p{
-      合同誌yabaitech.tokyoはvol.1から今回に至るまで \SATySFi; で組版を行っています。 \SATySFi; は静的な型システムを持つフル機能のプログラミング言語を供えた組版処理システムで、\LaTeX;の代替を目指す新進気鋭のソフトウェアです。ちなみに今回の表紙を描いてくれたgfnによって開発されています。
+      合同誌yabaitech.tokyoはvol.1から今回に至るまで \SATySFi; で組版を行っています。 \force-newline; \SATySFi; は静的な型システムを持つフル機能のプログラミング言語を供えた組版処理システムで、\LaTeX;の代替を目指す新進気鋭のソフトウェアです。ちなみに今回の表紙を描いてくれたgfnによって開発されています。
     }
     +p{
       フル機能のプログラミング言語で原稿を書けるというのは結構快適なものです。ただそうなると、ただ原稿を書くだけでなくソフトウェア開発の手法を取り入れていきたい、と思うのがエンジニアの性でして。実際今回の合同紙作るにあたっては色々な試みを行いました。そこらへんの話を「yabaitech.tokyoを支える技術」として紹介させてください。
@@ -43,7 +49,7 @@ let article = '<
       >
     }
     +topic {汎用ライブラリの開発と公開} {
-      \emph{satysfi-base}(https://github.com/nyuichi/satysfi-base)は \SATySFi; の標準ライブラリの代替を目指した \SATySFi; ライブラリで、「Let's verify your C program!」の寄稿者であるところのわさびずが owner です。もともとは彼が yabaitech.tokyo vol.3用に書いたライブラリを切り出してオープンソース化したものがもとになっています。今回のvol.4でもsatysfi-baseを多用しています。詳しくは「satysfi-baseを使って関数型プログラミングで組版する」(https://qiita.com/wasabiz/items/ea55c65f23a5e187caf2)をご覧ください。
+      \emph{satysfi-base}(https://github.com/nyuichi/satysfi-base)は \force-newline; \SATySFi; の標準ライブラリの代替を目指した \SATySFi; ライブラリで、「Let's verify your C program!」の寄稿者であるところのわさびずが owner です。もともとは彼が yabaitech.tokyo vol.3用に書いたライブラリを切り出してオープンソース化したものがもとになっています。今回のvol.4でもsatysfi-baseを多用しています。詳しくは「satysfi-baseを使って関数型プログラミングで組版する」(https://qiita.com/wasabiz/items/ea55c65f23a5e187caf2)をご覧ください。
     }
     +topic {クラスファイルの回帰テスト} {
       ソフトウェア開発をしているのであればテスト駆動開発をしたいですよね。しかしながらクラスファイルを書いている場合出力はもっぱらpdfファイルになってしまい、テストを書くのはのはなかなか難しいところです。そういう事情で今回は代わりに回帰テストの導入を行いました。回帰テストは「既存の機能が壊れていないことを確認するためのテスト」で、やっていることは単純です。
