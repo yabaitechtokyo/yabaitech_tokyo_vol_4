@@ -104,7 +104,6 @@ end = struct
       bb-title;
       bb-content;
       bb-bib-section;
-      clear-page
       ]
 
   let-block ctx +pseudo-chapter ?:labelopt record inner =
