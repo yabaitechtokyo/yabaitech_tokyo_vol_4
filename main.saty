@@ -37,7 +37,7 @@ document (|
     title = `YABAITECH.TOKYO`;
     volume = `vol.4`;
     date = `2020`;
-    front = Option.none;
+    front = Option.some `front.pdf`;
     colophon = colophon;
   |) '<
     % #IrnBru.article;
